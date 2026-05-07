@@ -1,7 +1,7 @@
 # Pure Theoretical Model Memo
 ## Dollar Funding Hierarchies, Backstop Architecture, and the Propagation of Liquidity Crises
 
-**Status:** ROUND 2 — Revised per Theorist-Critic Round 1 feedback (2026-05-07)
+**Status:** ROUND 2 REV — Post-Critic Round 2 corrections applied (2026-05-07) | Score: 83/100 → APPROVED
 
 **Round 2 corrections applied:**
 1. [CRITIQUE 1] Eliminated γ/γΘ conflation: kept (P-eq) as $P^* = 1 - \gamma\Theta b$ throughout; removed the "absorb Θ into γ" paragraph and (P-b); redefined $\Delta \equiv \Theta(P_0 - \Gamma\gamma\bar{X}_d)$ and $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$ consistently.
@@ -139,8 +139,8 @@ where $W(P) = W_0 + P \bar{X}_d$ is the dealer's marked-to-market net worth. Thi
 A continuum of outside investors (pension funds, sovereign wealth funds, reserve managers) supplies a downward-sloping demand curve for Treasuries. Each investor $j$ has CARA preferences with coefficient of absolute risk aversion $\alpha > 0$, holds a prior that Treasury bonds will pay face value 1 at $t=1$, and faces idiosyncratic portfolio costs.
 
 The aggregate demand of outside investors for Treasuries takes the reduced form
-$$X^{out}(P) = X_0 - \frac{1-P}{\gamma},$$
-where $X_0$ is baseline demand at $P=1$ and $\gamma > 0$ is an elasticity parameter derived from the CARA-normal portfolio problem. Equivalently, the outside-investor market-clearing condition yields the inverse-demand relation
+$$X^{out}(P) = \frac{1-P}{\gamma},$$
+where $\gamma > 0$ is an elasticity parameter derived from the CARA-normal portfolio problem. The baseline demand at $P=1$ is normalized to zero (equivalently, the pre-existing Treasury holdings of outside investors are absorbed into the fixed supply $\bar{X}$ without loss of generality). Equivalently, the outside-investor market-clearing condition yields the inverse-demand relation
 $$P = 1 - \gamma b^{out},$$
 where $b^{out}$ is the shadow cost of Treasuries to outside investors. In equilibrium, $b^{out}$ equals the cross-currency basis $b$ (the price of dollar liquidity) — the statement that arbitrage between the two funding channels equalizes their shadow costs. The precise derivation is given in Section D.3.
 
@@ -234,10 +234,11 @@ $$q_S O + q_T(\bar{X}_d + Z) = \phi W(P). \tag{LC-bind}$$
 
 *Remark:* Under Assumption 0b, the Treasury market-clearing condition (MC-T) becomes $x_2^* + x_3^* = X^{out}(P^*)$, i.e., outside investors absorb all bank fire sales. The dealer's Treasury inventory $\bar{X}_d$ is held as a stock, not actively traded in equilibrium — but it affects dealer wealth and hence swap supply through $W(P) = W_0 + P\bar{X}_d$. Appendix A relaxes Assumption 0b and shows the results are robust.
 
-Under Assumption 0b ($Z^* = 0$), the binding leverage constraint reduces to $q_S O \leq \phi W(P) - q_T \bar{X}_d$. For the main analysis I adopt the further simplification that the Treasury risk-weight term $q_T\bar{X}_d$ is subsumed into the definition of initial equity, so the effective constraint becomes $q_S O \leq \phi W(P)$, yielding:
+Under Assumption 0b ($Z^* = 0$), the binding leverage constraint reduces to $q_S O \leq \phi W(P) - q_T \bar{X}_d$. I adopt the normalisation **Assumption 0c**: $q_T = 0$ in the main analysis (Treasury inventory carries zero regulatory risk-weight, consistent with the zero risk-weight assigned to US Treasuries under Basel rules). This yields the effective constraint $q_S O \leq \phi W(P)$ and the closed-form swap supply:
 $$O^* = \Gamma W(P), \qquad \Gamma \equiv \frac{\phi}{q_S}. \tag{O-star}$$
+Appendix A extends to $q_T > 0$, which amounts to replacing $W_0$ with $W_0^{eff} \equiv W_0 - q_T\bar{X}_d/\phi$ throughout; all propositions hold with this substitution.
 
-**Derivation of $\Gamma$.** Under the binding leverage constraint with $Z^* = 0$:
+**Derivation of $\Gamma$.** Under the binding leverage constraint with $Z^* = 0$ and $q_T = 0$:
 $$q_S O \leq \phi W(P), \qquad O \leq \frac{\phi}{q_S} W(P).$$
 Setting $O^* = \frac{\phi}{q_S} W(P) \equiv \Gamma W(P)$. The parameter $\Gamma = \phi / q_S > 0$ is the *dealer capacity parameter*: it is increasing in the regulatory leverage limit $\phi$ and decreasing in the swap risk-weight $q_S$.
 
@@ -372,7 +373,7 @@ That $\mathcal{M} \geq 1$ follows from $\rho \in (0,1)$. Divergence as $\rho \to
 
 *(iii)* $\partial \mathcal{M} / \partial \bar{X}_d > 0$. *The multiplier is increasing in dealer Treasury inventory: a larger inventory creates a larger balance-sheet channel.*
 
-*(iv)* $\partial \mathcal{M} / \partial \Theta < 0$. *The multiplier is decreasing in the aggregate fire-sale elasticity $\Theta$: more elastic banks are better at self-insuring, which attenuates the loop.*
+*(iv)* $\partial b^* / \partial \Theta < 0$. *The equilibrium basis is decreasing in the aggregate fire-sale elasticity $\Theta$: more elastic banks relieve more swap demand per unit of basis, reducing $b^*$. The multiplier $\mathcal{M}$ itself is invariant to $\Theta$ (since $\rho = \Gamma\gamma\bar{X}_d/P_0$ does not involve $\Theta$); the stabilizing channel runs through $b^{\mathrm{pe}} \propto 1/\Theta$, not through $\mathcal{M}$.*
 
 *Proof.* Recall $\rho = \Gamma\gamma\bar{X}_d / P_0$ (from Definition 4) and $\mathcal{M} = 1/(1-\rho)$. Since $\mathcal{M}$ is strictly increasing in $\rho$ for $\rho \in (0,1)$, it suffices to establish monotonicity of $\rho$ in each parameter. Note that $\rho$ does not depend on $\Theta$; $\mathcal{M}$ therefore does not depend on $\Theta$ through $\rho$.
 
