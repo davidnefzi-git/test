@@ -1,0 +1,129 @@
+\section{Introduction}
+\label{sec:introduction}
+
+In March 2020, dollar funding markets seized. The cross-currency basis — the premium above the
+covered-interest-parity rate that non-US institutions pay to borrow dollars in the FX swap market
+— widened to levels not seen since the acute phase of the 2008 financial crisis.
+The dislocations were not uniform across the global banking system. US commercial banks, whose
+access to Federal Reserve emergency facilities is automatic and unconditional, were insulated.
+Foreign banks whose central banks hold active swap lines with the Federal Reserve faced partial
+disruption. Offshore dollar users — foreign financial institutions with no access to any official
+backstop — bore the full force of the stress. This three-tier pattern is not a coincidence of March
+2020; it repeats across every major dollar funding episode and reflects a structural feature of the
+international monetary architecture: backstop coverage is hierarchical, and the hierarchy maps
+directly to the distribution of funding stress. No existing theoretical model treats this
+hierarchy as a formal primitive. This paper builds one.
+
+The cross-currency basis literature and the international liquidity literature each capture part of
+the picture, but each stops short of the mechanism that generates the hierarchy's economic
+consequences. \citet{DuTepperVerdelhan2018} establish that CIP fails persistently for major
+currencies since 2008 and attribute the deviation to balance-sheet constraints of financial
+intermediaries, but their framework treats all foreign intermediaries symmetrically: the
+differential between a bank whose central bank holds a swap line and one that does not plays
+no formal role. \citet{BacchettaDavisVanWincoop2025} extend this to a general equilibrium
+framework that jointly determines the spot rate and the CIP deviation through an endogenous
+arbitrage capacity constraint $\chi_t$, yet this constraint does not derive from an explicit
+backstop hierarchy — all CIP arbitrageurs face the same friction, and the swap-line coverage rate
+$\lambda$ is absent from the model. \citet{CesaBianchiEgurenMartinFerrero2025} analyze Federal
+Reserve swap lines as a mechanism that relaxes the funding constraint of a representative foreign
+bank, but the treatment is single-segment and single-instrument: one class of foreign intermediary,
+one official facility, with no feedback from fire-sale-driven Treasury price movements to dealer
+wealth and hence to swap supply. At the conceptual level, \citet{MurauPapePforr2023} and
+\citet{Mehrling2021} provide an institutional taxonomy of the international monetary hierarchy —
+the Federal Reserve at the apex, primary dealers at an intermediate tier, foreign banks with swap
+lines at a subordinate tier, and offshore dollar users without any backstop at the periphery — but
+this architecture has no formal representation: there are no equilibrium conditions, no
+optimization problems, and no mechanism linking backstop structure to the cross-currency basis.
+The gap is precise. No model endogenizes backstop quality as a structural primitive that
+simultaneously determines funding-market segmentation, the amplification of shocks, and the
+directional propagation of stress across tiers.
+
+This paper fills that gap. We build a static two-date model in which five classes of agents interact
+in a dollar funding market structured by a three-tier backstop hierarchy. Segment 1 (US commercial
+banks) holds a full backstop $B_1 = M_1$ and is inactive in equilibrium. Segment 2 (foreign banks
+whose central banks hold swap lines) receives partial coverage $B_2 = \lambda M_2$, leaving a
+residual funding need $R_2 = (1-\lambda)M_2$ to be met through market instruments. Segment 3
+(offshore dollar users) has no official backstop, $B_3 = 0$, and must cover $R_3 = M_3 + \varepsilon$
+entirely through market channels, where $\varepsilon \geq 0$ parameterizes funding stress. A single
+global dealer intermediates the FX swap market and holds a Treasury inventory $\bar{X}_d$ whose
+marked-to-market value evolves with the Treasury price: $W(P) = W_0 + P\bar{X}_d$. The dealer
+operates under a binding Basel-type leverage constraint that limits total risk-weighted swap
+exposure to a multiple of equity. This connects dealer swap capacity directly to Treasury prices
+through the endogeneity of $W(P)$, closing the amplification loop. Outside investors absorb fire
+sales from segments 2 and 3 along a downward-sloping demand curve. The equilibrium reduces to a
+single scalar equation in the cross-currency basis $b^*$:
+\begin{equation}
+  b^* = \frac{R - \Gamma\tilde{W}}{\Delta},
+  \label{eq:intro-eq}
+\end{equation}
+where $\Delta \equiv \Theta(P_0 - \Gamma\gamma\bar{X}_d)$ is a stability parameter, $\Gamma = \phi/q_S$
+is the dealer capacity parameter, $\Theta$ is the aggregate fire-sale elasticity, $\gamma$ is the
+outside-investor Treasury price elasticity, and $\tilde{W} = W_0 + \bar{X}_d$ is dealer wealth at
+par. Existence and uniqueness follow from two conditions: $\Delta > 0$ (stability) and $R > \Gamma\tilde{W}$
+(dollar scarcity). The architecture of backstop coverage, the dealer's leverage constraint, and the
+fire-sale dynamics are all internal to the equilibrium.
+
+This paper makes three formal contributions.
+
+\textit{First}, we derive the amplification multiplier for the international dollar-funding market.
+Proposition~2 shows that the general equilibrium basis decomposes as
+$b^* = b^{\rm pe} \cdot \mathcal{M}$,
+where $b^{\rm pe}$ is the partial-equilibrium basis absent dealer-wealth feedback and
+$\mathcal{M} = 1/(1-\rho)$ with $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$.
+The ratio $\rho$ indexes the strength of the feedback loop running from fire sales to Treasury
+prices, through dealer wealth, and back to swap supply. The multiplier $\mathcal{M}$ is the closed-form
+international-dollar-funding analog of the liquidity spiral described in
+\citet{BrunnermeierPedersen2009}: the same geometric series of feedback rounds summed in closed
+form, but specialized to the cross-currency basis, FX swap supply, and the leverage constraint
+of a global dealer. Proposition~3 characterizes the monotone dependence of $\mathcal{M}$ on each
+structural primitive — dealer capacity $\Gamma$, outside-investor elasticity $\gamma$, dealer
+inventory $\bar{X}_d$ — enabling direct mapping from institutional parameters to amplification
+intensity.
+
+\textit{Second}, we establish hierarchical contagion: stress in the uncovered segment propagates
+upward through the backstopped segment to the dealer. Proposition~4 shows that a shock
+$d\varepsilon > 0$ to segment 3 raises segment 2 fire sales by
+$dx_2^*/d\varepsilon = \theta_2\mathcal{M}/(P_0\Theta) > 0$
+despite $dR_2 = 0$ — segment 2 bears no direct funding shock yet responds through the price
+mechanism because the equilibrium basis has risen. Dealer wealth contracts
+($dW^*/d\varepsilon < 0$) and swap supply compresses ($dO^*/d\varepsilon < 0$). The contagion is
+hierarchically ascending: it travels from the lowest tier upward. This result has no counterpart
+in existing single-segment frameworks; it requires the three-tier structure as a primitive.
+
+\textit{Third}, we derive the policy frontier for regulation and backstop provision. Proposition~6
+establishes that tighter capital regulation (parameterized as an increase $\tau$ in the swap
+risk-weight) raises the equilibrium basis under mild conditions, and that regulation and backstop
+provision are imperfect substitutes along an explicit policy frontier. Define $\tau^{\rm safe}(\lambda, b^{\max})$
+as the maximum $\tau$ consistent with $b^* \leq b^{\max}$. Then $\partial\tau^{\rm safe}/\partial\lambda > 0$:
+a stronger swap-line commitment expands the set of regulatory tightening compatible with stress
+below any given target. The trade-off $d\tau/d\lambda|_{b^*=\text{const}}$ is finite and well-defined,
+but varies with $\rho$ in a way that diverges as $\rho \to 1$ — near the breakdown point, backstop
+provision is essential and no amount of regulatory adjustment substitutes for it.
+
+Our paper contributes to three strands of the literature. Among models of CIP deviation and
+dollar funding stress, we advance beyond \citet{DuTepperVerdelhan2018} and
+\citet{BacchettaDavisVanWincoop2025} by endogenizing the segmentation that these papers take as
+parametric: the analog of Bacchetta et al.'s capacity constraint $\chi_t$ is derived here from
+the three-tier backstop architecture rather than imposed. Among models of global intermediary
+capacity, we extend \citet{GabaixMaggori2015} from a single homogeneous financier class to a
+three-tier hierarchy with heterogeneous backstop coverage and an endogenous feedback from asset
+prices to dealer wealth. Cross-segment contagion (Proposition~4) has no counterpart in their
+framework. Among analyses of official liquidity facilities, we add a second channel to the
+single-segment mechanism in \citet{CesaBianchiEgurenMartinFerrero2025}: Proposition~5 shows that
+swap lines work not only through direct demand relief but also through a collateral-stabilization
+channel that amplifies each dollar of support by the factor $\mathcal{M}$, and that this multiplier is
+largest precisely during acute stress. The three-tier structure also formalizes the institutional
+taxonomy of \citet{MurauPapePforr2023} and \citet{Mehrling2021}, converting their hierarchy from
+a descriptive framework into an equilibrium model with closed-form predictions. The connection to
+the inside/outside liquidity framework of \citet{HolmstromTirole1998} runs through Proposition~7:
+the run-zone thresholds $(\underline\lambda, \bar\lambda)$ are expressed in terms of the structural
+parameters of the dollar funding market, extending the \citet{DiamondDybvig1983} and
+\citet{ChangVelasco2001} coordination-failure logic to the international backstop setting.
+
+The paper proceeds as follows. \Cref{sec:model} develops the model environment, states the
+optimization problems, and derives the equilibrium. \Cref{sec:results} presents the amplification
+multiplier (Proposition~2) and its comparative statics (Proposition~3). \Cref{sec:contagion}
+analyzes hierarchical contagion across segments (Proposition~4) and the double dividend of
+swap lines (Proposition~5). \Cref{sec:policy} derives the regulation-backstop policy frontier
+(Proposition~6). \Cref{sec:runs} extends the model to backstop uncertainty and self-fulfilling
+runs (Proposition~7). \Cref{sec:conclusion} concludes.

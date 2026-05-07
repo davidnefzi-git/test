@@ -12,3 +12,7 @@ ensure_path('BIBINPUTS', '..//');
 
 # Silence — stop on errors but don't pause
 $xelatex = 'xelatex -interaction=nonstopmode %O %S';
+
+# Use biber for bibliography processing
+$bibtex_use = 2;
+$biber = 'biber %O %S';

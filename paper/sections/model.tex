@@ -1,0 +1,394 @@
+\section{Model}
+\label{sec:model}
+
+\subsection{Timing, Assets, and Contracts}
+\label{subsec:timing}
+
+The model is static with two dates. At $t=0$, banks choose their funding mix; at $t=1$, all
+contracts settle at face value. This two-date structure is the minimal environment for capturing
+the funding-liquidity problem: institutions must commit to a portfolio before the full incidence
+of dollar stress is known, and settlement reveals whether the choices were adequate.
+
+\textbf{Assets.} There is a single safe collateral asset, US Treasury bonds, in fixed aggregate
+supply $\bar{X} > 0$. Each Treasury bond has face value 1 (normalized) and trades at price
+$P \in (0,1]$ at $t=0$. All dollar funding needs are denominated in US dollars.
+
+\begin{quote}
+\textbf{Assumption 0a} (First-order approximation). \textit{We normalize $P_0 = 1$ throughout.
+This is valid to first order in $b^*$: since $P^* = 1 - \gamma\Theta b^*$ and typical basis
+deviations satisfy $\gamma\Theta b^* \ll 1$ at calibrated parameter values, the error from
+setting $P_0 = 1$ in bank-level decisions is of order $O(b^{*2})$. All formal results hold for
+any $P_0 \in (0,1]$; the normalization $P_0 = 1$ simplifies notation.}
+\end{quote}
+
+Throughout the paper $P_0$ is retained symbolically in all formulas for generality; under
+Assumption~0a, $\theta_i = P_0/\kappa_i = 1/\kappa_i$, $\Theta = 1/\kappa_2 + 1/\kappa_3$, and the
+stability parameter simplifies as stated in \cref{subsec:equilibrium}.
+
+\textbf{Contracts.} Two funding instruments are available to foreign banks at $t=0$.
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textit{FX swap}: A contract in which the counterparty provides \$1 of dollar funding
+    today against foreign-currency collateral at a pre-agreed exchange rate, with reversal at
+    $t=1$. The cost per unit of swap is the \textit{cross-currency basis} $b \geq 0$, measured in
+    annualized dollar terms. The basis is the price of dollar liquidity above the CIP-implied rate.
+
+  \item \textit{Treasury sale}: A spot sale of Treasuries at market price $P$ per unit. A bank
+    surrendering $x$ units receives $Px$ dollars. The liquidation incurs a convex cost
+    $(\kappa_i/2)\,x^2$ reflecting bid-ask spreads, market impact, and roll-risk.
+\end{enumerate}
+
+\begin{quote}
+\textbf{Assumption 0b} (Swap-only regime). \textit{In the main equilibrium, the dealer directs
+all constrained balance-sheet capacity to swap supply, setting $Z^* = 0$. This is the conservative
+bound: the dealer absorbs zero fire sales directly. Treasury fire sales are absorbed entirely by
+outside investors. Appendix~A relaxes this assumption and verifies that all propositions are
+robust.}
+\end{quote}
+
+\begin{quote}
+\textbf{Assumption 0c} (Basel zero risk-weight). \textit{Treasury inventory carries zero
+regulatory risk-weight, $q_T = 0$, consistent with the zero risk-weight assigned to US Treasuries
+under Basel capital rules. Appendix~A shows that results extend to $q_T > 0$ by replacing $W_0$
+with $W_0^{eff} \equiv W_0 - q_T\bar{X}_d/\phi$ throughout.}
+\end{quote}
+
+\subsection{The Backstop Hierarchy}
+\label{subsec:hierarchy}
+
+The central friction in the model is \textit{segmented access to official dollar liquidity}. This
+is not a transaction cost or an informational asymmetry in the usual sense; it is a structural
+feature of the international monetary architecture that differentiates US commercial banks, foreign
+banks with swap-line access, and offshore dollar users along a single institutional dimension: the
+coverage rate of their official backstop. The hierarchy maps directly to heterogeneous residual
+funding needs, which in turn drive heterogeneous demand for market-based dollar liquidity — the
+source of the equilibrium cross-currency basis.
+
+This structure is the international analog of the inside/outside liquidity partition in
+\citet{HolmstromTirole1998}. In their framework, inside liquidity (claims among private agents)
+is insufficient to insure all aggregate shocks, motivating outside liquidity from the government.
+Here, inside liquidity is private FX swap intermediation, and outside liquidity is the Federal
+Reserve's dollar backstop. The three tiers formalize the degree to which each segment can access
+outside liquidity.
+
+\textbf{Segment 1 (US commercial banks, onshore).} These institutions have automatic,
+unconditional access to Federal Reserve emergency facilities (discount window, FDIC guarantee).
+Let $M_1 > 0$ denote segment 1's dollar funding need in the absence of backstop support. The
+backstop fully covers this need:
+\begin{equation}
+  B_1 = M_1, \qquad R_1 \equiv M_1 - B_1 = 0.
+  \label{eq:seg1}
+\end{equation}
+Segment 1 banks are inactive in equilibrium: they neither sell Treasuries nor enter FX swaps.
+Their role in the model is to anchor the dollar at par and to fix the upper boundary of the
+hierarchy. They do not solve an optimization problem.
+
+\textbf{Segment 2 (foreign banks with swap lines).} These institutions belong to banking systems
+whose central banks hold active bilateral dollar swap lines with the Federal Reserve. Let $M_2 > 0$
+be the baseline dollar funding need of a representative segment 2 bank. The swap-line facility
+covers fraction $\lambda \in [0,1]$ of this need:
+\begin{equation}
+  B_2 = \lambda M_2, \qquad R_2 \equiv M_2 - B_2 = (1-\lambda)M_2.
+  \label{eq:seg2}
+\end{equation}
+The parameter $\lambda$ is the central policy variable of the model. At $\lambda = 1$, segment 2
+is fully covered and its residual need vanishes; at $\lambda = 0$, it is equivalent to segment 3.
+Segment 2 banks must cover $R_2$ using market instruments, subject to the optimization problem
+stated in \cref{subsec:banks}.
+
+\textbf{Segment 3 (offshore dollar users, no backstop).} These are foreign banks, investment
+funds, and other financial entities with no access to any central-bank backstop facility. Let
+$M_3 > 0$ be the baseline dollar funding need of a representative segment 3 entity. At $t=0$, a
+funding shock $\varepsilon \geq 0$ hits this segment — an unexpected increase in dollar liabilities
+or a sudden withdrawal of dollar credit lines. The backstop is zero:
+\begin{equation}
+  B_3 = 0, \qquad R_3 \equiv M_3 + \varepsilon.
+  \label{eq:seg3}
+\end{equation}
+Segment 3 must cover $R_3$ entirely from market sources using the same instruments as segment 2,
+with an optimization problem structurally identical to segment 2's (with $R_3$ replacing $R_2$).
+
+The \textit{aggregate residual funding need} is the total dollar shortfall that must be met through
+market instruments:
+\begin{equation}
+  R \equiv R_2 + R_3 = (1-\lambda)M_2 + M_3 + \varepsilon.
+  \label{eq:R}
+\end{equation}
+The policy parameter $\lambda$ enters $R$ linearly with coefficient $-M_2 < 0$, establishing the
+direct demand-relief channel of swap lines. The shock parameter $\varepsilon$ enters with
+coefficient $+1$, representing exogenous dollar scarcity in the uncovered segment.
+
+\subsection{Bank Optimization}
+\label{subsec:banks}
+
+Each bank in segment $i \in \{2,3\}$ with residual funding need $R_i > 0$ chooses the quantity
+$x_i \geq 0$ of Treasuries to sell. The remaining need is covered by FX swaps:
+\begin{equation}
+  s_i = R_i - P x_i \geq 0. \tag{BC-$i$}
+  \label{eq:BC}
+\end{equation}
+The bank faces a cost of FX swaps equal to $b$ per unit and a convex liquidation cost of $(\kappa_i/2)x_i^2$
+on Treasury sales, capturing the private cost of unwinding positions rapidly. The optimization
+problem is:
+\begin{equation}
+  \min_{x_i \geq 0} \quad b(R_i - P x_i) + \frac{\kappa_i}{2} x_i^2
+  \qquad \text{subject to } x_i \leq R_i/P.
+  \tag{P-$i$}
+  \label{eq:Pi}
+\end{equation}
+Each bank takes the market price $P$ as given; $P$ is determined in equilibrium by market clearing.
+
+The first-order condition for an interior solution (which holds when $b > 0$) is $-bP + \kappa_i x_i = 0$.
+Evaluating at the reference price $P_0$, the optimal Treasury sales are:
+\begin{equation}
+  x_i^* = \theta_i b, \qquad \theta_i \equiv \frac{P_0}{\kappa_i}.
+  \tag{FS-$i$}
+  \label{eq:FSi}
+\end{equation}
+The scalar $\theta_i > 0$ is the \textit{basis-elasticity of fire sales} of segment $i$: a one-unit
+increase in the basis induces additional Treasury sales of $\theta_i$ units. It is increasing in
+$P_0$ — higher Treasury prices make liquidation more attractive — and decreasing in $\kappa_i$ —
+higher liquidation costs deter sales. The quadratic cost is consistent with the fire-sale
+friction in \citet{BrunnermeierPedersen2009}, adapted here to the international dollar-funding
+context.
+
+The aggregate basis-elasticity of Treasury fire sales across both segments is:
+\begin{equation}
+  \Theta \equiv \theta_2 + \theta_3 = P_0\!\left(\frac{1}{\kappa_2} + \frac{1}{\kappa_3}\right).
+  \tag{$\Theta$-def}
+  \label{eq:Theta}
+\end{equation}
+Substituting \eqref{eq:FSi} into \eqref{eq:BC} yields segment $i$'s swap demand:
+\begin{equation}
+  s_i^* = R_i - P_0\,\theta_i b = R_i - \frac{P_0^2}{\kappa_i}\,b.
+  \tag{SD-$i$}
+  \label{eq:SDi}
+\end{equation}
+Aggregating over segments 2 and 3:
+\begin{equation}
+  s_2^* + s_3^* = R - P_0\,\Theta b.
+  \tag{SD-agg}
+  \label{eq:SDagg}
+\end{equation}
+Aggregate swap demand is decreasing in the basis: as $b$ rises, banks substitute toward Treasury
+sales, reducing swap demand. This downward-sloping demand is one of the two sides of the swap
+market; the upward-sloping supply from the dealer is derived in \cref{subsec:dealer}.
+
+\subsection{The Global Dealer}
+\label{subsec:dealer}
+
+There is a single representative global dealer — a large internationally active bank or primary
+dealer that acts as market-maker in both the FX swap market and the Treasury secondary market.
+The dealer is the sole supplier of FX swaps to segments 2 and 3. The dealer's balance sheet is
+the mechanism through which fire sales feed back into swap supply.
+
+\textbf{Balance sheet.} The dealer holds an initial Treasury inventory $\bar{X}_d > 0$ and initial
+equity capital $W_0 > 0$. Its marked-to-market net worth at Treasury price $P$ is:
+\begin{equation}
+  W(P) = W_0 + P\bar{X}_d.
+  \label{eq:wealth}
+\end{equation}
+The endogeneity of $W(P)$ is central to the model: when Treasury prices fall due to fire sales,
+dealer wealth falls, tightening the leverage constraint and reducing swap supply. This is the
+balance-sheet channel through which a segment 3 shock propagates to segment 2.
+
+\textbf{Objective.} The dealer maximizes mean-variance utility over profits from FX swap
+intermediation ($O$) and Treasury absorption ($Z$):
+\begin{align}
+  \max_{O \geq 0,\, Z \geq 0} \quad bO + (1-P)Z - \frac{\eta}{2}\!\left(\sigma_O^2 O^2 + \sigma_Z^2 Z^2\right),
+  \tag{P-D}
+  \label{eq:PD}
+\end{align}
+where $\eta > 0$ is the CARA risk-aversion coefficient, $\sigma_O^2$ is the variance of payoff per
+unit of swap position, and $\sigma_Z^2$ is the variance per unit of Treasury absorption. The objective
+is strictly concave.
+
+\textbf{Leverage constraint.} The dealer is subject to a Basel-type regulatory leverage constraint:
+\begin{equation}
+  q_S O + q_T(\bar{X}_d + Z) \leq \phi W(P),
+  \tag{LC}
+  \label{eq:LC}
+\end{equation}
+where $q_S > 0$ and $q_T \geq 0$ are the risk-weights on swap and Treasury positions respectively,
+and $\phi > 0$ is the maximum permitted leverage ratio. The feasible set is convex and compact for
+fixed $P$; a unique solution to \eqref{eq:PD} subject to \eqref{eq:LC} exists.
+
+\textit{Remark} (Parameter roles). The risk-aversion parameters $(\eta, \sigma_O^2, \sigma_Z^2)$
+govern the unconstrained dealer interior solution. In the constrained regime — the empirically
+relevant case emphasized by \citet{Duffie2020}, \citet{DuTepperVerdelhan2018}, and
+\citet{GabaixMaggori2015} — the leverage constraint~\eqref{eq:LC} binds and swap supply is
+$O^* = \Gamma W(P)$ regardless of $(\eta, \sigma_O^2, \sigma_Z^2)$. These parameters do not
+appear in the main propositions; their role is confined to determining the threshold wealth level
+below which \eqref{eq:LC} binds, which is characterized in Appendix~A.
+
+\textbf{Constrained equilibrium.} The model focuses on the regime in which~\eqref{eq:LC} binds.
+Under Assumptions~0b and~0c ($Z^* = 0$, $q_T = 0$), the binding constraint reduces to
+$q_S O \leq \phi W(P)$, yielding:
+\begin{equation}
+  O^* = \Gamma W(P), \qquad \Gamma \equiv \frac{\phi}{q_S}.
+  \tag{O-star}
+  \label{eq:Ostar}
+\end{equation}
+The parameter $\Gamma = \phi/q_S > 0$ is the \textit{dealer capacity parameter}: it is increasing
+in the regulatory leverage limit $\phi$ and decreasing in the swap risk-weight $q_S$. This
+directly links the architecture of \citet{GabaixMaggori2015} — constrained financier capacity
+governing the price of intermediation — to the specific Basel parameters of a dollar swap dealer.
+Under the endogenous wealth equation~\eqref{eq:wealth}, swap supply depends on the Treasury price:
+when fire sales depress $P$, dealer wealth contracts, leverage tightens, and swap supply falls.
+This is the amplification channel that Propositions 2–4 characterize in closed form.
+
+\subsection{Outside Investors and the Treasury Market}
+\label{subsec:outsideinvestors}
+
+A continuum of outside investors — pension funds, sovereign wealth funds, reserve managers —
+supplies a downward-sloping demand curve for Treasuries. Each investor has CARA preferences with
+absolute risk aversion $\alpha > 0$ and forms the posterior that each Treasury pays face value 1
+at $t=1$ with variance $\sigma_T^2$. The standard mean-variance portfolio problem yields aggregate
+outside-investor demand:
+\begin{equation}
+  X^{out}(P) = \frac{1-P}{\gamma}, \qquad \gamma \equiv \alpha\sigma_T^2 > 0.
+  \tag{OI-dem}
+  \label{eq:OIdem}
+\end{equation}
+The baseline demand at $P = 1$ is normalized to zero; the elasticity parameter $\gamma$ is
+the price sensitivity of outside investors to departures from par. Under Assumption~0b, outside
+investors absorb all bank fire sales: the dealer does not purchase Treasuries in equilibrium, so
+$X^{out}(P^*)$ must equal total bank sales $x_2^* + x_3^*$.
+
+Inverting~\eqref{eq:OIdem} at the clearing quantity gives the equilibrium price equation:
+\begin{equation}
+  P^* = 1 - \gamma\Theta b.
+  \tag{P-eq}
+  \label{eq:Peq}
+\end{equation}
+A higher basis induces more fire sales, pushing down the Treasury price. The price-impact
+elasticity is $\gamma\Theta$, the product of the outside-investor sensitivity $\gamma$ and the
+aggregate fire-sale elasticity $\Theta$. These two objects are never conflated in the derivations
+that follow.
+
+\subsection{Equilibrium}
+\label{subsec:equilibrium}
+
+\begin{definition}[Static Equilibrium]
+\label{def:equilibrium}
+A \textit{static equilibrium} is a tuple $(b^*, P^*, O^*, Z^*, \{x_i^*, s_i^*\}_{i=2,3})$
+satisfying:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Bank optimization:} For each $i \in \{2,3\}$, $(x_i^*, s_i^*)$ solves
+    \emph{(P-$i$)} given $b^*$ and $P^*$.
+  \item \textbf{Dealer optimization:} $(O^*, Z^*)$ solves \emph{(P-D)} subject to \emph{(LC)}
+    given $b^*$ and $P^*$, with the leverage constraint binding.
+  \item \textbf{FX swap market clearing:}
+    \begin{equation}
+      s_2^* + s_3^* = O^*. \tag{MC-S} \label{eq:MCS}
+    \end{equation}
+  \item \textbf{Treasury market clearing} (under Assumption~0b):
+    \begin{equation}
+      x_2^* + x_3^* = X^{out}(P^*) = \frac{1-P^*}{\gamma}. \tag{MC-T} \label{eq:MCT}
+    \end{equation}
+  \item \textbf{Non-negativity:} $b^* \geq 0$, $P^* \in (0,1]$, $x_i^* \geq 0$, $s_i^* \geq 0$,
+    $O^* \geq 0$, $Z^* = 0$.
+\end{enumerate}
+\end{definition}
+
+\textbf{Reduction to a single equation.} The equilibrium conditions collapse to a single scalar
+equation in $b^*$ through four steps.
+
+\textit{Step 1: Treasury price.} From~\eqref{eq:FSi}, aggregate Treasury sales are $x_2^* + x_3^* = \Theta b$.
+Equating with outside-investor demand via~\eqref{eq:MCT} and~\eqref{eq:OIdem} and solving for $P$
+gives \eqref{eq:Peq}: $P^* = 1 - \gamma\Theta b$.
+
+\textit{Step 2: Dealer wealth.} Substituting~\eqref{eq:Peq} into~\eqref{eq:wealth}:
+\begin{equation}
+  W(b) = W_0 + (1 - \gamma\Theta b)\bar{X}_d = \tilde{W} - \gamma\Theta b\,\bar{X}_d,
+  \qquad \tilde{W} \equiv W_0 + \bar{X}_d.
+  \tag{W-b}
+  \label{eq:Wb}
+\end{equation}
+Dealer wealth falls linearly with the basis: $\partial W/\partial b = -\gamma\Theta\bar{X}_d < 0$.
+
+\textit{Step 3: Swap supply.} From~\eqref{eq:Ostar} and~\eqref{eq:Wb}:
+\begin{equation}
+  O^*(b) = \Gamma\!\left(\tilde{W} - \gamma\Theta b\,\bar{X}_d\right).
+  \tag{O-b}
+  \label{eq:Ob}
+\end{equation}
+Swap supply is decreasing in $b$: a higher basis is associated with lower Treasury prices, lower
+dealer wealth, and lower swap capacity. This decreasing supply, combined with the decreasing
+aggregate demand~\eqref{eq:SDagg}, is what makes the equilibrium condition well-defined.
+
+\textit{Step 4: FX swap market clearing.} Equating~\eqref{eq:SDagg} with~\eqref{eq:Ob}:
+\[
+  R - P_0\Theta b = \Gamma\!\left(\tilde{W} - \gamma\Theta b\,\bar{X}_d\right).
+\]
+Collecting terms in $b$ and factoring:
+\[
+  R - \Gamma\tilde{W} = b\Theta(P_0 - \Gamma\gamma\bar{X}_d).
+\]
+
+\begin{definition}[Stability Parameter]
+\label{def:delta}
+\begin{equation}
+  \Delta \equiv \Theta(P_0 - \Gamma\gamma\bar{X}_d).
+  \tag{$\Delta$-def}
+  \label{eq:Delta}
+\end{equation}
+\end{definition}
+
+The equilibrium basis is:
+\begin{equation}
+  b^* = \frac{R - \Gamma\tilde{W}}{\Delta}.
+  \tag{EQ}
+  \label{eq:EQ}
+\end{equation}
+
+Two conditions ensure a positive, well-defined equilibrium.
+
+\begin{quote}
+\textbf{Assumption 1} (Stability). $\Delta > 0$, equivalently $P_0 > \Gamma\gamma\bar{X}_d$.
+\textit{This requires the direct demand-relief effect of a higher basis to dominate the
+amplification effect through dealer wealth. When $\Delta \leq 0$, the feedback loop overwhelms
+the stabilizing mechanism and no finite equilibrium basis clears the market.}
+\end{quote}
+
+\begin{quote}
+\textbf{Assumption 2} (Positive Basis). $R > \Gamma\tilde{W}$.
+\textit{The aggregate funding need exceeds the dealer's unconstrained swap capacity at $b = 0$.
+This is the condition for dollar scarcity: without it, the dealer absorbs all required swaps at
+zero basis premium.}
+\end{quote}
+
+\begin{proposition}[Existence and Uniqueness]
+\label{prop:existence}
+Under Assumptions~1 and~2, there exists a unique equilibrium basis $b^* > 0$ given by
+equation~\eqref{eq:EQ}. The corresponding equilibrium Treasury price is
+$P^* = 1 - \gamma\Theta b^* \in (0,1)$, and all equilibrium quantities are strictly positive.
+\end{proposition}
+
+\begin{proof}
+Under Assumption~1, $\Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d) > 0$, so the denominator of
+\eqref{eq:EQ} is strictly positive. Under Assumption~2, the numerator $R - \Gamma\tilde{W} > 0$.
+Therefore $b^* = (R - \Gamma\tilde{W})/\Delta > 0$ is well-defined and unique.
+
+For the Treasury price: $P^* = 1 - \gamma\Theta b^* < 1$ since $b^* > 0$. That $P^* > 0$ requires
+$\gamma\Theta b^* < 1$, i.e., $(R - \Gamma\tilde{W})/(\Delta\gamma\Theta) < 1/(\gamma\Theta)$,
+which reduces to $R - \Gamma\tilde{W} < \Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d)$, i.e.,
+$R < P_0\Theta + \Gamma W_0$. This upper bound on the size of the funding shock is maintained
+as a parametric restriction without requiring a separate assumption.
+
+Swap demands $s_i^* = R_i - P_0\theta_i b^* > 0$ for each $i \in \{2,3\}$ under the same upper
+bound. Fire sales $x_i^* = \theta_i b^* > 0$ under Assumption~2. Dealer supply
+$O^* = \Gamma W(b^*) > 0$ since $W(b^*) = \tilde{W} - \gamma\Theta b^*\bar{X}_d > 0$
+by $P^* > 0$.
+
+All equilibrium conditions (i)--(v) of \cref{def:equilibrium} are satisfied by construction.
+\end{proof}
+
+Proposition~\ref{prop:existence} establishes that the backstop hierarchy, the dealer's
+leverage constraint, and the fire-sale dynamics together produce a unique price of dollar
+liquidity. The equilibrium basis $b^*$ in~\eqref{eq:EQ} is a closed-form function of the
+structural primitives: the aggregate funding need $R$ (which depends on the backstop parameter
+$\lambda$ and the stress shock $\varepsilon$), the dealer capacity $\Gamma$, the dealer wealth at par
+$\tilde{W}$, the aggregate fire-sale elasticity $\Theta$, the outside-investor elasticity $\gamma$,
+and the dealer Treasury inventory $\bar{X}_d$. The amplification properties of this equilibrium
+are the subject of \cref{sec:results}.
