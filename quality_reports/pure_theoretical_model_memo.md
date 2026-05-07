@@ -1,7 +1,15 @@
 # Pure Theoretical Model Memo
 ## Dollar Funding Hierarchies, Backstop Architecture, and the Propagation of Liquidity Crises
 
-**Status:** DRAFT — Theorist agent, 2026-05-07  
+**Status:** ROUND 2 — Revised per Theorist-Critic Round 1 feedback (2026-05-07)
+
+**Round 2 corrections applied:**
+1. [CRITIQUE 1] Eliminated γ/γΘ conflation: kept (P-eq) as $P^* = 1 - \gamma\Theta b$ throughout; removed the "absorb Θ into γ" paragraph and (P-b); redefined $\Delta \equiv \Theta(P_0 - \Gamma\gamma\bar{X}_d)$ and $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$ consistently.
+2. [CRITIQUE 2] Replaced the circular proof of Proposition 6(i) with a full quotient-rule argument under new Assumption 3 (Mild Stress).
+3. [MAJOR 1] Replaced the undefined-$f(\lambda)$ statement of Proposition 6(ii) with a correctly derived safe-stress threshold $\tau^{safe}(\lambda, b^{max})$ via the implicit function theorem.
+4. [MAJOR 2] Added Assumption 0b (Swap-only regime) in Section C.3 declaring $Z^* = 0$ as a maintained hypothesis.
+5. [MAJOR 3] Added Assumption 0a (First-order approximation) in Section B.1 formalizing the $P_0 = 1$ normalization; added Remark (Parameter roles) after the unconstrained FOC in Section C.3.
+
 **Note on bibliography:** The anchors cited below (Holmstrom-Tirole 1998, Gabaix-Maggiori 2015, Brunnermeier-Pedersen 2009, Du-Tepper-Verdelhan 2018, Diamond-Dybvig 1983, Chang-Velasco 2001, He-Krishnamurthy 2013, Cesa-Bianchi et al. 2025, Murau-Pape-Pforr 2023, Mehrling 2021) are not yet in `Bibliography_base.bib`. They must be added before LaTeX compilation.
 
 ---
@@ -37,6 +45,10 @@ The gap is precise: **no existing model endogenizes backstop quality as a primit
 The model is **static** with two dates, $t=0$ (planning) and $t=1$ (settlement).
 
 **Assets.** There is a single safe collateral asset, US Treasury bonds, in fixed aggregate supply $\bar{X} > 0$. Each Treasury bond has face value 1 (normalized) and trades at price $P \in (0,1]$ at $t=0$. All dollar funding needs are denominated in US dollars.
+
+**Assumption 0a (First-order approximation).** *We normalize $P_0 = 1$ throughout. This is valid to first order in $b^*$: since $P^* = 1 - \gamma\Theta b^*$ and typical basis deviations satisfy $\gamma\Theta b^* \ll 1$ at calibrated parameter values, the error from setting $P_0 = 1$ in bank-level decisions is of order $O(b^{*2})$. All formal results hold for any $P_0 \in (0,1]$; the normalization $P_0 = 1$ simplifies notation.*
+
+Under Assumption 0a: $\theta_i = P_0/\kappa_i = 1/\kappa_i$, $\Theta = 1/\kappa_2 + 1/\kappa_3$, and the stability parameter and amplification ratio simplify as stated in Sections D.2–D.4. Throughout the memo, $P_0$ is retained symbolically in all formulas for generality; the reader may substitute $P_0 = 1$ whenever convenient.
 
 **Contracts.** Two funding instruments are available to foreign banks at $t=0$:
 
@@ -211,17 +223,21 @@ The objective is strictly concave in $(O, Z)$ (negative definite Hessian: $-\eta
 $$b = \eta \sigma_O^2 O^{\text{unc}}, \qquad O^{\text{unc}} = \frac{b}{\eta \sigma_O^2},$$
 $$1-P = \eta \sigma_Z^2 Z^{\text{unc}}, \qquad Z^{\text{unc}} = \frac{1-P}{\eta \sigma_Z^2}.$$
 
-In normal times (ample balance sheet), the dealer supplies swaps and absorbs fire sales up to the point where marginal risk-adjusted profit equals zero.
+*Remark (Parameter roles):* The risk-aversion parameters $(\eta, \sigma_O^2, \sigma_Z^2)$ govern the unconstrained dealer interior solution. In the constrained regime (the focus of Propositions 1–6), the leverage constraint (LC) binds and swap supply is $O^* = \Gamma W(P)$ regardless of $(\eta, \sigma_O^2, \sigma_Z^2)$. These parameters therefore do not appear in the main propositions. They matter in the transition from unconstrained to constrained regimes — specifically in the characterization of the threshold $W_0$ below which (LC) binds — which is relegated to Appendix A.
 
 **Constrained regime.** During crises, (LC) binds. This is the empirically relevant case: Duffie (2010), Du, Tepper, and Verdelhan (2018), and Gabaix and Maggiori (2015) all emphasize that intermediary constraints bind during stress episodes. The model focuses on this regime.
 
 When (LC) binds with equality:
 $$q_S O + q_T(\bar{X}_d + Z) = \phi W(P). \tag{LC-bind}$$
 
-For the main analysis I focus on the swap supply decision, taking the Treasury absorption as a residual allocation of the balance sheet. A simplifying assumption (maintained throughout the main text; relaxed in the appendix) is that the dealer allocates a fixed fraction of its constrained balance sheet to swaps:
+**Assumption 0b (Swap-only regime).** *In the main equilibrium, the dealer directs all constrained balance-sheet capacity to swap supply, setting $Z^* = 0$. This is the conservative bound: the dealer absorbs zero fire sales directly. Treasury fire sales are entirely absorbed by outside investors.*
+
+*Remark:* Under Assumption 0b, the Treasury market-clearing condition (MC-T) becomes $x_2^* + x_3^* = X^{out}(P^*)$, i.e., outside investors absorb all bank fire sales. The dealer's Treasury inventory $\bar{X}_d$ is held as a stock, not actively traded in equilibrium — but it affects dealer wealth and hence swap supply through $W(P) = W_0 + P\bar{X}_d$. Appendix A relaxes Assumption 0b and shows the results are robust.
+
+Under Assumption 0b ($Z^* = 0$), the binding leverage constraint reduces to $q_S O \leq \phi W(P) - q_T \bar{X}_d$. For the main analysis I adopt the further simplification that the Treasury risk-weight term $q_T\bar{X}_d$ is subsumed into the definition of initial equity, so the effective constraint becomes $q_S O \leq \phi W(P)$, yielding:
 $$O^* = \Gamma W(P), \qquad \Gamma \equiv \frac{\phi}{q_S}. \tag{O-star}$$
 
-**Derivation of $\Gamma$.** Under the binding leverage constraint, the maximum swap supply consistent with the constraint (holding $Z = 0$ as a conservative bound) is
+**Derivation of $\Gamma$.** Under the binding leverage constraint with $Z^* = 0$:
 $$q_S O \leq \phi W(P), \qquad O \leq \frac{\phi}{q_S} W(P).$$
 Setting $O^* = \frac{\phi}{q_S} W(P) \equiv \Gamma W(P)$. The parameter $\Gamma = \phi / q_S > 0$ is the *dealer capacity parameter*: it is increasing in the regulatory leverage limit $\phi$ and decreasing in the swap risk-weight $q_S$.
 
@@ -256,11 +272,11 @@ In equilibrium, this becomes the closed-form price equation derived in Section D
 (iii) **FX swap market clearing:**
 $$s_2^* + s_3^* = O^*. \tag{MC-S}$$
 
-(iv) **Treasury market clearing:**
-$$x_2^* + x_3^* = Z^{out}(P^*), \tag{MC-T}$$
-where $Z^{out}(P) = X^{out}(P) - (\bar{X} - \bar{X}_d)$ is the quantity demanded by outside investors net of the pre-existing holdings of non-dealer agents. For notational simplicity I write the Treasury market-clearing condition in the form derived below.
+(iv) **Treasury market clearing:** Under Assumption 0b ($Z^* = 0$):
+$$x_2^* + x_3^* = X^{out}(P^*) = \frac{1-P^*}{\gamma}, \tag{MC-T}$$
+where outside investors absorb all bank fire sales. The dealer's Treasury inventory $\bar{X}_d$ is held as a stock and is not traded in equilibrium.
 
-(v) **Non-negativity:** $b^* \geq 0$, $P^* \in (0,1]$, $x_i^* \geq 0$, $s_i^* \geq 0$, $O^* \geq 0$, $Z^* \geq 0$.
+(v) **Non-negativity:** $b^* \geq 0$, $P^* \in (0,1]$, $x_i^* \geq 0$, $s_i^* \geq 0$, $O^* \geq 0$, $Z^* = 0$.
 
 ### D.2 Reduction to a Single Equation
 
@@ -268,62 +284,58 @@ I now reduce the two market-clearing conditions to a single equation in $b$.
 
 **Step 1: Treasury price as a function of $b$.**
 
-From (FS-$i$), aggregate Treasury sales are $\Theta b$ (in quantity units; recall $x_i^* = \theta_i b$, so $x_2^* + x_3^* = \Theta b$). For the Treasury market to clear, outside investors must absorb these sales. Using (OI-dem), the Treasury price that clears the market when $\Theta b$ units are sold is implicitly given by
+From (FS-$i$), aggregate Treasury sales are $\Theta b$ (in quantity units; recall $x_i^* = \theta_i b$, so $x_2^* + x_3^* = \Theta b$). For the Treasury market to clear, outside investors must absorb these sales. Using (OI-dem) and (MC-T), the Treasury price that clears the market when $\Theta b$ units are sold is implicitly given by
 $$\Theta b = X^{out}(P) = \frac{1-P}{\gamma}.$$
 Solving for $P$:
 $$P^* = 1 - \gamma \Theta b. \tag{P-eq}$$
 
-This is the *equilibrium price function*: a higher basis $b$ induces more fire sales, driving down the Treasury price. The elasticity is $\gamma \Theta > 0$.
-
-However, note that $\Theta$ itself depends on $P_0$. In the individual bank's problem (Section C.2), $P$ is taken as parametric, and $\theta_i = P_0/\kappa_i$ is evaluated at a reference price $P_0$. Equation (P-eq) is the equilibrium relationship between $P$ and $b$ at the aggregate level, consistent with price-taking at the individual level. For the purposes of the general equilibrium, I substitute $P^* = 1 - \gamma b$ (absorbing $\Theta$ into the definition of $\gamma$, or equivalently defining $\gamma$ to already incorporate $\Theta$ at the calibration stage) and work with the parameterization
-$$P = 1 - \gamma b \tag{P-b}$$
-with $\gamma > 0$ understood as the composite price-impact parameter. This is without loss of generality under the maintained assumption that $P_0 \approx 1$ (small equilibrium deviations).
+This is the *equilibrium price function*: a higher basis $b$ induces more fire sales, driving down the Treasury price. The price-impact elasticity is $\gamma\Theta > 0$, where $\gamma$ retains throughout its definition as the outside-investor risk-aversion parameter ($\gamma = \alpha\sigma_T^2$ from (OI-dem)) and $\Theta$ retains its definition as the aggregate fire-sale elasticity ($\Theta = \theta_2 + \theta_3$ from ($\Theta$-def)). The two objects are never conflated.
 
 **Step 2: Dealer wealth as a function of $b$.**
 
-Substituting (P-b) into $W(P) = W_0 + P\bar{X}_d$:
-$$W(b) = W_0 + (1 - \gamma b)\bar{X}_d = \tilde{W} - \gamma b \bar{X}_d, \tag{W-b}$$
+Substituting (P-eq) into $W(P) = W_0 + P\bar{X}_d$:
+$$W(b) = W_0 + (1 - \gamma\Theta b)\bar{X}_d = \tilde{W} - \gamma\Theta b \bar{X}_d, \tag{W-b}$$
 where
 $$\tilde{W} \equiv W_0 + \bar{X}_d$$
-is the dealer's wealth at $P = 1$ (no fire-sale discount). Note that $\partial W / \partial b = -\gamma \bar{X}_d < 0$: dealer wealth falls as the basis rises because Treasury prices decline.
+is the dealer's wealth at $P = 1$ (no fire-sale discount). Note that $\partial W / \partial b = -\gamma\Theta \bar{X}_d < 0$: dealer wealth falls as the basis rises because Treasury prices decline.
 
 **Step 3: Swap supply as a function of $b$.**
 
 From (O-star) and (W-b):
-$$O^*(b) = \Gamma W(b) = \Gamma(\tilde{W} - \gamma b \bar{X}_d). \tag{O-b}$$
+$$O^*(b) = \Gamma W(b) = \Gamma(\tilde{W} - \gamma\Theta b \bar{X}_d). \tag{O-b}$$
 
 Swap supply is a decreasing function of $b$: a higher basis is associated with lower Treasury prices, lower dealer wealth, and therefore lower swap supply. This is the amplification channel in reduced form.
 
 **Step 4: FX swap market clearing.**
 
 Equating aggregate swap demand (SD-agg) with swap supply (O-b):
-$$R - P_0 \Theta b = \Gamma(\tilde{W} - \gamma b \bar{X}_d).$$
+$$R - P_0 \Theta b = \Gamma(\tilde{W} - \gamma\Theta b \bar{X}_d).$$
 Rearranging:
-$$R - \Gamma \tilde{W} = P_0 \Theta b - \Gamma \gamma \bar{X}_d b = b(P_0 \Theta - \Gamma \gamma \bar{X}_d).$$
+$$R - \Gamma \tilde{W} = P_0 \Theta b - \Gamma \gamma\Theta \bar{X}_d b = b\Theta(P_0 - \Gamma \gamma \bar{X}_d).$$
 
 **Definition 2 (Stability Parameter).** Define
-$$\Delta \equiv P_0 \Theta - \Gamma \gamma \bar{X}_d. \tag{$\Delta$-def}$$
+$$\Delta \equiv \Theta(P_0 - \Gamma \gamma \bar{X}_d). \tag{$\Delta$-def}$$
 
 The equilibrium basis is then
 $$\boxed{b^* = \frac{R - \Gamma\tilde{W}}{\Delta}.} \tag{EQ}$$
 
 ### D.3 Existence, Uniqueness, and Stability
 
-**Assumption 1 (Stability).** $\Delta > 0$.
+**Assumption 1 (Stability).** $\Delta > 0$, i.e., $P_0 > \Gamma\gamma\bar{X}_d$.
 
-*Interpretation.* $\Delta > 0$ requires that the aggregate elasticity of fire sales $P_0\Theta$ exceeds the feedback term $\Gamma\gamma\bar{X}_d$. In words: the direct demand-relief effect of a higher basis (which induces fire sales that clear the swap market) must dominate the amplification effect (through which a higher basis depresses Treasury prices, erodes dealer wealth, and reduces swap supply). When $\Delta \leq 0$, the amplification loop overwhelms the stabilizing mechanism and no finite equilibrium basis clears the market — a market breakdown. Assumption 1 rules this out for the main analysis; Section D.5 characterizes the region $\Delta \leq 0$ as a limiting case.
+*Interpretation.* Since $\Theta > 0$, Assumption 1 is equivalent to $P_0 > \Gamma\gamma\bar{X}_d$. This requires that the reference Treasury price $P_0$ exceeds the product of dealer capacity $\Gamma$, the outside-investor elasticity $\gamma$, and the dealer inventory $\bar{X}_d$. In words: the direct demand-relief effect of a higher basis (which induces fire sales that clear the swap market) must dominate the amplification effect (through which a higher basis depresses Treasury prices, erodes dealer wealth, and reduces swap supply). When $\Delta \leq 0$, the amplification loop overwhelms the stabilizing mechanism and no finite equilibrium basis clears the market — a market breakdown. Assumption 1 rules this out for the main analysis; Section D.5 characterizes the region $\Delta \leq 0$ as a limiting case.
 
 **Assumption 2 (Positive Basis).** $R > \Gamma\tilde{W}$.
 
 *Interpretation.* The aggregate funding need $R$ exceeds the dealer's unconstrained swap supply $\Gamma\tilde{W}$ at $b = 0$. This is the condition for dollar scarcity: if $R \leq \Gamma\tilde{W}$, the dealer can supply all required swaps without any basis premium, and the equilibrium basis is zero (no funding stress). Assumption 2 defines the *stress regime* that is the focus of the analysis.
 
-**Proposition 1 (Existence and Uniqueness).** *Under Assumptions 1 and 2, there exists a unique equilibrium basis $b^* > 0$ given by equation* (EQ). *The corresponding equilibrium Treasury price is $P^* = 1 - \gamma b^* \in (0,1)$, and all equilibrium quantities are strictly positive.*
+**Proposition 1 (Existence and Uniqueness).** *Under Assumptions 1 and 2, there exists a unique equilibrium basis $b^* > 0$ given by equation* (EQ). *The corresponding equilibrium Treasury price is $P^* = 1 - \gamma\Theta b^* \in (0,1)$, and all equilibrium quantities are strictly positive.*
 
-*Proof.* Under Assumption 1, $\Delta > 0$, so the denominator of (EQ) is strictly positive. Under Assumption 2, the numerator $R - \Gamma\tilde{W} > 0$. Therefore $b^* = (R - \Gamma\tilde{W})/\Delta > 0$ is well-defined and unique. 
+*Proof.* Under Assumption 1, $\Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d) > 0$, so the denominator of (EQ) is strictly positive. Under Assumption 2, the numerator $R - \Gamma\tilde{W} > 0$. Therefore $b^* = (R - \Gamma\tilde{W})/\Delta > 0$ is well-defined and unique.
 
-For the Treasury price: $P^* = 1 - \gamma b^*$. Since $b^* > 0$ we have $P^* < 1$. That $P^* > 0$ requires $\gamma b^* < 1$, i.e., $b^* < 1/\gamma$. Substituting (EQ): $(R - \Gamma\tilde{W})/(\Delta\gamma) < 1/\gamma$, which reduces to $R - \Gamma\tilde{W} < \Delta = P_0\Theta - \Gamma\gamma\bar{X}_d$. This simplifies to $R < P_0\Theta + \Gamma(W_0)$, which is a mild upper bound on the size of the funding shock; it is maintained as a parametric restriction without being labeled a separate assumption.
+For the Treasury price: $P^* = 1 - \gamma\Theta b^*$. Since $b^* > 0$ we have $P^* < 1$. That $P^* > 0$ requires $\gamma\Theta b^* < 1$, i.e., $b^* < 1/(\gamma\Theta)$. Substituting (EQ): $(R - \Gamma\tilde{W})/(\Delta\gamma\Theta) < 1/(\gamma\Theta)$, which reduces to $R - \Gamma\tilde{W} < \Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d)$, i.e., $R < P_0\Theta + \Gamma W_0$. This is a mild upper bound on the size of the funding shock; it is maintained as a parametric restriction without being labeled a separate assumption.
 
-For swap demand and supply: $s_i^* = R_i - P_0\theta_i b^* > 0$ requires $b^* < R_i/(P_0\theta_i)$ for each $i$, which holds under the same mild upper bound. Fire sales $x_i^* = \theta_i b^* > 0$ under Assumption 2. Dealer supply $O^* = \Gamma W(b^*) > 0$ since $W(b^*) = \tilde{W} - \gamma b^*\bar{X}_d > 0$ by $P^* > 0$.
+For swap demand and supply: $s_i^* = R_i - P_0\theta_i b^* > 0$ requires $b^* < R_i/(P_0\theta_i)$ for each $i$, which holds under the same mild upper bound. Fire sales $x_i^* = \theta_i b^* > 0$ under Assumption 2. Dealer supply $O^* = \Gamma W(b^*) > 0$ since $W(b^*) = \tilde{W} - \gamma\Theta b^*\bar{X}_d > 0$ by $P^* > 0$.
 
 All equilibrium conditions (i)–(v) of Definition 1 are satisfied by construction. $\square$
 
@@ -334,8 +346,8 @@ $$b^{\mathrm{pe}} \equiv \frac{R - \Gamma\tilde{W}}{P_0\Theta},$$
 which is the equilibrium basis that would obtain if dealer wealth were *fixed* at $\tilde{W}$ — i.e., if there were no Treasury price feedback onto dealer capacity.
 
 **Definition 4 (Amplification Ratio).** Define
-$$\rho \equiv \frac{\Gamma\gamma\bar{X}_d}{P_0\Theta} \in (0,1), \tag{$\rho$-def}$$
-where the restriction $\rho \in (0,1)$ is equivalent to $\Delta > 0$ (Assumption 1). The scalar $\rho$ measures the *strength of the amplification feedback loop*: it is the ratio of the feedback effect (reduction in dealer capacity from Treasury price decline, per unit of basis) to the direct stabilizing effect (additional fire sales induced by the basis).
+$$\rho \equiv \frac{\Gamma\gamma\bar{X}_d}{P_0} \in (0,1), \tag{$\rho$-def}$$
+where the restriction $\rho \in (0,1)$ is equivalent to $\Gamma\gamma\bar{X}_d < P_0$, which is Assumption 1 (since $\Theta > 0$ and $\Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d) > 0 \Leftrightarrow P_0 > \Gamma\gamma\bar{X}_d \Leftrightarrow \rho < 1$). Note that $\rho$ does not depend on $\Theta$: it is the ratio of the dealer-feedback term $\Gamma\gamma\bar{X}_d$ to the reference price $P_0$. The scalar $\rho$ measures the *strength of the amplification feedback loop*.
 
 **Definition 5 (Amplification Multiplier).** Define
 $$\mathcal{M} \equiv \frac{1}{1-\rho} \geq 1. \tag{M-def}$$
@@ -344,7 +356,7 @@ $$\mathcal{M} \equiv \frac{1}{1-\rho} \geq 1. \tag{M-def}$$
 $$b^* = b^{\mathrm{pe}} \cdot \mathcal{M}. \tag{AMP}$$
 *The general equilibrium basis exceeds the partial-equilibrium basis by the factor $\mathcal{M} \geq 1$, which equals $1$ when $\rho = 0$ (no feedback) and diverges as $\rho \to 1$ (amplification loop dominates).*
 
-*Proof.* From (EQ) and the definition of $\Delta = P_0\Theta - \Gamma\gamma\bar{X}_d = P_0\Theta(1-\rho)$:
+*Proof.* From (EQ) and the definition $\Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d) = \Theta P_0(1 - \Gamma\gamma\bar{X}_d/P_0) = P_0\Theta(1-\rho)$:
 $$b^* = \frac{R - \Gamma\tilde{W}}{\Delta} = \frac{R - \Gamma\tilde{W}}{P_0\Theta(1-\rho)} = \frac{R - \Gamma\tilde{W}}{P_0\Theta} \cdot \frac{1}{1-\rho} = b^{\mathrm{pe}} \cdot \mathcal{M}.$$
 That $\mathcal{M} \geq 1$ follows from $\rho \in (0,1)$. Divergence as $\rho \to 1^-$ is immediate. $\square$
 
@@ -362,48 +374,49 @@ That $\mathcal{M} \geq 1$ follows from $\rho \in (0,1)$. Divergence as $\rho \to
 
 *(iv)* $\partial \mathcal{M} / \partial \Theta < 0$. *The multiplier is decreasing in the aggregate fire-sale elasticity $\Theta$: more elastic banks are better at self-insuring, which attenuates the loop.*
 
-*Proof.* Recall $\rho = \Gamma\gamma\bar{X}_d / (P_0\Theta)$ and $\mathcal{M} = 1/(1-\rho)$. Since $\mathcal{M}$ is strictly increasing in $\rho$ for $\rho \in (0,1)$, it suffices to establish monotonicity of $\rho$ in each parameter.
+*Proof.* Recall $\rho = \Gamma\gamma\bar{X}_d / P_0$ (from Definition 4) and $\mathcal{M} = 1/(1-\rho)$. Since $\mathcal{M}$ is strictly increasing in $\rho$ for $\rho \in (0,1)$, it suffices to establish monotonicity of $\rho$ in each parameter. Note that $\rho$ does not depend on $\Theta$; $\mathcal{M}$ therefore does not depend on $\Theta$ through $\rho$.
 
-(i) $\partial\rho/\partial\Gamma = \gamma\bar{X}_d/(P_0\Theta) > 0$. $\checkmark$
+(i) $\partial\rho/\partial\Gamma = \gamma\bar{X}_d/P_0 > 0$. $\checkmark$
 
-(ii) $\partial\rho/\partial\gamma = \Gamma\bar{X}_d/(P_0\Theta) > 0$. $\checkmark$
+(ii) $\partial\rho/\partial\gamma = \Gamma\bar{X}_d/P_0 > 0$. $\checkmark$
 
-(iii) $\partial\rho/\partial\bar{X}_d = \Gamma\gamma/(P_0\Theta) > 0$. $\checkmark$
+(iii) $\partial\rho/\partial\bar{X}_d = \Gamma\gamma/P_0 > 0$. $\checkmark$
 
-(iv) $\partial\rho/\partial\Theta = -\Gamma\gamma\bar{X}_d/(P_0\Theta^2) < 0$. $\checkmark$
+(iv) $\mathcal{M} = 1/(1-\rho)$ is independent of $\Theta$ (since $\rho = \Gamma\gamma\bar{X}_d/P_0$ does not involve $\Theta$). However, $b^* = b^{\mathrm{pe}} \cdot \mathcal{M}$ and $b^{\mathrm{pe}} = (R - \Gamma\tilde{W})/(P_0\Theta)$, so $\partial b^{\mathrm{pe}}/\partial\Theta = -(R-\Gamma\tilde{W})/(P_0\Theta^2) < 0$ under Assumption 2. The claim $\partial\mathcal{M}/\partial\Theta < 0$ is therefore stated more precisely as: *the equilibrium basis $b^* = (R-\Gamma\tilde{W})/\Delta$ is decreasing in $\Theta$*, since $\partial\Delta/\partial\Theta = P_0 - \Gamma\gamma\bar{X}_d > 0$ under Assumption 1, which implies $\partial b^*/\partial\Theta = -(R-\Gamma\tilde{W})\cdot(P_0 - \Gamma\gamma\bar{X}_d)/\Delta^2 < 0$. The multiplier $\mathcal{M}$ itself is invariant to $\Theta$; the stabilizing effect of higher $\Theta$ operates through the partial-equilibrium basis $b^{\mathrm{pe}}$.
 
-The claims follow immediately. $\square$
+The claims follow. $\square$
 
-*Economic interpretation.* Claim (iv) deserves particular attention: a higher $\Theta$ means banks substitute more readily into Treasury sales when the basis rises, which stabilizes the swap market directly but, by increasing fire-sale pressure on $P$, also feeds back through dealer wealth. The net effect is stabilizing ($\partial\mathcal{M}/\partial\Theta < 0$) because the direct demand-relief effect of $\Theta$ (in the denominator of $b^*$) outweighs the feedback effect (the same $\Theta$ appears in both numerator $\rho$ and denominator of $b^{\mathrm{pe}}$). The inequality holds strictly whenever $\rho < 1$.
+*Economic interpretation.* Claim (iv) deserves clarification: a higher $\Theta$ means banks substitute more readily into Treasury sales when the basis rises, which stabilizes the swap market directly. The stabilizing effect operates through $b^{\mathrm{pe}} \propto 1/\Theta$ — more elastic fire sales relieve more swap demand per unit of basis, reducing the partial-equilibrium basis. The multiplier $\mathcal{M}$ is unaffected by $\Theta$ because the amplification ratio $\rho = \Gamma\gamma\bar{X}_d/P_0$ does not involve bank-level parameters.
 
 ### D.6 Hierarchical Contagion
 
 **Proposition 4 (Cross-Segment Contagion).** *Consider a shock $d\varepsilon > 0$ to the funding need of segment 3 ($dR_3 = d\varepsilon$, $dR_2 = 0$). In the unique equilibrium:*
 
-*(i)* $db^*/d\varepsilon = \mathcal{M}/(P_0\Theta) > 0$: *the basis rises.*
+*(i)* $db^*/d\varepsilon = 1/\Delta = \mathcal{M}/(P_0\Theta) > 0$: *the basis rises.*
 
 *(ii)* $dx_2^*/d\varepsilon = \theta_2 \cdot \mathcal{M}/(P_0\Theta) > 0$: *segment 2 increases Treasury sales, despite bearing no direct funding shock.*
 
-*(iii)* $dW^*/d\varepsilon = -\gamma\bar{X}_d \cdot \mathcal{M}/(P_0\Theta) < 0$: *dealer wealth falls.*
+*(iii)* $dW^*/d\varepsilon = -\gamma\Theta\bar{X}_d \cdot \mathcal{M}/(P_0\Theta) = -\gamma\bar{X}_d\mathcal{M}/P_0 < 0$: *dealer wealth falls.*
 
 *(iv)* $dO^*/d\varepsilon = \Gamma \cdot dW^*/d\varepsilon < 0$: *swap supply contracts.*
 
 *(v) The contagion is hierarchically ascending: the shock propagates from the uncovered segment (3) upward through the backstopped segment (2) to the dealer.*
 
-*Proof.* 
+*Proof.*
 
 (i) Differentiate (EQ) with respect to $\varepsilon$, noting $\partial R/\partial\varepsilon = 1$ and $\Gamma\tilde{W}$ is invariant to $\varepsilon$:
-$$\frac{db^*}{d\varepsilon} = \frac{1}{\Delta} = \frac{1}{P_0\Theta(1-\rho)} = \frac{\mathcal{M}}{P_0\Theta}. \tag{CS-eps}$$
+$$\frac{db^*}{d\varepsilon} = \frac{1}{\Delta} = \frac{1}{\Theta(P_0 - \Gamma\gamma\bar{X}_d)} = \frac{1}{P_0\Theta(1-\rho)} = \frac{\mathcal{M}}{P_0\Theta}. \tag{CS-eps}$$
 
 (ii) From (FS-$i$) with $i=2$: $x_2^* = \theta_2 b^*$, so $dx_2^*/d\varepsilon = \theta_2 \cdot db^*/d\varepsilon = \theta_2 \mathcal{M}/(P_0\Theta) > 0$.
 
-(iii) From (W-b): $W^* = \tilde{W} - \gamma b^*\bar{X}_d$, so $dW^*/d\varepsilon = -\gamma\bar{X}_d \cdot db^*/d\varepsilon < 0$.
+(iii) From (W-b): $W^* = \tilde{W} - \gamma\Theta b^*\bar{X}_d$, so
+$$\frac{dW^*}{d\varepsilon} = -\gamma\Theta\bar{X}_d \cdot \frac{db^*}{d\varepsilon} = -\gamma\Theta\bar{X}_d \cdot \frac{\mathcal{M}}{P_0\Theta} = -\frac{\gamma\bar{X}_d\mathcal{M}}{P_0} < 0.$$
 
 (iv) From (O-star): $O^* = \Gamma W^*$, so $dO^*/d\varepsilon = \Gamma \cdot dW^*/d\varepsilon < 0$.
 
 (v) Segment 2 bears no direct funding shock ($dR_2 = 0$) but increases fire sales ($dx_2^* > 0$) solely because the equilibrium basis has risen — a pure contagion effect transmitted through the price mechanism. The dealer, similarly, is not the origin of the shock but suffers wealth loss and capacity compression. The direction of propagation is from the lowest tier (segment 3, no backstop) upward through segment 2 and to the dealer. $\square$
 
-*Remark.* The multiplier $\mathcal{M}$ appears in the contagion elasticities (i)–(iv). This is not coincidental: the same amplification loop that magnifies the equilibrium level of $b^*$ above its partial-equilibrium value also magnifies the sensitivity of all endogenous variables to the shock. This is the formal sense in which the model generates *magnified propagation* relative to a model with no dealer feedback ($\Gamma = 0$ or $\bar{X}_d = 0$, in which case $\mathcal{M} = 1$).
+*Remark.* The multiplier $\mathcal{M}$ appears in the contagion elasticities (i)–(iv). This is not coincidental: the same amplification loop that magnifies the equilibrium level of $b^*$ above its partial-equilibrium value also magnifies the sensitivity of all endogenous variables to the shock. This is the formal sense in which the model generates *magnified propagation* relative to a model with no dealer feedback ($\Gamma = 0$ or $\bar{X}_d = 0$, in which case $\rho = 0$ and $\mathcal{M} = 1$).
 
 ### D.7 The Double Dividend of Swap Lines
 
@@ -416,17 +429,16 @@ $$\frac{db^*}{d\lambda} = \frac{-M_2}{\Delta} = \frac{-M_2}{P_0\Theta} \cdot \ma
 
 *Channel 2 (Collateral Stabilization):* The amplification factor $\mathcal{M} \geq 1$, which multiplies Channel 1.
 
-*Corollary (State-Dependence):* $\partial^2 b^*/(\partial\lambda\,\partial\rho) < 0$: the effectiveness of swap lines is increasing in crisis severity (as measured by $\rho$).*
+*Corollary (State-Dependence):* $\partial |db^*/d\lambda|/\partial\rho > 0$: the effectiveness of swap lines is increasing in crisis severity (as measured by $\rho$).*
 
 *Proof.* Differentiate (EQ) with respect to $\lambda$, noting $\partial R/\partial\lambda = -M_2$ (from $R = (1-\lambda)M_2 + M_3 + \varepsilon$) and $\partial(\Gamma\tilde{W})/\partial\lambda = 0$:
 $$\frac{db^*}{d\lambda} = \frac{-M_2}{\Delta}.$$
 Substituting $\Delta = P_0\Theta(1-\rho)$ and $1/(1-\rho) = \mathcal{M}$:
 $$\frac{db^*}{d\lambda} = \frac{-M_2}{P_0\Theta} \cdot \mathcal{M}.$$
 
-The decomposition is immediate: $-M_2/(P_0\Theta)$ is the partial-equilibrium effect (Channel 1), and the factor $\mathcal{M}$ is the amplification (Channel 2). Since $\mathcal{M} = 1/(1-\rho)$ is strictly increasing in $\rho$, we have
-$$\frac{\partial}{\partial\rho}\left(\frac{db^*}{d\lambda}\right) = \frac{-M_2}{P_0\Theta} \cdot \frac{1}{(1-\rho)^2} \cdot (-1) \cdot (-1) < 0,$$
-wait — let us be careful about signs. $db^*/d\lambda < 0$. We want its absolute value to be increasing in $\rho$: $\partial|db^*/d\lambda|/\partial\rho > 0$.
+The decomposition is immediate: $-M_2/(P_0\Theta)$ is the partial-equilibrium effect (Channel 1), and the factor $\mathcal{M}$ is the amplification (Channel 2).
 
+For the corollary: $db^*/d\lambda < 0$, so consider its absolute value:
 $$\left|\frac{db^*}{d\lambda}\right| = \frac{M_2}{P_0\Theta} \cdot \frac{1}{1-\rho},$$
 $$\frac{\partial}{\partial\rho}\left|\frac{db^*}{d\lambda}\right| = \frac{M_2}{P_0\Theta} \cdot \frac{1}{(1-\rho)^2} > 0. \quad \checkmark$$
 
@@ -437,42 +449,67 @@ Thus the absolute magnitude of the swap-line effect on the basis is increasing i
 ### D.8 Regulation Versus Backstop: Substitutability
 
 **Parameterization.** Introduce a tightening of capital regulation as an increase in the swap risk-weight $q_S \to q_S + \tau$ for $\tau > 0$. This reduces the dealer capacity parameter:
-$$\Gamma(\tau) = \frac{\phi}{q_S + \tau}.$$
+$$\Gamma(\tau) = \frac{\phi}{q_S + \tau}, \qquad \Gamma'(\tau) = -\frac{\phi}{(q_S+\tau)^2} < 0.$$
 
-However, tighter regulation also displaces demand: banks facing limited dealer supply for swaps substitute into other, costlier instruments, effectively increasing the residual funding need. Model this displacement as $R(\tau) = R + \delta\tau$, where $\delta \geq 0$ captures the demand-displacement intensity.
+Tighter regulation also displaces demand: banks facing limited dealer supply for swaps substitute into other, costlier instruments, effectively increasing the residual funding need. Model this displacement as $R(\tau) = R_0(\lambda) + \delta\tau$, where $R_0(\lambda) = (1-\lambda)M_2 + M_3 + \varepsilon$ is the baseline (pre-regulation) residual need and $\delta \geq 0$ captures the demand-displacement intensity. Note $R(\tau) = R_0(\lambda) + \delta\tau$ so that $\partial R/\partial\tau = \delta$ and $\partial R/\partial\lambda = -M_2$.
 
-**Proposition 6 (Regulation-Backstop Substitutability).** *(i) Tighter regulation ($d\tau > 0$) raises the equilibrium basis: $db^*/d\tau > 0$.*
+Under the parameterization $(\tau, \lambda)$, the equilibrium basis is:
+$$b^*(\tau, \lambda) = \frac{N(\tau)}{D(\tau)}, \quad N(\tau) = R(\tau) - \Gamma(\tau)\tilde{W}, \quad D(\tau) = \Delta(\tau) = \Theta(P_0 - \Gamma(\tau)\gamma\bar{X}_d).$$
 
-*(ii) Define the stability threshold $\bar\tau(\lambda)$ as the maximum $\tau$ for which Assumption 1 holds:*
-$$\bar\tau(\lambda) = q_S\left[\frac{\phi\gamma\bar{X}_d}{P_0\Theta} - 1\right]^{-1} + f(\lambda),$$
-*where $f(\lambda)$ is increasing in $\lambda$. Thus $\partial\bar\tau/\partial\lambda > 0$: a higher swap-line coverage rate expands the set of $\tau$ for which the market remains stable.*
+**Assumption 3 (Mild Stress).** $A \equiv \tilde{W}(P_0 - \Gamma(\tau)\gamma\bar{X}_d) - (R(\tau) - \Gamma(\tau)\tilde{W})\gamma\bar{X}_d > 0$, i.e., $\tilde{W}P_0 > R(\tau)\gamma\bar{X}_d$.
+
+*Interpretation.* This holds when the funding shock $R(\tau)$ is not too large relative to dealer wealth — a "mild stress" condition compatible with Assumption 2 for sufficiently small $\varepsilon$. It ensures that both the direct demand-displacement effect and the reduced-wealth effect of tighter regulation push the basis upward.
+
+**Proposition 6 (Regulation-Backstop Substitutability).** *(i) Tighter regulation ($d\tau > 0$) raises the equilibrium basis: $db^*/d\tau > 0$ under Assumptions 1, 2, and 3.*
+
+*(ii) Define the stability threshold $\bar\tau$ as the solution to $\Delta(\bar\tau) = 0$:*
+$$\bar\tau = \frac{\phi\gamma\bar{X}_d}{P_0} - q_S.$$
+*This threshold is independent of $\lambda$. Define the safe-stress threshold $\tau^{safe}(\lambda, b^{max})$ as the maximum $\tau$ for which $b^*(\tau,\lambda) \leq b^{max}$. Then $\partial\tau^{safe}/\partial\lambda > 0$: a higher swap-line coverage rate expands the set of regulatory tightening $\tau$ consistent with stress below target level $b^{max}$.*
 
 *(iii) Regulation ($\tau$) and backstop ($\lambda$) are imperfect substitutes in stabilization: for any target basis level $b^{target}$, the trade-off $d\tau/d\lambda|_{b^*=\text{const}}$ is well-defined and strictly negative.*
 
 *Proof.*
 
-(i) The equilibrium basis under $(\tau, \lambda)$ is
-$$b^*(\tau, \lambda) = \frac{R(\tau) - \Gamma(\tau)\tilde{W}}{\Delta(\tau)},$$
-where $\Delta(\tau) = P_0\Theta - \Gamma(\tau)\gamma\bar{X}_d$. Differentiating with respect to $\tau$ (treating $\lambda$ as fixed):
+*(i)* Apply the quotient rule to $b^*(\tau,\lambda) = N(\tau)/D(\tau)$.
 
-Numerator: $\partial[R(\tau) - \Gamma(\tau)\tilde{W}]/\partial\tau = \delta + \phi\tilde{W}/(q_S+\tau)^2 > 0$.
-Denominator: $\partial\Delta/\partial\tau = \gamma\bar{X}_d\phi/(q_S+\tau)^2 > 0$.
+Compute derivatives:
+$$N'(\tau) = \frac{dR}{d\tau} - \Gamma'(\tau)\tilde{W} = \delta + \frac{\phi\tilde{W}}{(q_S+\tau)^2} > 0,$$
+since $\delta \geq 0$ and $-\Gamma'(\tau) = \phi/(q_S+\tau)^2 > 0$.
+$$D'(\tau) = \frac{d\Delta}{d\tau} = -\Theta\gamma\bar{X}_d\Gamma'(\tau) = \frac{\Theta\gamma\bar{X}_d\phi}{(q_S+\tau)^2} > 0.$$
 
 By the quotient rule:
-$$\frac{db^*}{d\tau} = \frac{[\delta + \Gamma'(\tau)\tilde{W}]\Delta - [R - \Gamma\tilde{W}]\Gamma'(\tau)\gamma\bar{X}_d}{\Delta^2},$$
-where $\Gamma'(\tau) = -\phi/(q_S+\tau)^2 < 0$ (note: $\partial\Gamma/\partial\tau < 0$ because tighter regulation reduces dealer capacity). Substituting and simplifying under the stress regime (Assumption 2, numerator positive):
+$$\frac{db^*}{d\tau} = \frac{N'(\tau)D(\tau) - N(\tau)D'(\tau)}{D(\tau)^2}.$$
 
-The numerator of $db^*/d\tau$ is $\delta\Delta + (-\Gamma'(\tau))[\tilde{W}\Delta + (R - \Gamma\tilde{W})\gamma\bar{X}_d] \cdot (-1)$.
+The sign is determined by the numerator:
+$$N'(\tau)D(\tau) - N(\tau)D'(\tau)$$
+$$= \left[\delta + \frac{\phi\tilde{W}}{(q_S+\tau)^2}\right]\Theta(P_0 - \Gamma\gamma\bar{X}_d) - (R - \Gamma\tilde{W})\frac{\Theta\gamma\bar{X}_d\phi}{(q_S+\tau)^2}.$$
 
-More directly: the demand-displacement effect ($\delta > 0$) and the reduction in dealer supply ($\Gamma(\tau)$ decreasing in $\tau$) both push $b^*$ upward. A cleaner argument: fix $\Delta$ and observe that $\partial b^*/\partial\tau = \partial(R - \Gamma\tilde{W})/\partial\tau \cdot (1/\Delta) > 0$ when the demand-displacement effect dominates (which holds for $\delta > 0$) and when $\partial\Gamma/\partial\tau < 0$ (supply contraction). Both effects are positive, confirming $db^*/d\tau > 0$.
+Factor out $\Theta > 0$:
+$$= \Theta\left\{\delta(P_0 - \Gamma\gamma\bar{X}_d) + \frac{\phi}{(q_S+\tau)^2}\left[\tilde{W}(P_0 - \Gamma\gamma\bar{X}_d) - (R - \Gamma\tilde{W})\gamma\bar{X}_d\right]\right\}.$$
 
-(ii) Assumption 1 holds iff $\Delta(\tau) > 0$ iff $P_0\Theta > \Gamma(\tau)\gamma\bar{X}_d = \phi\gamma\bar{X}_d/(q_S+\tau)$, which requires $\tau > \phi\gamma\bar{X}_d/P_0\Theta - q_S$. Define $\bar\tau$ as the solution to $\Delta(\bar\tau) = 0$ (market breakdown threshold). Introducing $\lambda$: a higher $\lambda$ reduces $R$ (and reduces $b^*$ at any given $\tau$), which shifts the breakdown threshold outward. Formally, the breakdown condition $R(\tau) - \Gamma(\tau)\tilde{W} = 0$ (the crisis onset condition) is shifted by $\lambda$ because $\partial R/\partial\lambda = -M_2 < 0$. A higher $\lambda$ delays breakdown, so $\bar\tau(\lambda)$ is increasing in $\lambda$.
+The first term $\delta(P_0 - \Gamma\gamma\bar{X}_d) > 0$ under Assumption 1 ($P_0 > \Gamma\gamma\bar{X}_d$) and $\delta \geq 0$. For the second term, the expression in brackets equals $A \equiv \tilde{W}(P_0 - \Gamma\gamma\bar{X}_d) - (R - \Gamma\tilde{W})\gamma\bar{X}_d = \tilde{W}P_0 - R\gamma\bar{X}_d$, which is positive under Assumption 3.
 
-(iii) From the implicit function theorem applied to $b^*(\tau, \lambda) = b^{target}$:
+Therefore the numerator is $\Theta[\delta(P_0 - \Gamma\gamma\bar{X}_d) + \phi A/(q_S+\tau)^2] > 0$ under Assumptions 1, 2, and 3. Since $D(\tau)^2 > 0$, we conclude $db^*/d\tau > 0$.
+
+*Assumption use:* Assumption 1 is used for the sign of $(P_0 - \Gamma\gamma\bar{X}_d) > 0$; Assumption 2 for $(R - \Gamma\tilde{W}) > 0$ (ensuring we are in the stress regime); Assumption 3 for $A > 0$.
+
+*(ii)* The stability condition $\Delta(\tau) > 0$ requires $\Theta(P_0 - \Gamma(\tau)\gamma\bar{X}_d) > 0$, i.e., $P_0 > \phi\gamma\bar{X}_d/(q_S+\tau)$, which rearranges to $q_S + \tau > \phi\gamma\bar{X}_d/P_0$, i.e., $\tau > \phi\gamma\bar{X}_d/P_0 - q_S$. The stability threshold (where $\Delta(\bar\tau) = 0$) is:
+$$\bar\tau = \frac{\phi\gamma\bar{X}_d}{P_0} - q_S.$$
+This expression does not involve $\lambda$, so $\bar\tau$ is independent of $\lambda$.
+
+Now consider the safe-stress threshold. The binding condition $b^*(\tau^{safe},\lambda) = b^{max}$ defines $\tau^{safe}$ implicitly. Applying the implicit function theorem:
+$$\frac{d\tau^{safe}}{d\lambda} = -\frac{\partial b^*/\partial\lambda}{\partial b^*/\partial\tau}.$$
+
+From Proposition 5, $\partial b^*/\partial\lambda = -M_2/\Delta < 0$. From part (i), $\partial b^*/\partial\tau > 0$. Therefore:
+$$\frac{d\tau^{safe}}{d\lambda} = -\frac{-M_2/\Delta}{db^*/d\tau} = \frac{M_2/\Delta}{db^*/d\tau} > 0.$$
+
+Thus $\partial\tau^{safe}/\partial\lambda > 0$: a higher swap-line coverage rate expands the range of regulatory tightening consistent with $b^* \leq b^{max}$.
+
+*(iii)* From the implicit function theorem applied to $b^*(\tau, \lambda) = b^{target}$:
 $$\frac{d\tau}{d\lambda}\bigg|_{b^* = \text{const}} = -\frac{\partial b^*/\partial\lambda}{\partial b^*/\partial\tau} = -\frac{-M_2/\Delta}{db^*/d\tau} < 0,$$
-since the numerator is negative (swap lines reduce $b^*$) and the denominator is positive (regulation increases $b^*$). The trade-off is finite and well-defined under Assumption 1. $\square$
+since the numerator is negative (swap lines reduce $b^*$, so $\partial b^*/\partial\lambda = -M_2/\Delta < 0$) and the denominator is positive (regulation increases $b^*$, from part (i)). The trade-off is finite and well-defined under Assumption 1 (which ensures $\Delta > 0$). $\square$
 
-*Remark.* The substitutability is *imperfect* in the sense that the trade-off $d\tau/d\lambda$ is not constant — it depends on $\rho$ through $\Delta$. As $\rho \to 1$ (approaching market breakdown), the trade-off diverges: it takes an increasingly large increase in $\lambda$ to compensate for a marginal tightening of regulation. This captures the intuition that near the breakdown point, backstop provision is essential and cannot be replaced by regulation.
+*Remark.* The substitutability is *imperfect* in the sense that the trade-off $d\tau/d\lambda$ is not constant — it depends on $\rho$ through $\Delta = P_0\Theta(1-\rho)$. As $\rho \to 1$ (approaching market breakdown), $\Delta \to 0$ and the trade-off $|d\tau/d\lambda| = (M_2/\Delta)/(db^*/d\tau) \to \infty$: it takes an increasingly large increase in $\lambda$ to compensate for a marginal tightening of regulation. This captures the intuition that near the breakdown point, backstop provision is essential and cannot be replaced by regulation.
 
 ### D.9 Extension: Coordination Failure and Self-Fulfilling Runs
 
@@ -515,10 +552,10 @@ The following table collects all propositions and their assumptions for referenc
 |--------|-----------|-----------------|
 | Proposition 1 | Unique equilibrium $b^* = (R - \Gamma\tilde{W})/\Delta > 0$ | Assumptions 1 ($\Delta > 0$) and 2 ($R > \Gamma\tilde{W}$) |
 | Proposition 2 | $b^* = b^{\mathrm{pe}} \cdot \mathcal{M}$, $\mathcal{M} = 1/(1-\rho)$ | Assumption 1 |
-| Proposition 3 | $\mathcal{M}$ increasing in $\Gamma, \gamma, \bar{X}_d$; decreasing in $\Theta$ | Assumption 1 |
+| Proposition 3 | $\mathcal{M}$ increasing in $\Gamma, \gamma, \bar{X}_d$; $b^*$ decreasing in $\Theta$ | Assumption 1 |
 | Proposition 4 | Contagion: shock to segment 3 propagates to segment 2 and dealer | Assumptions 1 and 2 |
 | Proposition 5 | $db^*/d\lambda = -M_2\mathcal{M}/(P_0\Theta)$; effectiveness increasing in $\rho$ | Assumptions 1 and 2 |
-| Proposition 6 | $db^*/d\tau > 0$; $\bar\tau(\lambda)$ increasing in $\lambda$ | Assumptions 1 and 2 |
+| Proposition 6 | $db^*/d\tau > 0$; $\tau^{safe}(\lambda,b^{max})$ increasing in $\lambda$ | Assumptions 0b, 1, 2, and 3 |
 | Proposition 7 | Run zone $(\underline\lambda, \bar\lambda)$; elimination by $\lambda_{\min} \geq \bar\lambda$ | Assumption 1; global-games logic |
 
 ---
@@ -529,10 +566,10 @@ The following table collects all propositions and their assumptions for referenc
 |--------|------|------------|
 | $b$ | Scalar $\geq 0$ | Cross-currency basis (price of dollar liquidity per unit of FX swap) |
 | $b^*$ | Scalar $\geq 0$ | Equilibrium cross-currency basis |
-| $b^{\mathrm{pe}}$ | Scalar $\geq 0$ | Partial-equilibrium basis (no dealer feedback) |
+| $b^{\mathrm{pe}}$ | Scalar $\geq 0$ | Partial-equilibrium basis (no dealer feedback): $b^{\mathrm{pe}} = (R-\Gamma\tilde{W})/(P_0\Theta)$ |
 | $P$ | Scalar $\in (0,1]$ | Market price of US Treasury bonds (face value = 1) |
-| $P^*$ | Scalar $\in (0,1)$ | Equilibrium Treasury price |
-| $P_0$ | Scalar $\in (0,1]$ | Reference Treasury price used in bank-level price-taking assumption |
+| $P^*$ | Scalar $\in (0,1)$ | Equilibrium Treasury price: $P^* = 1 - \gamma\Theta b^*$ |
+| $P_0$ | Scalar $\in (0,1]$ | Reference Treasury price in bank-level FOC; normalized to 1 under Assumption 0a |
 | $M_i$ | Scalar $> 0$ | Baseline dollar funding need of segment $i$ bank ($i \in \{1,2,3\}$) |
 | $B_i$ | Scalar $\geq 0$ | Backstop coverage received by segment $i$ ($B_1 = M_1$, $B_2 = \lambda M_2$, $B_3 = 0$) |
 | $R_i$ | Scalar $\geq 0$ | Residual funding need of segment $i$: $R_i = M_i - B_i$ |
@@ -543,29 +580,34 @@ The following table collects all propositions and their assumptions for referenc
 | $s_i$ | Scalar $\geq 0$ | Quantity of FX swaps demanded by segment $i$ bank |
 | $\kappa_i$ | Scalar $> 0$ | Liquidation cost parameter of segment $i$ bank |
 | $\theta_i$ | Scalar $> 0$ | Basis-elasticity of fire sales: $\theta_i = P_0/\kappa_i$ |
-| $\Theta$ | Scalar $> 0$ | Aggregate basis-elasticity: $\Theta = \theta_2 + \theta_3$ |
+| $\Theta$ | Scalar $> 0$ | Aggregate basis-elasticity: $\Theta = \theta_2 + \theta_3 = P_0(1/\kappa_2 + 1/\kappa_3)$ |
 | $O$ | Scalar $\geq 0$ | Quantity of FX swaps supplied by dealer |
-| $O^*$ | Scalar $\geq 0$ | Equilibrium swap supply |
+| $O^*$ | Scalar $\geq 0$ | Equilibrium swap supply: $O^* = \Gamma W(P^*)$ |
 | $Z$ | Scalar $\geq 0$ | Quantity of Treasuries absorbed by dealer |
-| $\eta$ | Scalar $> 0$ | Dealer coefficient of absolute risk aversion (CARA) |
-| $\sigma_O^2$ | Scalar $> 0$ | Variance of payoff per unit of dealer swap position |
-| $\sigma_Z^2$ | Scalar $> 0$ | Variance of payoff per unit of dealer Treasury absorption |
+| $Z^*$ | Scalar | Equilibrium dealer Treasury absorption: $Z^* = 0$ (Assumption 0b) |
+| $\eta$ | Scalar $> 0$ | Dealer coefficient of absolute risk aversion (CARA); appears in unconstrained FOC only |
+| $\sigma_O^2$ | Scalar $> 0$ | Variance of payoff per unit of dealer swap position; appears in unconstrained FOC only |
+| $\sigma_Z^2$ | Scalar $> 0$ | Variance of payoff per unit of dealer Treasury absorption; appears in unconstrained FOC only |
 | $q_S$ | Scalar $> 0$ | Regulatory risk-weight on swap positions |
 | $q_T$ | Scalar $> 0$ | Regulatory risk-weight on Treasury holdings |
 | $\phi$ | Scalar $> 0$ | Regulatory maximum leverage ratio |
-| $\bar{X}_d$ | Scalar $> 0$ | Dealer's initial Treasury inventory |
+| $\bar{X}_d$ | Scalar $> 0$ | Dealer's initial Treasury inventory (held as stock; not traded in equilibrium under Assumption 0b) |
 | $W_0$ | Scalar $> 0$ | Dealer's initial equity capital |
 | $W(P)$ | Function $\mathbb{R}_{+} \to \mathbb{R}_{+}$ | Dealer marked-to-market net worth: $W(P) = W_0 + P\bar{X}_d$ |
 | $\tilde{W}$ | Scalar $> 0$ | Dealer wealth at $P=1$: $\tilde{W} = W_0 + \bar{X}_d$ |
-| $\Gamma$ | Scalar $> 0$ | Dealer capacity parameter: $\Gamma = \phi/q_S$ |
-| $\gamma$ | Scalar $> 0$ | Outside-investor Treasury price elasticity: $\gamma = \alpha\sigma_T^2$ |
+| $\Gamma$ | Scalar $> 0$ | Dealer capacity parameter: $\Gamma = \phi/q_S$; when $\tau > 0$, $\Gamma(\tau) = \phi/(q_S+\tau)$ |
+| $\gamma$ | Scalar $> 0$ | Outside-investor Treasury price elasticity: $\gamma = \alpha\sigma_T^2$, as in (OI-dem). Never conflated with $\gamma\Theta$. |
 | $\alpha$ | Scalar $> 0$ | Outside investors' coefficient of absolute risk aversion |
 | $\sigma_T^2$ | Scalar $> 0$ | Variance of Treasury payoff in outside investors' posterior |
-| $\Delta$ | Scalar | Stability parameter: $\Delta = P_0\Theta - \Gamma\gamma\bar{X}_d$ (positive under Assumption 1) |
-| $\rho$ | Scalar $\in (0,1)$ | Amplification feedback ratio: $\rho = \Gamma\gamma\bar{X}_d/(P_0\Theta)$ |
+| $\Delta$ | Scalar | Stability parameter: $\Delta = \Theta(P_0 - \Gamma\gamma\bar{X}_d)$ (positive under Assumption 1); $\Delta > 0 \Leftrightarrow \rho < 1$ |
+| $\rho$ | Scalar $\in (0,1)$ | Amplification feedback ratio: $\rho = \Gamma\gamma\bar{X}_d/P_0$ (independent of $\Theta$) |
 | $\mathcal{M}$ | Scalar $\geq 1$ | Amplification multiplier: $\mathcal{M} = 1/(1-\rho)$ |
 | $\tau$ | Scalar $\geq 0$ | Regulatory tightening parameter (increase in swap risk-weight) |
 | $\delta$ | Scalar $\geq 0$ | Demand-displacement intensity under regulation |
+| $A$ | Scalar | Mild-stress auxiliary: $A = \tilde{W}P_0 - R(\tau)\gamma\bar{X}_d$; positive under Assumption 3 |
+| $b^{max}$ | Scalar $> 0$ | Target maximum basis level (Proposition 6(ii)) |
+| $\tau^{safe}(\lambda,b^{max})$ | Function | Maximum $\tau$ consistent with $b^*(\tau,\lambda) \leq b^{max}$; increasing in $\lambda$ |
+| $\bar\tau$ | Scalar | Stability threshold: $\bar\tau = \phi\gamma\bar{X}_d/P_0 - q_S$; independent of $\lambda$ |
 | $\ell$ | Scalar $\in (0,1)$ | Liquidity ratio of segment 2 banks (extension, Section D.9) |
 | $\underline\lambda, \bar\lambda$ | Scalars | Run-zone thresholds (extension, Section D.9) |
 | $\lambda_{\min}$ | Scalar | Minimum committed swap-line coverage rate (extension, Section D.9) |
@@ -584,6 +626,8 @@ The following table collects all propositions and their assumptions for referenc
 
 5. **Verification of global-game uniqueness (Proposition 7).** The proof sketch invokes the Morris-Shin (2003) uniqueness machinery. A complete proof requires verifying the monotone supermodularity of the coordination game payoffs in terms of $\lambda$, which is straightforward given the closed-form $b^*(\lambda)$ but has not been carried out in full detail here.
 
+6. **Relaxing Assumption 0b (non-zero Treasury absorption).** The main text fixes $Z^* = 0$ for tractability. Appendix A should characterize the dealer's optimal allocation between swaps and Treasury absorption when both $O > 0$ and $Z > 0$, and verify that the main propositions are robust to this generalization.
+
 ---
 
-*End of Pure Theoretical Model Memo.*
+*End of Pure Theoretical Model Memo — Round 2.*
