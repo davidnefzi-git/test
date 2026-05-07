@@ -2,7 +2,7 @@
 ## Dollar Funding Hierarchies, Backstop Architecture, and the Propagation of Liquidity Crises
 
 **Date:** 2026-05-07
-**Status:** DRAFT — for use in Introduction drafting and referee preparation
+**Status:** ROUND 2 — Revised per Strategist-Critic Round 1 feedback (2026-05-07)
 
 ---
 
@@ -20,7 +20,7 @@
 
 ## A. Core Novelty Claim
 
-Existing models of dollar funding stress treat segmentation as parametric: either all foreign banks face symmetric balance-sheet constraints (Du-Tepper-Verdelhan 2018; Bacchetta-Davis-van Wincoop 2025) or the policy instrument — a swap line — contracts a single representative foreign bank (Cesa-Bianchi et al. 2025). None derives segmentation from a hierarchy of backstop quality, and none closes the feedback loop running from fire sales through dealer wealth back to swap supply. This paper introduces three structural innovations that did not exist simultaneously in a single internally consistent model. First, a three-tier backstop hierarchy is a primitive: $B_1 = M_1$ (US banks, full coverage), $B_2 = \lambda M_2$ (swap-line recipients, partial coverage $\lambda \in [0,1]$), and $B_3 = 0$ (offshore users, no coverage), generating endogenous residual funding needs $R_i$ from institutional architecture alone. Second, the fire-sale and dealer-wealth channels are closed in the equilibrium basis formula $b^* = (R - \Gamma\tilde{W})/\Delta$ (EQ), producing the directional amplification spiral with multiplier $\mathcal{M} = 1/(1-\rho)$ (M-def), where $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$ (ρ-def) is derived from dealer and market primitives. Third, regulation $\tau$ and backstop $\lambda$ are shown to be imperfect substitutes along an explicit policy frontier $\tau^{\rm safe}(\lambda, b^{\max})$ (Proposition 6), with trade-off $d\tau/d\lambda|_{b^*={\rm const}} < 0$ derived from the implicit function theorem.
+Existing models of dollar funding stress treat segmentation as parametric: either all foreign banks face symmetric balance-sheet constraints (Du-Tepper-Verdelhan 2018; Bacchetta-Davis-van Wincoop 2025) or the policy instrument — a swap line — contracts a single representative foreign bank (Cesa-Bianchi et al. 2025). None derives segmentation from a hierarchy of backstop quality, and none closes the feedback loop running from fire sales through dealer wealth back to swap supply. This paper introduces three structural innovations that did not exist simultaneously in a single internally consistent model. First, a three-tier backstop hierarchy is formalized as a structural primitive of the model environment: $B_1 = M_1$ (US banks, full coverage), $B_2 = \lambda M_2$ (swap-line recipients, partial coverage $\lambda \in [0,1]$), and $B_3 = 0$ (offshore users, no coverage), with residual funding needs $R = (1-\lambda)M_2 + M_3 + \varepsilon$ derived from institutional architecture alone. Second, the fire-sale and dealer-wealth channels are closed in the equilibrium basis formula $b^* = (R - \Gamma\tilde{W})/\Delta$ (EQ), where $\Delta \equiv \Theta(P_0 - \Gamma\gamma\bar{X}_d)$ ($\Delta$-def), producing the directional amplification spiral with multiplier $\mathcal{M} = 1/(1-\rho)$ (M-def), where $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$ ($\rho$-def). Third, regulation $\tau$ and backstop $\lambda$ are shown to be imperfect substitutes along an explicit policy frontier $\tau^{\rm safe}(\lambda, b^{\max})$ (Proposition 6), with $\partial\tau^{\rm safe}/\partial\lambda > 0$ derived from the implicit function theorem.
 
 ---
 
@@ -44,13 +44,13 @@ Existing models of dollar funding stress treat segmentation as parametric: eithe
 
 - *Their limit (per model memo):* Brunnermeier-Pedersen model the spiral in a domestic market context. The international dollar-funding dimension — specifically, how the spiral operates through the cross-currency basis, Treasury fire sales by foreign banks, and the leverage constraint of a global swap dealer — is absent. The model does not produce a closed-form multiplier that summarizes the spiral's strength, nor does it characterize how official backstop coverage attenuates the loop.
 
-- *Our advance:* The amplification decomposition in Proposition 2 is the formal microfoundation of the Brunnermeier-Pedersen spiral, specialized to the international dollar-funding market: $b^* = b^{\rm pe} \cdot \mathcal{M}$ (AMP), where $\mathcal{M} = 1/(1-\rho)$ (M-def) is the closed-form sum of the geometric series of feedback rounds. The amplification ratio $\rho = \Gamma\gamma\bar{X}_d/P_0$ (ρ-def) identifies which primitives govern spiral intensity: dealer capacity $\Gamma$, Treasury price elasticity $\gamma$, and dealer inventory $\bar{X}_d$. Proposition 3 characterizes the monotone dependence of $\mathcal{M}$ on each parameter, which Brunnermeier-Pedersen do not derive.
+- *Our advance:* The amplification decomposition in Proposition 2 is the closed-form international-dollar-funding analog of the Brunnermeier-Pedersen liquidity spiral, specialized to the international dollar-funding market: $b^* = b^{\rm pe} \cdot \mathcal{M}$ (AMP), where $\mathcal{M} = 1/(1-\rho)$ (M-def) is the closed-form sum of the geometric series of feedback rounds. The amplification ratio $\rho = \Gamma\gamma\bar{X}_d/P_0$ (ρ-def) identifies which primitives govern spiral intensity: dealer capacity $\Gamma$, Treasury price elasticity $\gamma$, and dealer inventory $\bar{X}_d$. Proposition 3 characterizes the monotone dependence of $\mathcal{M}$ on each parameter, which Brunnermeier-Pedersen do not derive.
 
 ---
 
 **Du, Tepper & Verdelhan (2018)**
 
-- *Their contribution (per model memo):* Empirical documentation that covered interest parity (CIP) fails persistently for major currencies since 2008 and that balance-sheet constraints of financial intermediaries drive the deviation. Their fiche (paper 19 in the discovery record, Du-Tepper-Verdelhan, cited as founding empirical anchor) defines the CIP deviation $x_{i,t} = \rho_{i,t} + F_{i,t} - S_{i,t} - \rho^{USD}_t$ and identifies the regulatory leverage ratio $\text{Tier1Capital}_{b,t}/\text{TotalExposure}_{b,t} \geq \ell$ as the binding constraint.
+- *Their contribution (per model memo):* Empirical documentation that covered interest parity (CIP) fails persistently for major currencies since 2008 and that balance-sheet constraints of financial intermediaries drive the deviation. Their fiche (paper 19, discovery record) defines the CIP deviation $x_{i,t} = \rho_{i,t} + F_{i,t} - S_{i,t} - \rho^{USD}_t$ and identifies the regulatory leverage ratio $\text{Tier1Capital}_{b,t}/\text{TotalExposure}_{b,t} \geq \ell$ as the binding constraint.
 
 - *Their limit:* The constraint is symmetric across all foreign intermediaries: all face the same leverage ratio friction. Segmentation — the differential between a bank whose central bank has a swap line and one that does not — is entirely absent. The model cannot speak to how uncovered institutions transmit stress to covered ones, or to how swap-line coverage shifts the equilibrium basis level.
 
@@ -84,7 +84,7 @@ Existing models of dollar funding stress treat segmentation as parametric: eithe
 
 - *Their limit (per model memo):* The framework is a domestic model. The international analog — in which the dollar is the outside liquidity for the entire global financial system, and the Federal Reserve's swap lines are the only instrument for providing it to offshore institutions — is not modeled. The hierarchy of backstop access (automatic for US banks, conditional for swap-line recipients, absent for offshore dollar users) is an institutional feature without formal representation.
 
-- *Our advance:* The three-tier backstop structure $(B_1 = M_1, B_2 = \lambda M_2, B_3 = 0)$ is the international analog of Holmström-Tirole's inside/outside liquidity partition, but endogenized as a primitive of the model environment rather than imposed parametrically. Proposition 7 connects to the Holmström-Tirole framework: the run-zone $(\underline\lambda, \bar\lambda)$ characterizes the region where inside liquidity (private markets) is insufficient and outside liquidity (the swap line at coverage $\lambda_{\min} \geq \bar\lambda$) is necessary to eliminate the run equilibrium.
+- *Our advance:* The three-tier backstop structure $(B_1 = M_1, B_2 = \lambda M_2, B_3 = 0)$ is the international analog of Holmström-Tirole's inside/outside liquidity partition, formalized as a structural primitive of the model environment rather than imposed parametrically. Proposition 7 connects to the Holmström-Tirole framework: the run-zone $(\underline\lambda, \bar\lambda)$ characterizes the region where inside liquidity (private markets) is insufficient and outside liquidity (the swap line at coverage $\lambda_{\min} \geq \bar\lambda$) is necessary to eliminate the run equilibrium.
 
 ---
 
@@ -94,7 +94,7 @@ Existing models of dollar funding stress treat segmentation as parametric: eithe
 
 - *Their limit (per model memo):* The coordination failure in both frameworks is over the exchange-rate peg or the bank's liquidity ratio, not over the coverage rate of an official backstop facility. The threshold that separates run from no-run equilibria is not linked to the institutional design of swap lines or to the structural parameters of the dollar funding market (dealer capacity $\Gamma$, fire-sale elasticity $\Theta$, outside-investor elasticity $\gamma$).
 
-- *Our advance:* Proposition 7 endogenizes the run thresholds $\underline\lambda$ and $\bar\lambda$ in terms of the structural parameters $(\Theta, \Gamma, \gamma, \bar{X}_d)$ from the main model (as stated in the Remark following Proposition 7). The minimum swap-line commitment $\lambda_{\min} \geq \bar\lambda$ needed to eliminate the run equilibrium is therefore expressed in terms of observable balance-sheet characteristics of the dollar funding system, not just in terms of a generic "sufficiency" condition. The connection is explicit: $b^*(\lambda)$ from Proposition 1 feeds into the creditor payoff functions of the global game, so the structural parameters of the amplification spiral determine the size of the coordination zone.
+- *Our advance:* The model provides the formal input that the global-game extension requires: the closed-form $b^*(\lambda)$ from Proposition 1 (EQ) and its derivative $db^*/d\lambda = -M_2\mathcal{M}/(P_0\Theta) < 0$ from Proposition 5 (SL). Section D.9 of the model memo develops this into an incomplete proof sketch (Proposition 7) establishing conditions for run-zone multiplicity. The thresholds $\underline\lambda$ and $\bar\lambda$ are defined in terms of the equilibrium basis function, but the full verification of global-game uniqueness conditions is flagged as an open item (model memo, Open Question 5) and will be completed before submission.
 
 ---
 
@@ -118,7 +118,7 @@ Existing models of dollar funding stress treat segmentation as parametric: eithe
 
 ---
 
-**Kloks, Mattille & Ranaldo (2024)**
+**Kloks, Mattille & Ranaldo (2023)**
 
 - *Their contribution:* An empirical characterization of FX swap liquidity, distinguishing tightness $\text{Spread}^{\rm FX\,swap}_{j,t} = (F^{\rm ask}_{j,t} - F^{\rm bid}_{j,t})/F^{\rm mid}_{j,t}$ and depth $\text{Depth}_{j,t} = \text{Volume dealer-intermediated}_{j,t}$. The key empirical finding is a new demand channel: non-bank financial institutions use FX swaps for short-term funding precisely when liquidity deteriorates, driven by the regulatory window-dressing of G-SIB dealers at quarter-end ($\text{Constraint}_{d,t} = \mathbf{1}[\text{G-SIB}_d] \cdot \mathbf{1}[\text{Quarter-end}_t]$), with volume rising even as liquidity falls.
 
@@ -130,11 +130,11 @@ Existing models of dollar funding stress treat segmentation as parametric: eithe
 
 ## C. Battle Plan for the Introduction
 
-• Proposition 2 shows the equilibrium basis exceeds its partial-equilibrium level by the closed-form multiplier $\mathcal{M} = 1/(1-\rho)$, where $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$ is derived from dealer leverage, Treasury inventory, and outside-investor elasticity.
+- Proposition 2: the equilibrium basis satisfies $b^* = b^{\rm pe} \cdot \mathcal{M}$ with $\mathcal{M} = 1/(1-\rho)$, $\rho \equiv \Gamma\gamma\bar{X}_d/P_0$, amplifying any funding shock by the closed-form multiplier.
 
-• Proposition 4 establishes that a funding shock to uncovered segment 3 raises fire sales in backstopped segment 2 by $dx_2^*/d\varepsilon = \theta_2\mathcal{M}/(P_0\Theta) > 0$, despite segment 2 bearing no direct shock — a formally derived hierarchical contagion result.
+- Proposition 4: shock $d\varepsilon > 0$ to uncovered segment 3 raises segment 2 fire sales by $dx_2^*/d\varepsilon = \theta_2\mathcal{M}/(P_0\Theta) > 0$ with no direct shock to segment 2.
 
-• Proposition 6 derives the policy frontier $\tau^{\rm safe}(\lambda, b^{\max})$ via the implicit function theorem, with $\partial\tau^{\rm safe}/\partial\lambda > 0$: each unit of swap-line coverage expands the set of regulatory tightening consistent with stress below any target threshold $b^{\max}$.
+- Proposition 6: the policy frontier $\tau^{\rm safe}(\lambda, b^{\max})$ satisfies $\partial\tau^{\rm safe}/\partial\lambda > 0$ — a stronger backstop expands the set of stable regulatory tightening.
 
 ---
 
