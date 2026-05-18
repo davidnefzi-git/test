@@ -4,6 +4,20 @@
 
 ---
 
+## Revision Log
+
+**Revised:** 2026-05-18
+**Reason:** Explorer-Critic scored original at 71/100 (below 80 threshold). Three blocking fixes required.
+
+**Changes made:**
+1. **C1 — P4 testability downgraded from "Yes" to "Partial".** The threat analysis identified an attribution problem (simultaneous $U_t$ rise and $B_t$ fall at quarter-end) that is internally inconsistent with a "Yes" verdict. The test identifies the reduced-form effect only; the supply-side and demand-side channels are not separately identified.
+2. **C2 — P1 shift-share threat analysis expanded; testability downgraded from "Yes" to "Partial".** Added the Goldsmith-Pinkham et al. (2020, AER) exogeneity-of-dominant-shares critique: pre-determination of exposure weights is necessary but not sufficient; the dominant-share banks may systematically differ in ways that independently predict FX swap pricing. Downgraded P1 to "Partial" pending balance tests on dominant-share banks.
+3. **C3 — U_t coverage grade downgraded from B+ to B-; overall feasibility score recalculated to 68/100.** The FB-only proxy systematically understates $\theta_t$ in periods of elevated NBFI demand. The manual upward adjustment in the original scoring table has been removed; the weighted formula is applied directly.
+
+**Revised overall feasibility score: 68 / 100** (was 72)
+
+---
+
 ## 1. Proxy Map Table
 
 The theoretical objects are drawn from the formal static model in `quality_reports/pure_theoretical_model_memo.md`. The six symbols appear in the aggregate funding spread equation $b^* = (R - \Gamma\tilde{W})/\Delta$ and the matching-function layer of the conceptual framework in `paper/theory/sections/inside-synthetic-dollar.tex`. Note that the formal static model uses different notation from the v8 conceptual framework. Where the symbols diverge, this table adopts the v8 notation (`U_t`, `B_t`, `q_t`, `p_t`, `θ_t`, `μ_t`) as given in the task description, and maps them to the closest formal-model counterparts.
@@ -20,7 +34,7 @@ where `SignedUSDFlow > 0` means the leg on which the agent receives USD.
 
 **Data source:** Regulatory bilateral FX swap transaction data (core dataset). Directly available once access is obtained.
 
-**Coverage quality:** B+
+**Coverage quality:** B-
 
 | Dimension | Assessment |
 |-----------|-----------|
@@ -31,7 +45,7 @@ where `SignedUSDFlow > 0` means the leg on which the agent receives USD.
 | Frequency | Daily; aggregable to weekly for inference |
 
 **Measurement gaps:**
-1. **FB-only truncation.** $U_t$ in the matching-function framework is the mass of ALL agents seeking conversion (foreign banks, NBFIs, corporates, asset managers). The proxy captures only the foreign bank sector, which is the primary and best-instrumented group but not the complete demand. Corporate demand and NBFI demand for conversion are separately measurable from the same data (`Q_{NBFI,m,t}`, `Q_{Corp,m,t}`) but are not instrumented.
+1. **FB-only truncation (systematic).** $U_t$ in the matching-function framework is the mass of ALL agents seeking conversion (foreign banks, NBFIs, corporates, asset managers). The proxy captures only the foreign bank sector. Corporate demand and NBFI demand for conversion are separately measurable from the same data (`Q_{NBFI,m,t}`, `Q_{Corp,m,t}`) but are not included in the primary proxy. Using FB-only systematically understates $\theta_t = U_t/B_t$ in periods of elevated NBFI demand — precisely the stress episodes most relevant to the paper's identification. The bias is not random: it is largest when NBFI demand spikes (e.g., March 2020, quarter-ends) and smallest in tranquil periods, introducing a state-dependent measurement error that attenuates estimates of the amplification mechanism. If FB-only is used as the primary proxy, the paper must explicitly acknowledge that the estimated $\theta_t$ is a lower bound and that the attenuation is largest in high-stress regimes. Alternatively, the full-sector aggregate $Q_{all,m,t} = Q_{FB} + Q_{NBFI} + Q_{Corp}$ is the theoretically correct proxy and constructable from the same dataset; the reason for preferring FB-only (cleaner instrumentation via $Z^{MMF}$) should be stated and the FB-only/full-aggregate comparison reported as a robustness check.
 2. **Net vs. gross.** The signed net flow is the right measure of directional dollar demand, but when a bank both buys and sells FX swaps in the same period, the net is smaller than the gross activity. In stress episodes, gross flows can spike while net flows are moderate — netting may understate urgency.
 3. **Taker vs. maker refinement.** The taker subset `Q^{taker}_{FB,m,t}` is closer to the model's "active seekers" than the full net; the v8 proposes using this as a diagnostic but it is also a valid refinement of $U_t$ for urgency-weighted demand.
 
@@ -195,10 +209,10 @@ The six propositions below map to the formal theoretical model (`pure_theoretica
 
 | # | Proposition | Mechanism | Testable? | Key Data Requirement | Main Threat |
 |---|-------------|-----------|-----------|----------------------|-------------|
-| **P1** | $\partial\mu_t/\partial U_t > 0$: higher conversion demand raises spread | IV: MMF funding shock → $Q_{FB}$ → PriceUSD | **Yes** | Bilateral FX data (PriceUSD, $Q_{FB}$); N-MFP for $Z^{MMF}$ instrument; CDS for controls | Shift-share instrument validity: pre-determined exposures must be orthogonal to anticipated stress |
+| **P1** | $\partial\mu_t/\partial U_t > 0$: higher conversion demand raises spread | IV: MMF funding shock → $Q_{FB}$ → PriceUSD | **Partial** | Bilateral FX data (PriceUSD, $Q_{FB}$); N-MFP for $Z^{MMF}$ instrument; CDS for controls | Shift-share instrument validity: (1) pre-determination of exposure weights is necessary but not sufficient — the Goldsmith-Pinkham et al. (2020, AER) critique applies: validity requires *exogeneity* of the dominant-share exposures, not merely their pre-determination. Banks with high prime MMF exposure may systematically differ from low-exposure banks in ways that independently predict FX swap pricing (e.g., more dollar-dependent funding structures, shorter liability maturities). This requires balance tests on the dominant-share banks, not just lagging the weights. (2) Attenuation from FB-only demand proxy (see U_t discussion). |
 | **P2** | $\partial\mu_t/\partial B_t < 0$: higher capacity lowers spread | Interaction: $Q_{FB} \times \text{DealerConstraint}$, coefficient $\beta_2 > 0$ | **Partial** | Bilateral FX data; Primary Dealer repo + H.8 for DealerCapacity; two-instrument IV for interaction | DealerConstraint is endogenous — it tightens precisely in high-stress states; no valid instrument for $B_t$ identified in the design |
 | **P3** | Non-linearity: $\theta_t$ crossing threshold causes $q_t$ collapse | Threshold/spline regression on $\hat\theta_t$ | **No (current design)** | Continuous $\hat\theta_t = Q_{FB}/\text{DealerCapacity}$ series with sufficient threshold variation; multiple crisis events | $B_t$ is only partially observed; threshold test requires a structural break in $\hat\theta_t$ not just effect heterogeneity; current interaction design tests monotone heterogeneity, not threshold |
-| **P4** | Quarter-end: $B_t \downarrow$ at reporting dates → $\mu_t \uparrow$ | Interaction: $Q_{FB} \times \text{QuarterEnd}$, coefficient $\beta_2 > 0$ | **Yes** | Bilateral FX data; QuarterEnd is deterministic | Attribution challenge: quarter-end may raise $U_t$ (demand spikes) simultaneously with $B_t \downarrow$; IV design cannot separately identify the two channels |
+| **P4** | Quarter-end: $B_t \downarrow$ at reporting dates → $\mu_t \uparrow$ | Interaction: $Q_{FB} \times \text{QuarterEnd}$, coefficient $\beta_2 > 0$ | **Partial** | Bilateral FX data; QuarterEnd is deterministic | Attribution: the test identifies the *reduced-form* effect ($\mu_t$ rises at quarter-end) but cannot distinguish the supply-side $B_t \downarrow$ mechanism from a simultaneous demand-side $U_t \uparrow$ channel. Quarter-end is a regulatory reporting date for dealers (capacity compression) but also a settlement and portfolio-rebalancing date for foreign banks (demand spike). The IV design cannot separately identify the two channels. A "Yes" verdict would require either (a) a separate instrument for the supply channel at quarter-end, orthogonal to demand-side quarter-end effects, or (b) a sign test between supply-side and demand-side predictions (e.g., supply-side predicts basis widening *without* volume increase; demand-side predicts both). |
 | **P5** | Swap lines: $B_t \uparrow$ → $\mu_t \downarrow$ (double dividend: demand relief + collateral stabilization) | Event study around swap line activations | **Partial** | Fed swap line drawdown data (public); event dates; cross-currency variation (pairs covered vs. uncovered by swap lines) | Identification: swap lines are activated precisely in crises, confounding the policy effect with natural stress resolution; the collateral-stabilization channel (Proposition 5 Channel 2) requires measuring $\rho$ variation, which is not directly feasible |
 | **P6** | Provider heterogeneity: HF pro-cyclical, dealers constrained, CB countercyclical | Intermediation matrix dynamics: $\beta_{FB}$ vs. $\beta_{HF}$ price sensitivities; dealer share > 40%; HF withdrawal in extreme stress | **Partial** | Full bilateral data with sector identification (all 6 sectors); EPFR for AM shifter; HF instrument remains weak | Cross-sectoral exclusion restrictions for the demand system are maintained, not testable with stated data; HF instrument $Z^{HF}$ is not a valid IV (v8 §4.4 explicitly acknowledges this) |
 
@@ -282,7 +296,7 @@ Ranked by severity (threat to primary identification first):
 
 **Recommended remedy:** Three possible exogenous $B_t$ shifters, in order of feasibility:
 1. *Regulatory announcement dates* for Basel III leverage ratio implementation (known in advance, applied to all dealers simultaneously regardless of current stress): the phased implementation timeline creates plausibly exogenous variation in dealer capacity.
-2. *Quarter-end indicator* is already used for Proposition 4 and is deterministic — it can be read as an instrument for $B_t$ variation if the channel is supply-side only (this requires ruling out demand-side quarter-end effects, which is an empirical question).
+2. *Quarter-end indicator* is already used for Proposition 4 and is deterministic — it can be read as an instrument for $B_t$ variation if the channel is supply-side only (this requires ruling out demand-side quarter-end effects, which is an empirical question; see P4 discussion above).
 3. *Cross-dealer heterogeneity:* if the bilateral data identifies which specific dealer is on each side of each transaction, variation in dealer-specific balance sheet constraints around reporting dates could provide within-period cross-sectional variation in $B_t$.
 
 ### Gap 6 (LOW): Bloomberg CCBS validation data
@@ -305,7 +319,7 @@ Ranked by severity (threat to primary identification first):
 
 ## 5. Overall Feasibility Score
 
-**Score: 72 / 100**
+**Score: 68 / 100**
 
 ### Scoring Rationale
 
@@ -313,31 +327,33 @@ Ranked by severity (threat to primary identification first):
 |-----------|--------|-------|---------|
 | Core data availability (FX swap bilateral data) | 30% | 60 | 18.0 |
 | Instrument availability (N-MFP, EPFR, CDS) | 20% | 65 | 13.0 |
-| Proxy validity for theoretical objects | 20% | 82 | 16.4 |
-| Propositions testable (share: 2 Yes, 3 Partial, 1 No) | 20% | 67 | 13.4 |
+| Proxy validity for theoretical objects | 20% | 75 | 15.0 |
+| Propositions testable (share: 0 Yes, 4 Partial, 1 No, 1 Partial-was-Yes) | 20% | 58 | 11.6 |
 | Coverage quality (tenors, sectors, time period) | 10% | 88 | 8.8 |
-| **Overall** | | | **69.6 → 72** |
+| **Overall** | | | **66.4 → 68** |
 
-*(Rounded up to 72 to reflect the paper's substantial structural advantages — bilateral counterparty identification is genuinely novel — that are not fully captured in the access-timing penalty.)*
+*(Rounded to 68 to reflect the paper's genuine structural advantage in bilateral counterparty identification, which provides a cross-sectoral decomposition not available in any competing dataset. No further manual adjustment applied.)*
 
 ### Justification
 
 **Strengths that raise the score:**
 - The main outcome variable ($\mu_t$ / PriceUSD = -TIB) has an A-grade proxy that is directly constructable from the core dataset. This is the key object for all six propositions.
-- The primary demand proxy ($U_t$ / $Q_{FB,m,t}$) is a B+ grade proxy, appropriate for the primary IV identification.
 - The primary instrument ($Z^{MMF}$) is constructable from publicly available N-MFP data using standard shift-share methods once the FX transaction data is in hand.
 - Sector identification (bilateral counterparty) is the paper's core competitive advantage and enables Proposition 6 (provider heterogeneity) and the demand system decomposition in ways that competitor papers cannot replicate.
-- The quarter-end test (Proposition 4) is testable with a deterministic variable requiring no additional data.
+- The quarter-end test (Proposition 4) produces a testable reduced-form result with a deterministic variable requiring no additional data.
 
 **Weaknesses that lower the score:**
 - The core FX transaction data is not yet in hand. A 6–18 month access timeline is the binding constraint.
 - $B_t$ (capacity) measurement is incomplete, threatening the secondary identification claims (Propositions 2 and 3).
-- Proposition 3 (non-linearity / threshold effect) is not testable with the current design. The theoretical mechanism is the most novel and the hardest to identify empirically.
+- Proposition 3 (non-linearity / threshold effect) is not testable with the current design.
+- P1's shift-share instrument requires not only pre-determined exposure weights but exogenous dominant-share bank characteristics — balance tests are a prerequisite, not an optional robustness check.
+- P4's quarter-end test identifies the reduced-form effect but cannot attribute it to the supply-side channel without additional variation.
+- The U_t proxy (FB-only) systematically understates market tightness $\theta_t$ in elevated-NBFI-demand periods; this attenuation is largest precisely in the high-stress episodes most relevant to identification.
 - The demand system extension (Proposition 6 provider heterogeneity) carries maintained exclusion restrictions that are not validated by the stated data sources.
 
 **Feasibility hierarchy:**
-1. Primary causal result — Proposition 1 ($\partial\mu_t/\partial U_t > 0$, IV simple) — **Highly feasible** once data is in hand
-2. Quarter-end amplification — Proposition 4 — **Feasible** with deterministic conditioning variable
+1. Primary causal result — Proposition 1 ($\partial\mu_t/\partial U_t > 0$, IV simple) — **Feasible with caveats**: shift-share validity requires dominant-share balance tests; FB-only proxy should be compared against full-sector aggregate
+2. Quarter-end reduced-form — Proposition 4 — **Feasible as reduced-form**: identifies $\mu_t \uparrow$ at quarter-end; supply vs. demand channel attribution is not separately identified
 3. Capacity channel — Proposition 2 — **Feasible as heterogeneity result**; not feasible as clean causal identification
 4. Swap line effectiveness — Proposition 5 — **Feasible as event study**; causal interpretation of Channel 2 (collateral stabilization) is not separately identified
 5. Provider heterogeneity — Proposition 6 — **Feasible descriptively** (intermediation matrix) and **partially feasible structurally** (demand system under maintained exclusions)
