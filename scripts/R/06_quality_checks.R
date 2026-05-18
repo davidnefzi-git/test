@@ -17,7 +17,7 @@ library(tidyr)
 library(ggplot2)
 library(scales)
 
-set.seed(42)   # for reproducible plotting sample in Section 5
+# set.seed() is called once in 00_master.R; removed here to avoid duplicate.
 
 # ---------------------------------------------------------------------------
 # 0. Load data
@@ -145,13 +145,14 @@ tex_lines <- c(
   "  \\midrule"
 )
 
-for (i in seq_len(nrow(clearing_stats))) {
+# Pre-allocate to avoid growing vector (INV-17)
+clearing_rows <- vapply(seq_len(nrow(clearing_stats)), function(i) {
   r <- clearing_stats[i, ]
-  tex_lines <- c(tex_lines,
-    sprintf("  %s & --- & %.4f & %.2f\\%% & %.1f\\%% \\\\",
-            r$currency_pair, r$mean_abs_residual,
-            100 * r$rel_residual, 100 * r$pct_within_5pct))
-}
+  sprintf("  %s & --- & %.4f & %.2f\\%% & %.1f\\%% \\\\",
+          r$currency_pair, r$mean_abs_residual,
+          100 * r$rel_residual, 100 * r$pct_within_5pct)
+}, character(1))
+tex_lines <- c(tex_lines, clearing_rows)
 tex_lines <- c(tex_lines,
   sprintf("  \\textit{Pooled} & --- & %.4f & %.2f\\%% & %.1f\\%% \\\\",
           overall_clearing$mean_abs_residual,
@@ -161,29 +162,31 @@ tex_lines <- c(tex_lines,
   "  \\multicolumn{5}{l}{\\textit{Panel B: TIB vs.\\ Bloomberg CCBS correlation}} \\\\[3pt]"
 )
 
-for (i in seq_len(nrow(corr_by_pair))) {
+# Pre-allocate to avoid growing vector (INV-17)
+corr_rows <- vapply(seq_len(nrow(corr_by_pair)), function(i) {
   r <- corr_by_pair[i, ]
-  tex_lines <- c(tex_lines,
-    sprintf("  %s & %s & $\\rho$=%.3f & Mean dev.=%.2f & SD dev.=%.2f \\\\",
-            r$currency_pair,
-            format(r$n_obs, big.mark = ","),
-            r$rho_tib_ccbs, r$mean_deviation, r$sd_deviation))
-}
+  sprintf("  %s & %s & $\\rho$=%.3f & Mean dev.=%.2f & SD dev.=%.2f \\\\",
+          r$currency_pair,
+          format(r$n_obs, big.mark = ","),
+          r$rho_tib_ccbs, r$mean_deviation, r$sd_deviation)
+}, character(1))
+tex_lines <- c(tex_lines, corr_rows)
 
 tex_lines <- c(tex_lines,
   "  \\midrule",
   "  \\multicolumn{5}{l}{\\textit{Panel C: Liquidity filter (bid-ask spread $>$ 2 bps)}} \\\\[3pt]"
 )
 
-for (i in seq_len(nrow(filter_by_pair))) {
+# Pre-allocate to avoid growing vector (INV-17)
+filter_rows <- vapply(seq_len(nrow(filter_by_pair)), function(i) {
   r <- filter_by_pair[i, ]
-  tex_lines <- c(tex_lines,
-    sprintf("  %s & --- & Dropped: %s & (%.1f\\%%) & Retained: %.1f\\%% \\\\",
-            r$currency_pair,
-            format(r$n_dropped, big.mark = ","),
-            100 * r$pct_dropped,
-            100 * r$pct_retained))
-}
+  sprintf("  %s & --- & Dropped: %s & (%.1f\\%%) & Retained: %.1f\\%% \\\\",
+          r$currency_pair,
+          format(r$n_dropped, big.mark = ","),
+          100 * r$pct_dropped,
+          100 * r$pct_retained)
+}, character(1))
+tex_lines <- c(tex_lines, filter_rows)
 tex_lines <- c(tex_lines,
   sprintf("  \\textit{Pooled} & %s & Dropped: %s & (%.1f\\%%) & Retained: %.1f\\%% \\\\",
           format(filter_stats$n_total, big.mark = ","),
@@ -200,7 +203,7 @@ writeLines(tex_lines, file.path(table_dir, "quality_checks.tex"))
 # 5. TIB vs CCBS scatter figure (supplementary)
 # ---------------------------------------------------------------------------
 
-custom_theme <- theme_bw(base_size = 14) +
+custom_theme <- theme_bw(base_size = 14, base_family = "serif") +
   theme(
     panel.grid.minor  = element_blank(),
     panel.grid.major  = element_line(color = "grey90"),

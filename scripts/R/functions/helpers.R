@@ -68,12 +68,14 @@ coef_se_rows <- function(models, var_pattern, row_label) {
 }
 
 # ---------------------------------------------------------------------------
-# Extract the IV beta (fit_mu_t coefficient) from a fixest demand-system model.
+# Extract the IV beta from a fixest demand-system model.
+# var_pattern: regex pattern for the instrumented coefficient (default "fit_mu_t").
 # Used in 05_demand_system.R to compute B_agg = Sigma(beta_s).
 # ---------------------------------------------------------------------------
-get_iv_beta <- function(mod) {
-  stopifnot(inherits(mod, "fixest"))
-  nm <- names(coef(mod))[grepl("fit_mu_t", names(coef(mod)))][1]
+get_iv_beta <- function(mod, var_pattern = "fit_mu_t") {
+  stopifnot(inherits(mod, "fixest"),
+            is.character(var_pattern), nchar(var_pattern) > 0)
+  nm <- names(coef(mod))[grepl(var_pattern, names(coef(mod)))][1]
   if (is.na(nm)) return(NA_real_)
   coef(mod)[[nm]]
 }

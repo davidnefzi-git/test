@@ -40,7 +40,7 @@ macro  <- readRDS(file.path(out_dir, "macro_ts.rds"))
 # Custom theme (shared across all figures in this project)
 # ---------------------------------------------------------------------------
 
-custom_theme <- theme_bw(base_size = 14) +
+custom_theme <- theme_bw(base_size = 14, base_family = "serif") +
   theme(
     panel.grid.minor    = element_blank(),
     panel.grid.major    = element_line(color = "grey90"),

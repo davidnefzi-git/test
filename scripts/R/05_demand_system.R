@@ -20,6 +20,8 @@ library(dplyr)
 library(tidyr)
 library(fixest)
 
+source(here::here("scripts", "R", "functions", "helpers.R"))
+
 # ---------------------------------------------------------------------------
 # 0. Load data
 # ---------------------------------------------------------------------------
@@ -111,12 +113,7 @@ iv_am  <- feols(SignedUSDFlow_AM ~ 1 | cell_id + date |
                   mu_t ~ EPFR_shock,
                 data = ds_data, cluster = ~cell_id + date)
 
-# Extract IV betas
-get_iv_beta <- function(mod) {
-  nm <- names(coef(mod))[grepl("fit_mu_t", names(coef(mod)))][1]
-  if (is.na(nm)) return(NA_real_)
-  coef(mod)[[nm]]
-}
+# Extract IV betas — get_iv_beta() is defined in helpers.R
 
 betas_iv <- c(
   beta_FB_iv  = get_iv_beta(iv_fb),
@@ -153,26 +150,7 @@ qt_iv <- feols(
 # ---------------------------------------------------------------------------
 # 5. LaTeX table
 # ---------------------------------------------------------------------------
-
-stars <- function(p) {
-  if (is.na(p))  return("")
-  if (p < 0.01) return("^{***}")
-  if (p < 0.05) return("^{**}")
-  if (p < 0.10) return("^{*}")
-  return("")
-}
-
-fmt_coef_se <- function(mod, var) {
-  co   <- coef(mod)
-  se_v <- se(mod)
-  pv   <- pvalue(mod)
-  nm   <- names(co)[grepl(var, names(co), fixed = TRUE)][1]
-  if (is.na(nm)) return(list(main = "---", se = ""))
-  list(
-    main = sprintf("%.4f%s", co[[nm]], stars(pv[[nm]])),
-    se   = sprintf("(%.4f)", se_v[[nm]])
-  )
-}
+# stars(), fmt_coef_se(), and other helpers are sourced from helpers.R above.
 
 # Construct the table
 models  <- list(ols_fb, ols_dlr, ols_hf, ols_am, iv_fb, iv_dlr, iv_hf, iv_am)

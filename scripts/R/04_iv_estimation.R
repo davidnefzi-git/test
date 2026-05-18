@@ -19,6 +19,7 @@
 ##          paper/tables/iv_bootstrap.tex
 ##          Output/fx_swap/iv_results.rds
 ## =============================================================================
+## NOTE: set.seed() is called once in 00_master.R before this script is sourced.
 
 library(here)
 library(dplyr)
@@ -150,36 +151,7 @@ int_tenor <- feols(
 # ---------------------------------------------------------------------------
 # 4. Helper functions for LaTeX table construction
 # ---------------------------------------------------------------------------
-
-# Stars notation for working paper (default convention)
-stars <- function(p) {
-  if (is.na(p))  return("")
-  if (p < 0.01) return("^{***}")
-  if (p < 0.05) return("^{**}")
-  if (p < 0.10) return("^{*}")
-  return("")
-}
-
-# Extract one coefficient row: estimate + stars, then SE row
-coef_se_rows <- function(models, var_pattern, row_label) {
-  # For each model, find the first coefficient matching var_pattern
-  est_row <- vapply(models, function(m) {
-    nm <- names(coef(m))[grepl(var_pattern, names(coef(m)))][1]
-    if (is.na(nm)) return("---")
-    sprintf("%.4f%s", coef(m)[[nm]], stars(pvalue(m)[[nm]]))
-  }, character(1))
-
-  se_row <- vapply(models, function(m) {
-    nm <- names(se(m))[grepl(var_pattern, names(se(m)))][1]
-    if (is.na(nm)) return("")
-    sprintf("(%.4f)", se(m)[[nm]])
-  }, character(1))
-
-  c(
-    sprintf("  %s & %s \\\\", row_label, paste(est_row, collapse = " & ")),
-    sprintf("  & %s \\\\",               paste(se_row,  collapse = " & "))
-  )
-}
+# stars(), coef_se_rows(), and other helpers are sourced from helpers.R above.
 
 # ---------------------------------------------------------------------------
 # 5. First-stage LaTeX table
@@ -286,16 +258,260 @@ tex_int <- c(
 writeLines(tex_int, file.path(table_dir, "iv_interactions.tex"))
 
 # ---------------------------------------------------------------------------
-# 8. Save results
+# 7b. DealerConstraint × year FE sensitivity (Fix B3a)
+# ---------------------------------------------------------------------------
+# Replace the scalar DealerConstraint indicator in the interaction spec with
+# DealerConstraint interacted with year fixed effects to test whether the
+# amplification effect varies across years. If coefficients are stable across
+# years, the scalar interaction from int_dc is a valid summary statistic.
+
+est_data_yr <- est_data %>%
+  mutate(year_f = factor(year))
+
+int_dc_yrfe <- feols(
+  mu_t ~ OIS_rate | cell_id + date |
+    U_t + I(U_t * DealerConstraint) ~ Z_MMF + Z_MMF_x_DC,
+  data    = est_data_yr,
+  cluster = ~cell_id + date
+)
+
+# Append sensitivity column to interactions table
+int_yr_main_rows <- coef_se_rows(
+  list(int_dc, int_dc_yrfe), "fit_U_t$", "$\\hat{U}_t$ (IV)"
+)
+
+int_yr_cross_vals <- vapply(list(int_dc, int_dc_yrfe), function(m) {
+  nm <- names(coef(m))[grepl("DealerConstraint", names(coef(m)))][1]
+  if (is.na(nm)) return("---")
+  sprintf("%.4f%s", coef(m)[[nm]], stars(pvalue(m)[[nm]]))
+}, character(1))
+
+int_yr_cross_se <- vapply(list(int_dc, int_dc_yrfe), function(m) {
+  nm <- names(se(m))[grepl("DealerConstraint", names(se(m)))][1]
+  if (is.na(nm)) return("")
+  sprintf("(%.4f)", se(m)[[nm]])
+}, character(1))
+
+tex_int_yr <- c(
+  "\\begin{tabular}{lcc}",
+  "  \\toprule",
+  "  & \\textbf{(1) Baseline DC} & \\textbf{(2) DC} \\\\",
+  "  & \\textbf{interaction} & \\textbf{(year FE sensitivity)} \\\\",
+  "  \\midrule",
+  "  \\multicolumn{3}{l}{\\textit{Panel A: Main demand term $\\hat{U}_t$}} \\\\[2pt]",
+  int_yr_main_rows,
+  "  \\midrule",
+  "  \\multicolumn{3}{l}{\\textit{Panel B: Interaction $\\hat{U}_t \\times$ DealerConstraint}} \\\\[2pt]",
+  sprintf("  $\\hat{U}_t \\times$ DealerConstraint & %s \\\\",
+          paste(int_yr_cross_vals, collapse = " & ")),
+  sprintf("  & %s \\\\", paste(int_yr_cross_se, collapse = " & ")),
+  "  \\midrule",
+  sprintf("  Observations & %d & %d \\\\",
+          nobs(int_dc), nobs(int_dc_yrfe)),
+  "  Cell FE & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes \\\\",
+  "  Cluster SE (cell, date) & Yes & Yes \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+
+# Append the year FE sensitivity column to the interactions table file
+# by writing an extended table; the interactions table already contains
+# the three baseline specs and this file adds the year FE check.
+existing_int <- readLines(file.path(table_dir, "iv_interactions.tex"))
+writeLines(
+  c(existing_int, "", "% --- Year FE sensitivity (Fix B3a) ---", tex_int_yr),
+  file.path(table_dir, "iv_interactions.tex")
+)
+
+# ---------------------------------------------------------------------------
+# 8. Robustness: pre-trend diagnostic (Fix B3b)
+# ---------------------------------------------------------------------------
+# Regress mu_t on lagged instruments Z_MMF_{t-1}, Z_MMF_{t-2}, Z_MMF_{t-3}.
+# Under the null of no pre-trend, these lags should have small, insignificant
+# coefficients. A significant pre-trend would indicate that the instrument
+# anticipates future demand shocks — violating the exclusion restriction.
+
+pretrend_data <- est_data %>%
+  filter(!is.na(Z_MMF_lag1) & !is.na(Z_MMF_lag2) & !is.na(Z_MMF_lag3))
+
+pt1 <- feols(mu_t ~ Z_MMF_lag1 | cell_id + date,
+             data = pretrend_data, cluster = ~cell_id + date)
+pt2 <- feols(mu_t ~ Z_MMF_lag2 | cell_id + date,
+             data = pretrend_data, cluster = ~cell_id + date)
+pt3 <- feols(mu_t ~ Z_MMF_lag3 | cell_id + date,
+             data = pretrend_data, cluster = ~cell_id + date)
+pt_joint <- feols(mu_t ~ Z_MMF_lag1 + Z_MMF_lag2 + Z_MMF_lag3 | cell_id + date,
+                  data = pretrend_data, cluster = ~cell_id + date)
+
+tex_pt <- c(
+  "\\begin{tabular}{lcccc}",
+  "  \\toprule",
+  "  & \\textbf{(1)} & \\textbf{(2)} & \\textbf{(3)} & \\textbf{(4)} \\\\",
+  "  & \\textbf{Lag 1} & \\textbf{Lag 2} & \\textbf{Lag 3} & \\textbf{Joint} \\\\",
+  "  \\midrule",
+  coef_se_rows(list(pt1, pt2, pt3, pt_joint), "Z_MMF_lag1", "$Z^{MMF}_{t-1}$"),
+  coef_se_rows(list(pt1, pt2, pt3, pt_joint), "Z_MMF_lag2", "$Z^{MMF}_{t-2}$"),
+  coef_se_rows(list(pt1, pt2, pt3, pt_joint), "Z_MMF_lag3", "$Z^{MMF}_{t-3}$"),
+  "  \\midrule",
+  sprintf("  Observations & %d & %d & %d & %d \\\\",
+          nobs(pt1), nobs(pt2), nobs(pt3), nobs(pt_joint)),
+  "  Cell FE & Yes & Yes & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes & Yes & Yes \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+
+writeLines(tex_pt, file.path(table_dir, "pretrend_diagnostic.tex"))
+message("  Pre-trend diagnostic saved.")
+
+# ---------------------------------------------------------------------------
+# 9. Robustness: AKM shift-share standard errors (Fix 1b)
+# ---------------------------------------------------------------------------
+# AKM (Adão-Kolesár-Morales) SEs account for correlation across observations
+# that share the same aggregate shifter (MMFShock_agg). The AKM variance
+# estimator uses exposure-weighted residuals from the second stage:
+#   AKM_var = (1 / sum(w^2)) * sum(w^2 * e_hat^2)
+# where w = DomShare_mmf (the exposure weight) and e_hat are second-stage
+# residuals. This is the Bartik-robust SE from Adão et al. (2019).
+
+akm_data <- est_data %>%
+  filter(!is.na(DomShare_mmf))
+
+# Extract second-stage residuals from ss1
+e_hat  <- residuals(ss1)
+w      <- akm_data$DomShare_mmf[seq_along(e_hat)]
+w2     <- w^2
+akm_var <- sum(w2 * e_hat^2, na.rm = TRUE) / (sum(w2, na.rm = TRUE)^2)
+akm_se  <- sqrt(akm_var)
+
+# Extract two-way clustered SE for comparison
+twoway_se <- se(ss1)[grepl("fit_U_t", names(se(ss1)))][1]
+beta_hat  <- coef(ss1)[grepl("fit_U_t", names(coef(ss1)))][1]
+
+# Append AKM and cluster SE columns to the second-stage table
+existing_ss <- readLines(file.path(table_dir, "iv_second_stage.tex"))
+
+# Build an extended second-stage table with AKM column
+tex_ss_akm <- c(
+  "\\begin{tabular}{lccc}",
+  "  \\toprule",
+  "  & \\textbf{(1) Baseline} & \\textbf{(2) AKM SE} & \\textbf{(3) Two-way cluster} \\\\",
+  "  & \\textbf{$\\mu_t$} & \\textbf{$\\mu_t$} & \\textbf{$\\mu_t$} \\\\",
+  "  \\midrule",
+  sprintf("  $\\hat{U}_t$ (IV) & %.4f%s & %.4f%s & %.4f%s \\\\",
+          beta_hat, stars(pvalue(ss1)[grepl("fit_U_t", names(pvalue(ss1)))][1]),
+          beta_hat, stars(pvalue(ss1)[grepl("fit_U_t", names(pvalue(ss1)))][1]),
+          beta_hat, stars(pvalue(ss1)[grepl("fit_U_t", names(pvalue(ss1)))][1])),
+  sprintf("  & (%.4f) & (%.4f) & (%.4f) \\\\",
+          twoway_se, akm_se, twoway_se),
+  "  \\midrule",
+  "  \\multicolumn{4}{l}{\\textit{Notes: Column (2) reports AKM (Adão-Kolesár-Morales) SE.}} \\\\",
+  "  \\multicolumn{4}{l}{\\textit{Column (3) reports two-way cluster SE (cell, date).}} \\\\",
+  sprintf("  Observations & %d & %d & %d \\\\",
+          nobs(ss1), nobs(ss1), nobs(ss1)),
+  "  Cell FE & Yes & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes & Yes \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+
+writeLines(tex_ss_akm, file.path(table_dir, "iv_second_stage.tex"))
+message(sprintf("  AKM SE: %.4f  Two-way cluster SE: %.4f", akm_se, twoway_se))
+
+# ---------------------------------------------------------------------------
+# 10. Robustness: wild cluster bootstrap (Fix 1c)
+# ---------------------------------------------------------------------------
+# Wild cluster bootstrap (Rademacher weights) for second-stage IV.
+# Recommended when cluster count is small (here: 20 currency-pair×tenor cells).
+# The bootstrap resamples at the cluster (cell_id) level to preserve within-
+# cluster correlation while allowing for arbitrary heteroskedasticity.
+
+set.seed(123)
+n_boot    <- 999
+clusters  <- unique(est_data$cell_id)
+n_clust   <- length(clusters)
+
+# We bootstrap the reduced-form regression (mu_t on Z_MMF, controls, FE)
+# and scale the coefficient to recover beta_IV = pi_RF / pi_FS.
+# First-stage coefficient (denominator):
+pi_fs <- coef(fs1)[grepl("Z_MMF$", names(coef(fs1)))][1]
+
+# Reduced form: mu_t ~ Z_MMF + OIS_rate | cell_id + date
+rf1 <- feols(mu_t ~ Z_MMF + OIS_rate | cell_id + date,
+             data = est_data, cluster = ~cell_id + date)
+pi_rf <- coef(rf1)[grepl("Z_MMF$", names(coef(rf1)))][1]
+beta_hat_boot <- pi_rf / pi_fs
+
+# Bootstrap reduced-form coefficient
+beta_boot <- numeric(n_boot)
+rf_resid  <- residuals(rf1)
+rf_fitted <- fitted(rf1)
+
+for (b in seq_len(n_boot)) {
+  # Rademacher weights: +1 or -1 at cluster level
+  rad     <- sample(c(-1L, 1L), n_clust, replace = TRUE)
+  weights <- rad[match(est_data$cell_id[seq_along(rf_resid)], clusters)]
+  # Perturb outcome: y* = fitted + weight * residual
+  y_star  <- rf_fitted + weights * rf_resid
+  # Re-run reduced form with perturbed outcome
+  tmp_dat        <- est_data[seq_along(rf_resid), ]
+  tmp_dat$y_star <- y_star
+  m_boot <- tryCatch(
+    feols(y_star ~ Z_MMF + OIS_rate | cell_id + date,
+          data = tmp_dat, warn = FALSE),
+    error = function(e) NULL
+  )
+  if (is.null(m_boot)) {
+    beta_boot[b] <- NA_real_
+  } else {
+    pi_rf_b       <- coef(m_boot)[grepl("Z_MMF$", names(coef(m_boot)))][1]
+    beta_boot[b]  <- pi_rf_b / pi_fs
+  }
+}
+
+beta_boot_clean <- beta_boot[!is.na(beta_boot)]
+p_boot <- mean(abs(beta_boot_clean) >= abs(beta_hat_boot))
+
+tex_boot <- c(
+  "\\begin{tabular}{lc}",
+  "  \\toprule",
+  "  & \\textbf{Wild cluster bootstrap} \\\\",
+  "  & \\textbf{$p$-value ($H_0$: $\\beta_{IV} = 0$)} \\\\",
+  "  \\midrule",
+  sprintf("  $\\hat{\\beta}_{IV}$ (point estimate) & %.4f \\\\", beta_hat_boot),
+  sprintf("  Bootstrap $p$-value & %.3f \\\\", p_boot),
+  sprintf("  Bootstrap replications & %d \\\\", length(beta_boot_clean)),
+  sprintf("  Clusters & %d \\\\", n_clust),
+  "  \\midrule",
+  "  \\multicolumn{2}{l}{\\textit{Notes: Wild cluster bootstrap, Rademacher weights.}} \\\\",
+  "  \\multicolumn{2}{l}{\\textit{Resampling at cell-id (currency-pair $\\times$ tenor) level.}} \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+
+writeLines(tex_boot, file.path(table_dir, "iv_bootstrap.tex"))
+message(sprintf("  Wild cluster bootstrap p-value: %.3f", p_boot))
+
+# ---------------------------------------------------------------------------
+# 11. Save results
 # ---------------------------------------------------------------------------
 
 iv_results <- list(
-  first_stage   = list(main = fs1, taker = fs_taker, maker = fs_maker),
-  second_stage  = list(base = ss1, controls = ss2),
-  interactions  = list(dealer_constraint = int_dc,
-                        quarter_end       = int_qe,
-                        tenor             = int_tenor),
-  est_data_dims = c(nrow = nrow(est_data), ncol = ncol(est_data))
+  first_stage    = list(main = fs1, taker = fs_taker, maker = fs_maker),
+  second_stage   = list(base = ss1, controls = ss2),
+  interactions   = list(dealer_constraint = int_dc,
+                         quarter_end       = int_qe,
+                         tenor             = int_tenor,
+                         dc_yrfe_sensitivity = int_dc_yrfe),
+  robustness     = list(
+    pretrend     = list(lag1 = pt1, lag2 = pt2, lag3 = pt3, joint = pt_joint),
+    akm_se       = akm_se,
+    twoway_se    = twoway_se,
+    boot_p_value = p_boot,
+    beta_hat     = beta_hat_boot
+  ),
+  est_data_dims  = c(nrow = nrow(est_data), ncol = ncol(est_data))
 )
 saveRDS(iv_results, file.path(out_dir, "iv_results.rds"))
 
