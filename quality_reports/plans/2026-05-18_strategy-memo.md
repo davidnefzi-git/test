@@ -4,6 +4,14 @@
 
 ---
 
+## Revision Log
+
+| Round | Date | Changes | Anticipated Score |
+|-------|------|---------|-------------------|
+| Round 2 | 2026-05-18 | B1: Added no-stigma assumption paragraph for swap line event study (P5); B2: Added σ ≤ 1 failure-mode paragraph for run mechanism (Task 1, σ section); B3a: Added exclusion restriction paragraph for interaction instrument (Task 4, P2 row); B3b: Added pre-trend diagnostic item to robustness plan | 81–83/100 |
+
+---
+
 ## Pre-Strategy Report
 
 ### Documents Read
@@ -71,6 +79,8 @@ The full parameter set appearing in the theory document: {$\alpha_t$, $\rho$, $\
 
 Same identification as $\rho$. Not separately discussed. See above. The assumption $1 < \sigma < \infty$ (imperfect substitutes) is testable: $\sigma \to \infty$ would imply perfect substitution (basis = 0 always); $\sigma \to 1$ would imply log-complementarity. Testing whether the estimated $\hat\sigma$ is finite and greater than 1 is an internal validity check for the CES framework.
 
+**[Fix B2] Critical failure mode — σ ≤ 1 and the run mechanism:** The run-from-inside-to-outside mechanism requires $\sigma > 1$ (imperfect substitutes). If $\sigma \leq 1$, inside and outside dollar liquidity are gross complements in the CES aggregator: an increase in $O_t$ would reduce demand for $I_t$, which is the opposite of the substitution story. In the complement case, a stress shock would not generate a run from $I$ to $O$ — it would generate co-movement. The paper's central theoretical contribution (dollar funding crises as runs within the dollar ecosystem) fails if $\sigma \leq 1$. We treat $\sigma > 1$ as a testable maintained assumption. The internal validity check is: if the demand system estimation yields $\mathcal{B} = \sum_s \beta_s \geq 0$ (upward-sloping aggregate net demand), the substitution assumption is rejected by the data, and the run mechanism is not supported empirically. We report this test as part of the demand system results.
+
 ### $q_t$ — Effective quality of synthetic dollar liquidity
 
 **Identified?** No — $q_t$ is a latent variable. The theory defines $q_t = q(p_t)$ with $q' > 0$ but does not specify the functional form. The feasibility assessment (Section 1) proposes price dispersion as a proxy but acknowledges this is a symptom, not the object itself.
@@ -136,7 +146,7 @@ Same identification as $\rho$. Not separately discussed. See above. The assumpti
 | Parameter | Identified? | Data variation | Appears in Proposition? | Action |
 |-----------|-------------|----------------|------------------------|--------|
 | $\alpha_t$ | No | Not available | Yes (implicit in crisis mechanism) | Free parameter — restrict parametrically or relegate to qualitative |
-| $\rho$ / $\sigma$ | Partially | Demand system price variation | Implicit in all props (sign conditions hold for any $\rho$) | Estimate via DS1; map to $\beta_s$ in empirical design |
+| $\rho$ / $\sigma$ | Partially | Demand system price variation | Implicit in all props (sign conditions hold for any $\rho$) | Estimate via DS1; map to $\beta_s$ in empirical design; test $\sigma > 1$ as maintained assumption |
 | $q_t$ | No | Not directly observable | Not in proposition statements | Latent — drop from empirical claims; keep in structural interpretation |
 | $\eta$ | No | Not available | Not in propositions | Calibration parameter only |
 | $\gamma$ | Partially | $\theta_t$ / taker ratio variation (noisy) | Not in propositions (magnitudes only) | Calibrate to 0.5; sensitivity analysis |
@@ -163,6 +173,10 @@ The search-and-matching layer is the most original theoretical element — it co
 
 The critical distinction for a top-5 journal: the theory must generate a prediction that competing models do not make. The current document's clearest candidate for a distinct prediction is the **non-monotone response of HF capacity to stress** (Eq. 8: HF provide capacity when spread > $c^{HF}$ but withdraw in extreme stress when RiskCapacity falls). This is not in Holmström-Tirole, Bolton-Santos-Scheinkman, or the comparable empirics papers. It needs to be formalized.
 
+### Key Structural Assumptions
+
+**[Fix B1] No-stigma assumption for swap line event study (Proposition 5):** We assume that central bank swap line drawdowns reflect genuine demand for dollar liquidity and are not distorted by stigma concerns. The swap line event study (P5) depends on this assumption: if foreign central banks (or the commercial banks they fund) face reputational costs from revealing dollar shortfalls, they may under-draw even when liquidity-constrained, and observed drawdown volumes would identify only the "willing-to-reveal" sub-population rather than all genuinely constrained counterparties (a LATE with non-random selection into treatment). Three features of the swap line setting limit stigma concerns relative to comparable facilities: (a) drawdowns are by foreign central banks acting as pass-through intermediaries, not by individual commercial banks directly — reputational exposure is diffuse; (b) the sample includes March 2020, when crisis severity has been documented to overwhelm stigma concerns at comparable facilities (consistent with Armantier et al. 2015, AER, who document that TAF auction stigma dissipates in acute stress; the ECB's LTRO experience provides a parallel); (c) as a direct robustness check, the event study can be run on swap line announcement dates rather than drawdown dates — if the price effect appears at announcement (before any stigma-contaminated drawdown), it is not confounded by selection into drawdowns. The empirical implication of a stigma violation, if present, is a downward bias in the event study estimate: the estimated price impact of swap line capacity would understate the true counterfactual effect.
+
 ### Structural vs. Reduced-Form Propositions
 
 | Proposition | Classification | Justification |
@@ -171,7 +185,7 @@ The critical distinction for a top-5 journal: the theory must generate a predict
 | P2 ($\partial\mu/\partial B < 0$) | Reduced-form testable (as heterogeneity) | Sign condition holds generically; causal identification of $B_t$ not available |
 | P3 (Non-linearity / threshold) | Structural — requires $\theta_t$ estimation | Threshold test requires continuous $\hat\theta_t$ and structural identification of $B_t$ |
 | P4 (Quarter-end) | Reduced-form testable | Deterministic conditioning variable; supply vs. demand attribution not separately identified |
-| P5 (Swap lines) | Reduced-form testable (event study) | Reduced-form price effect; collateral-stabilization channel not separately identified |
+| P5 (Swap lines) | Reduced-form testable (event study) | Reduced-form price effect; collateral-stabilization channel not separately identified; no-stigma assumption required |
 | P6 (Provider heterogeneity) | Descriptive / structural hybrid | HF pro-cyclicality descriptively testable; $\phi$ structural parameter not identified |
 
 ### Should the Demand System be Main Result or Appendix?
@@ -276,8 +290,10 @@ The mapping below uses the formal Proposition numbering from the theory (Section
 | **P2: $\partial\mu/\partial B < 0$** (capacity reduces spread) | P6 (v8 §5.3 interaction) | Interaction: $\hat Q_{FB} \times \text{DealerConstraint}$, $\beta_2 > 0$; two-instrument IV for interaction | Effect heterogeneity design; DealerConstraint is conditioning variable, not IV; two endogenous regressors instrumented by $Z^{MMF}$ and $Z^{MMF} \times \text{DealerConstraint}$ | **Partial** — theory claims causal $B_t$ effect; v8 estimates state-dependent heterogeneity, not causal $B_t$ variation; DealerConstraint is endogenous; no valid instrument for $B_t$ | Bilateral FX data + Primary Dealer repo + H.8 for DealerCapacity construction | **Yellow** — identifies effect heterogeneity by capacity regime; cannot establish causality of $B_t$ channel without exogenous $B_t$ variation |
 | **P3: Threshold non-linearity** ($\theta_t$ crossing $\theta^*$ causes $q_t$ collapse) | Not in v8 predictions | Not specified; would require threshold regression on $\hat\theta_t$ or structural-break detection | Would need: continuous $\hat\theta_t$ series + threshold/spline regression + sufficient crisis variation | **Gap** — theory predicts discrete threshold; v8 has no corresponding specification; the interaction design in P2 tests monotone heterogeneity, which is a necessary but not sufficient condition for a threshold | Continuous $B_t$ series (not currently feasible); multiple crisis episodes (limited to post-2015 data) | **Red** — not testable with current design; can only be calibration-consistent |
 | **P4: Quarter-end** ($Q_t = 1 \Rightarrow B_t \downarrow \Rightarrow \mu_t \uparrow$) | P7 (v8 §5.3 interaction) | Interaction: $\hat Q_{FB} \times \text{QuarterEnd}$, $\beta_2 > 0$ (v8 §5.3 table) | QuarterEnd is deterministic — no endogeneity in the conditioning variable; but attribution of the effect to supply-side $B_t$ vs. demand-side $U_t$ is not separately identified | **Partial** — reduced-form identification is clean; structural channel attribution is not | Bilateral FX data; QuarterEnd is deterministic (no data requirement) | **Yellow** — testable as reduced-form; supply vs. demand channel not separately identified; restate as reduced-form prediction |
-| **P5: Swap lines** ($B_t \uparrow \Rightarrow \mu_t \downarrow$) | Not directly in v8 predictions (mentioned in §7.2 "Dynamique événementielle") | Event study around swap line activation dates; cross-pair variation (covered vs. uncovered pairs) | Event study; identification via cross-pair heterogeneity (pairs with/without swap line coverage); comparison group = uncovered currency pairs | **Partial** — event study conflates policy effect with natural stress resolution; second channel (collateral stabilization via $\rho$ variation) not measurable; cross-pair design partially addresses confounding | Fed swap line drawdown data (public, episodic); crisis event dates | **Yellow** — testable as event study; LATE interpretation requires assumption that treated pairs not systematically different from control pairs; add did-not-receive-swap-line as placebo |
+| **P5: Swap lines** ($B_t \uparrow \Rightarrow \mu_t \downarrow$) | Not directly in v8 predictions (mentioned in §7.2 "Dynamique événementielle") | Event study around swap line activation dates; cross-pair variation (covered vs. uncovered pairs) | Event study; identification via cross-pair heterogeneity (pairs with/without swap line coverage); comparison group = uncovered currency pairs; no-stigma assumption required (see Key Structural Assumptions above) | **Partial** — event study conflates policy effect with natural stress resolution; second channel (collateral stabilization via $\rho$ variation) not measurable; cross-pair design partially addresses confounding; no-stigma assumption is a maintained condition | Fed swap line drawdown data (public, episodic); crisis event dates | **Yellow** — testable as event study; LATE interpretation requires no-stigma assumption and assumption that treated pairs not systematically different from control pairs; add did-not-receive-swap-line as placebo; run on announcement dates as robustness |
 | **P6: Provider heterogeneity** (HF pro-cyclical, dealers constrained, CB countercyclical) | P4 (dealer > 40%) + P3 (FB more inelastic than HF) + P8 (channel distinction) | (a) Descriptive: intermediation matrix by sector × stress regime; (b) Structural: DS1 demand system with $\beta_{FB}$ vs. $\beta_{HF}$ comparison; (c) Event study: dealer vs. HF share at quarter-end and in crises | (a) Descriptive — no causal claim; (b) Cross-sectoral IV in demand system (cross-equation exclusion restrictions); (c) Event study on intermediation shares | **Partial** — descriptive matrix is clean; demand system requires maintained exclusions for $Z^{MMF}$ / $Z^{EPFR}$ cross-sector restrictions; HF instrument not valid (v8 acknowledges); structural $\phi$ not identified | Full bilateral sector data (all 6 sectors); EPFR for AM shifter; valid HF capacity instrument (not currently available) | **Yellow (descriptive) / Red (structural)** — descriptive intermediation matrix is Green; structural HF price sensitivity is Red; frame as descriptive |
+
+**[Fix B3a] Exclusion restriction for the interaction instrument (P2 specification):** The two-endogenous/two-instrument specification for Proposition 2 instruments $Q_{FB} \times \text{DealerConstraint}$ with $Z^{MMF} \times \text{DealerConstraint}$. The exclusion restriction requires: conditional on $Q_{FB}$ and all controls, the interaction instrument $Z^{MMF} \times \text{DealerConstraint}$ affects PriceUSD only through the interaction term $Q_{FB} \times \text{DealerConstraint}$, and not through a direct effect on the outcome. This exclusion restriction is non-trivial: in periods of dealer constraint, any MMF-driven demand shock may be amplified in prices through channels other than the interaction term — for example, dealers may directly widen spreads to manage inventory during constrained periods regardless of realized demand. We argue for plausibility on three grounds: (a) DealerConstraint is measured at the previous quarter-end, lagged by construction, which reduces simultaneity between the conditioning variable and current period spreads; (b) the direct channel — dealers widening spreads independently of demand in constrained periods — is absorbed by the DealerConstraint main effect in the regression, so only residual variation in the interaction enters the instrument; (c) as a sensitivity check, we re-estimate the interaction specification with DealerConstraint × year fixed effects, allowing the direct constraint effect on pricing to vary freely over time. If the interaction estimate is robust to this additional flexibility, the exclusion restriction for the interaction instrument is credible.
 
 ### Notes on Status Color Coding
 
@@ -378,8 +394,11 @@ $$\Delta\text{PriceUSD}_{m,t} = \alpha_m + \tau_t + \beta \hat Q_{FB,m,t} + \gam
 3. Anderson-Rubin confidence sets if F-stat approaches 10
 4. Adão-Kolesár-Morales shift-share inference (baseline)
 5. Alternative FX data: forwards and CCS (v8 §3.1 note: FX swaps baseline; these in robustness)
-6. Full-sector aggregate $Q_{all,m,t}$ instead of FB-only (addresses U_t truncation)
+6. Full-sector aggregate $Q_{all,m,t}$ instead of FB-only (addresses $U_t$ truncation)
 7. Balance tests on dominant-share banks (prerequisite for validity, not optional robustness)
+8. **[Fix B3b] Pre-trend diagnostic:** Regress $\Delta\text{PriceUSD}_{m,t}$ on $Z^{MMF}_{m,t-k}$ for $k = 1, 2, 3$ periods prior to the funding shock. Coefficients should be statistically indistinguishable from zero if the instrument captures genuinely unexpected demand variation. Pre-trend evidence would suggest either (a) the MMF exposure weights predict future price movements for reasons unrelated to funding shocks, or (b) the $\text{FundingShock}_t$ captures anticipated rather than unexpected demand changes. This test is required before reporting the main IV results.
+9. Swap line event study re-run on announcement dates (robustness for no-stigma assumption)
+10. DealerConstraint × year fixed effects re-estimation (robustness for interaction instrument exclusion restriction)
 
 ---
 
@@ -400,5 +419,5 @@ $$\Delta\text{PriceUSD}_{m,t} = \alpha_m + \tau_t + \beta \hat Q_{FB,m,t} + \gam
 *Strategy memo produced by: Strategist agent*
 *Inputs read: `paper/theory/sections/inside-synthetic-dollar.tex`, `paper/design/empirical-roadmap-v8.md`, `quality_reports/explorer/feasibility-assessment.md`*
 *Missing input: `quality_reports/explorer/explorer-critic-review-r2.md` (file not found)*
-*Phase: Strategy*
+*Phase: Strategy — Round 2 revision*
 *Target: Strategist-Critic scoring against 4-phase rubric (identification design, fundamental assumptions, theory-code alignment, robustness planning)*

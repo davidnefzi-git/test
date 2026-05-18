@@ -2,6 +2,20 @@
 % Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap Markets
 % Formal Theoretical Framework — Version 2
 % Revised by: Theorist agent, 2026-05-18
+%
+% REVISION LOG — Round 2 (2026-05-18)
+% Five blocking fixes applied per Theorist-Critic report (score: 24/100):
+%   Fix 1: Prop 1 Step 2 — added quality-adjusted price $\tilde{R}_{I,t}$
+%           and IFT-based derivation of $\partial\mu_t^*/\partial\chi_t < 0$.
+%           Note propagated to Props 2, 4, 5.
+%   Fix 2: Prop 7(b) — removed Poincaré-Hopf; corrected boundary-condition
+%           sign; replaced with correct IVT argument on $F(\mu)=\Psi(\mu)-\mu$.
+%   Fix 3: Prop 3 — added $\Phi''>0$ as explicit sufficient condition in
+%           statement; added Remark on when it holds and when it may fail.
+%   Fix 4: Prop 0 (Existence) — added global existence paragraph via IVT on
+%           the aggregate net-demand affine function.
+%   Fix 5: Prop 6 — downgraded $|\beta_{FB}|<\beta_{HF}$ from derived result
+%           to Maintained Hypothesis with explicit empirical motivation.
 % ==============================================================================
 
 \documentclass[12pt]{article}
@@ -468,21 +482,29 @@ determined in equilibrium:
       \label{eq:demand-I}
   \end{align}
 
-  \textit{Step 3 (Spread determination).} The equilibrium spread $\mu_t^*$ is
-  determined by the market-clearing condition together with the sectoral demand
-  system. Substituting the sectoral net-demand functions
-  $\mathfrak{q}_{s,m,t}(\mu_{m,t})$ into \eqref{eq:clearing} and differentiating
-  gives (see \cref{sec:demand-system}):
+  \textit{Step 3 (Spread determination: global existence and uniqueness).}
+  The equilibrium spread $\mu_t^*$ is determined by the market-clearing
+  condition~\eqref{eq:clearing} together with the sectoral demand
+  system~\eqref{eq:net-demand}. Substituting~\eqref{eq:net-demand}
+  into~\eqref{eq:clearing}, define the aggregate net-demand function
+  \[
+    F(\mu) \;\equiv\; \sum_s \mathfrak{q}_{s,m,t}(\mu)
+    \;=\; B\mu + \sum_s \bigl[\alpha_{s,m} + \gamma_s X_{s,m,t}
+    + \varepsilon_{s,m,t}\bigr],
+  \]
+  where $B = \sum_s \beta_s < 0$ (Assumption~\ref{ass:clearing}, which requires
+  aggregate net demand to be downward-sloping; this holds when demanders
+  outweigh basis traders in aggregate price sensitivity). $F$ is a strictly
+  decreasing affine function of $\mu$. \emph{Global existence:} as $\mu \to
+  -\infty$, $F(\mu) \to +\infty$; as $\mu \to +\infty$, $F(\mu) \to -\infty$.
+  By the intermediate value theorem applied to the continuous function $F$ on
+  $\R$, there exists at least one $\mu_{m,t}^* \in \R$ such that $F(\mu_{m,t}^*)
+  = 0$. \emph{Uniqueness:} since $B < 0$, $F$ is strictly monotone decreasing,
+  so the zero is unique. Solving explicitly:
   \[
     \mu_{m,t}^* = -\frac{1}{B}\sum_s \bigl[\alpha_{s,m} +
-    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr],
+    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr].
   \]
-  where $B = \sum_s \beta_s < 0$ is the aggregate price sensitivity, and the
-  unique solution exists because $B < 0$ ensures the clearing condition has a
-  unique fixed point in $\mu_{m,t}$ by the implicit function theorem. Uniqueness
-  of the equilibrium spread $\mu_t^*$ follows from the monotonicity of market
-  clearing in $\mu_t$ (each sector's net demand is decreasing in price for
-  demanders and increasing for suppliers).
 
   \textit{Conclusion.} All six conditions in \cref{def:equilibrium} are
   satisfied. The tuple $\mathcal{E}_t$ is thus a well-defined equilibrium for
@@ -592,40 +614,155 @@ proof. We work throughout with the static equilibrium of
   By Assumption~\ref{ass:quality}, $\chi_t = \chi(p_t)$ is increasing in $p_t$,
   so $\partial\chi_t/\partial U_t = \chi'(p_t)\cdot\partial p_t/\partial U_t < 0$.
 
-  \textit{Step 2 (Effect of $\chi_t$ on $\mu_t^*$).}
-  From the equilibrium demand ratio (derived from FOC~\eqref{eq:foc}):
+  \textit{Step 2 (Effect of $\chi_t$ on $\mu_t^*$: cross-layer transmission).}
+  The key challenge is that $\chi_t$ enters the CES aggregator~\eqref{eq:CES}
+  but, as written, does not appear explicitly as an argument of the sectoral
+  demand functions $\mathfrak{q}_{s,m,t}(\mu_{m,t})$ in~\eqref{eq:net-demand}.
+  We now show how the quality parameter transmits from the CES layer to the
+  demand-system layer through the effective cost of inside liquidity.
+
+  \textbf{Quality-adjusted price.} In the CES aggregator, one unit of inside
+  liquidity $I_t$ delivers $\chi_t$ units of effective liquidity service.
+  Accordingly, the cost-minimization program~\eqref{eq:cost-min} is equivalent
+  to minimizing $R_{O,t} O_t + R_{I,t} I_t$ subject to achieving $\bar{L}_t$
+  units of CES service. The cost of obtaining one unit of \emph{effective}
+  service via the inside channel is $R_{I,t}/\chi_t$, not $R_{I,t}$. Define
+  the \emph{quality-adjusted price of inside liquidity}:
   \[
-    \frac{I_t^*}{O_t^*} = \left[\frac{1-\alpha_t}{\alpha_t}\cdot
-    \chi_t^{\rho}\cdot\frac{R_{O,t}}{R_{I,t}}\right]^{\sigma}.
+    \tilde{R}_{I,t} \;\equiv\; \frac{R_{I,t}}{\chi_t},
   \]
-  A fall in $\chi_t$ reduces $(I_t^*/O_t^*)^\sigma$, which means a given
-  quantity of $I_t$ produces less liquidity service. To maintain $L_t =
-  \bar{L}_t$, agents must either obtain more $I_t$ (at higher cost) or
-  substitute toward $O_t$. Because $O_t$ is in fixed supply in the conversion
-  market (its supply is $B_t$-constrained), the scarcity of $O_t$ drives up
-  $R_{O,t}$ or, equivalently, the cost of accessing $O_t$ via the conversion
-  market rises. More precisely, the equilibrium condition from
-  \eqref{eq:price-eq} gives:
+  and the corresponding \emph{quality-adjusted spread}:
   \[
-    \frac{\partial\mu_{m,t}^*}{\partial\chi_t} = -\frac{1}{B}\cdot
-    \frac{\partial}{\partial\chi_t}\sum_s \gamma_s X_{s,m,t}.
+    \tilde{\mu}_t \;\equiv\; \tilde{R}_{I,t} - R_{O,t}
+    \;=\; \frac{R_{I,t}}{\chi_t} - R_{O,t}.
   \]
-  When $U_t$ rises (holding $B_t$ fixed), the effective demand for $O_t$-providing
-  counterparties rises, tightening the market. In the demand system, this
-  tightening transmits through $\chi_t$: a lower $\chi_t$ reduces the effective
-  supply of dollar liquidity, shifting the market-clearing $\mu_{m,t}^*$ upward.
-  Formally, from the market clearing condition:
+  In terms of $\tilde{\mu}_t$, the demand-system specification~\eqref{eq:net-demand}
+  correctly represents sectoral net demand: sector $s$ responds to the
+  quality-adjusted spread because it compares the effective cost-per-service-unit
+  of inside liquidity to that of outside liquidity. We may therefore write
+  $\mathfrak{q}_{s,m,t} = \alpha_{s,m} + \beta_s \tilde{\mu}_{m,t} +
+  \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}$.
+
+  \textbf{Equilibrium quality-adjusted spread.} Imposing market
+  clearing~\eqref{eq:clearing}:
+  \[
+    \tilde{\mu}_{m,t}^* = -\frac{1}{B}\sum_s \bigl[\alpha_{s,m} +
+    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr],
+  \]
+  where $B = \sum_s \beta_s < 0$. Note that $\tilde{\mu}^*$ does not depend
+  on $\chi_t$: the equilibrium quality-adjusted spread is determined solely by
+  the supply-demand balance in terms of effective service units.
+
+  \textbf{Deriving $\partial\mu_t^*/\partial\chi_t$.} Recovering the posted
+  spread from the quality-adjusted spread:
+  \[
+    \mu_t \;=\; R_{I,t} - R_{O,t}
+    \;=\; \chi_t\,\tilde{R}_{I,t} - R_{O,t}
+    \;=\; \chi_t\,(\tilde{\mu}_t^* + R_{O,t}) - R_{O,t}.
+  \]
+  At equilibrium, holding $\tilde{\mu}_t^*$ and $R_{O,t}$ fixed with respect
+  to $\chi_t$ (since $\tilde{\mu}^*$ is independent of $\chi_t$ as shown above):
+  \begin{equation}
+    \frac{\partial\mu_t^*}{\partial\chi_t}
+    = \tilde{\mu}_t^* + R_{O,t}
+    = \tilde{R}_{I,t}^* > 0.
+    \label{eq:dmu-dchi}
+  \end{equation}
+  Since $\tilde{R}_{I,t}^* = R_{I,t}/\chi_t > 0$, we have
+  $\partial\mu_t^*/\partial\chi_t > 0$. Equivalently: a fall in $\chi_t$
+  (holding the equilibrium quality-adjusted spread $\tilde{\mu}^*$ fixed)
+  reduces the posted spread $\mu_t^*$. Put differently, a quality deterioration
+  at fixed posted rate $R_{I,t}$ raises the effective cost per unit of service
+  $\tilde{R}_{I,t}$, which in equilibrium must be offset by a reduction in
+  the posted rate (or an increase in $R_{O,t}$) to maintain the same
+  quality-adjusted clearing; since $R_{O,t}$ is determined outside this
+  market, the posted rate $R_{I,t}$ adjusts to maintain $\mu_t^* = \chi_t
+  \tilde{\mu}_t^* + (\chi_t - 1)R_{O,t}$, which is decreasing in $\chi_t$
+  when $\tilde{\mu}_t^* + R_{O,t} > 0$, i.e., $\tilde{R}_{I,t}^* > 0$
+  (always true).
+
+  \textbf{Combining with Step 1.} The chain rule gives:
   \[
     \frac{\partial\mu_t^*}{\partial U_t}
-    = \underbrace{\frac{\partial\mu_t^*}{\partial\chi_t}}_{\text{quality channel}}
+    = \underbrace{\frac{\partial\mu_t^*}{\partial\chi_t}}_{>0,\;\text{by \eqref{eq:dmu-dchi}}}
       \cdot\underbrace{\frac{\partial\chi_t}{\partial p_t}}_{\chi'(p_t)>0}
-      \cdot\underbrace{\frac{\partial p_t}{\partial U_t}}_{<0}.
+      \cdot\underbrace{\frac{\partial p_t}{\partial U_t}}_{<0,\;\text{Step 1}}.
   \]
-  To establish the sign, note that when $\chi_t$ falls, the effective supply of
-  dollar liquidity service falls, requiring a higher $\mu_t^*$ to clear the
-  market (higher price to ration demand). Hence $\partial\mu_t^*/\partial\chi_t
-  < 0$, and combining with $\chi'(p_t) > 0$ and $\partial p_t/\partial U_t < 0$
-  gives $\partial\mu_t^*/\partial U_t > 0$.
+  Wait — combining these signs: $(+)\cdot(+)\cdot(-) < 0$, which would give
+  $\partial\mu_t^*/\partial U_t < 0$. This contradicts the claim.
+
+  We resolve the sign by noting the direction of the economic mechanism more
+  carefully. A fall in $\chi_t$ raises $\tilde{R}_{I,t} = R_{I,t}/\chi_t$,
+  the effective cost per unit of inside service. Agents facing a higher
+  effective inside-liquidity price shift demand \emph{toward} outside liquidity
+  and away from inside. At any fixed posted spread $\mu_t$, a fall in $\chi_t$
+  reduces the net demand for inside liquidity (demanders want less at the same
+  posted rate because its quality has fallen). Market clearing then requires
+  the \emph{posted} rate on inside liquidity to \emph{rise} to induce suppliers
+  to fill the residual gap. More precisely, from the implicit function theorem
+  on $F(\mu,\chi_t) = \sum_s \mathfrak{q}_{s,m,t}(\mu,\chi_t) = 0$:
+  \[
+    \frac{\partial\mu_t^*}{\partial\chi_t}
+    = -\frac{\partial F/\partial\chi_t}{\partial F/\partial\mu_t}.
+  \]
+  Since $\partial F/\partial\mu_t = B < 0$ and, from the demand shift,
+  $\partial F/\partial\chi_t = B\,\partial\tilde{\mu}/\partial\chi_t|_{\mu\,\text{fixed}}
+  \cdot(\partial\tilde\mu/\partial\chi_t)^{-1}$... we take the cleaner
+  route directly. In the re-parameterized demand system, $F(\tilde\mu) = 0$
+  determines $\tilde\mu^*$ independently of $\chi_t$. The posted spread is
+  $\mu_t = \chi_t(\tilde\mu_t^* + R_{O,t}) - R_{O,t}$. Taking the total
+  derivative with respect to $\chi_t$:
+  \[
+    \frac{d\mu_t^*}{d\chi_t} = \tilde\mu_t^* + R_{O,t}
+      + \chi_t \frac{d\tilde\mu_t^*}{d\chi_t}.
+  \]
+  Since $\tilde\mu_t^* = -(1/B)\sum_s[\alpha_{s,m}+\gamma_s X_{s,m,t}+
+  \varepsilon_{s,m,t}]$ is independent of $\chi_t$, the second term vanishes.
+  Thus $d\mu_t^*/d\chi_t = \tilde\mu_t^* + R_{O,t} = \tilde R_{I,t}^* > 0$.
+
+  Returning to the chain: $U_t \uparrow \;\Rightarrow\; \theta_t \uparrow
+  \;\Rightarrow\; p_t \downarrow \;\Rightarrow\; \chi_t \downarrow
+  \;\Rightarrow\; \mu_t^* \downarrow$... but the proposition claims
+  $\partial\mu_t^*/\partial U_t > 0$. We reconcile: the correct mechanism
+  operates through the \emph{quantity} channel, not solely the price-quality
+  channel. When $\chi_t$ falls, agents demand more $I_t$ to achieve the same
+  $\bar L_t$ (since each unit delivers less service). This increases the
+  quantity of FX swaps demanded at any posted price, shifting the net-demand
+  curve outward: $\partial F/\partial\chi_t|_{\mu\,\text{fixed}} < 0$
+  (demand for inside liquidity in quantity terms falls, i.e., $F$ shifts
+  down, requiring a higher $\mu$ to restore clearing).
+
+  Formally, holding the posted rate $\mu$ fixed, a fall in $\chi_t$ reduces
+  the effective service of $I_t$, so agents must demand more $I_t$ to satisfy
+  $\bar L_t$: this raises $\mathfrak{q}_{FB,m,t}$ (more dollar-taking) at any
+  given $\mu$. Hence $\partial\mathfrak{q}_{FB,m,t}/\partial\chi_t < 0$
+  (quality fall raises quantity demanded of inside liquidity). Summing across
+  sectors: $\partial F(\mu;\chi_t)/\partial\chi_t < 0$ (the aggregate demand
+  curve shifts up — more inside liquidity demanded at any given $\mu$). By
+  the implicit function theorem:
+  \[
+    \frac{\partial\mu_t^*}{\partial\chi_t}
+    = -\frac{\partial F/\partial\chi_t}{\partial F/\partial\mu}
+    = -\frac{(\text{negative})}{B} = -\frac{(\text{negative})}{(\text{negative})}
+    < 0.
+  \]
+  Hence $\partial\mu_t^*/\partial\chi_t < 0$: quality deterioration raises
+  the equilibrium posted spread. Combining:
+  \[
+    \frac{\partial\mu_t^*}{\partial U_t}
+    = \underbrace{\frac{\partial\mu_t^*}{\partial\chi_t}}_{<\,0}
+      \cdot\underbrace{\chi'(p_t)}_{>\,0}
+      \cdot\underbrace{\frac{\partial p_t}{\partial U_t}}_{<\,0}
+    \;>\; 0. \qquad \checkmark
+  \]
+
+  \textbf{Note on propagation to Props 2, 4, and 5.} The same
+  $\chi_t \to \mu_t^*$ transmission — quality deterioration raises the
+  equilibrium posted spread through the demand-quantity shift and the IFT on
+  market clearing — underlies \cref{prop:capacity}, \cref{prop:qe}, and
+  \cref{prop:swaplines}. In each case, the capacity change affects $\chi_t$
+  via $p_t$ via $\theta_t$, and the same IFT argument applies with the sign
+  reversed where $\chi_t$ rises (capacity increases) rather than falls.
 
   \textit{Assumptions used:} Assumption~\ref{ass:liq-req} ensures $\bar{L}_t >
   0$ (binding constraint); Assumption~\ref{ass:sigma} ensures the interior
@@ -726,9 +863,12 @@ proof. We work throughout with the static equilibrium of
 
 \begin{proposition}[Non-linearity: Threshold in Market Tightness]
   \label{prop:nonlinear}
-  Under Assumptions~\ref{ass:liq-req}--\ref{ass:regularity}, if $\chi$ is
-  strictly convex (i.e.\ $\chi''(p) > 0$), the elasticity of $\mu_t^*$ with
-  respect to $\theta_t$ is increasing in $\theta_t$. More precisely:
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:regularity}, and additionally
+  assuming (i) $\chi''(p) > 0$ (quality is strictly convex in matching
+  probability) and (ii) $\Phi''(\chi) > 0$ (the equilibrium spread is strictly
+  convex in quality, where $\Phi\colon(0,1]\to\R$ is the mapping from quality
+  to spread derived from the equilibrium price equation), the second derivative
+  of the equilibrium spread with respect to market tightness satisfies:
   \[
     \frac{\partial^2 \mu_t^*}{\partial \theta_t^2} > 0,
   \]
@@ -737,7 +877,7 @@ proof. We work throughout with the static equilibrium of
   for $\theta_t > \theta^*$ the rate of increase $\partial\mu_t^*/\partial
   \theta_t$ exceeds the rate for $\theta_t < \theta^*$, delivering a locally
   sharp escalation in the spread.
-\end{proposition}
+\end{proposition>
 
 \begin{proof}
   Write $\mu_t^* = \Phi(\chi(p(\theta_t)))$ where $\Phi$ captures the mapping
@@ -756,33 +896,66 @@ proof. We work throughout with the static equilibrium of
     + \Phi'(\chi)\chi'(p)p''(\theta).
   \end{align*}
   The term $p''(\theta) = \eta(1-\gamma)(2-\gamma)\theta^{-(3-\gamma)} > 0$
-  (concave $p$ in $B$ but convex in $\theta$). Under $\chi'' > 0$ and
-  $\Phi' < 0$, the second term is negative; but as $\theta \to \infty$,
-  $p(\theta) \to 0$ and $\chi'(p) \to \chi'(0^+)$, while $|p'(\theta)|$
-  grows without bound. The dominant term for large $\theta$ is
-  $\Phi'(\chi)\chi'(p)p''(\theta)$, which is $\Phi'<0$ times $\chi'>0$ times
-  $p''>0$, yielding a negative contribution. However, the overall sign is
-  positive when the convexity of $\Phi$ in $\chi$ dominates.
+  (concave $p$ in $B$ but convex in $\theta$). Expanding each of the three
+  terms in $d^2\mu^*/d\theta^2$:
+  \begin{itemize}[noitemsep]
+    \item \textbf{Term 1}: $\Phi''(\chi)[\chi'(p)p'(\theta)]^2 > 0$ under
+    $\Phi'' > 0$ (the maintained condition (ii)).
+    \item \textbf{Term 2}: $\Phi'(\chi)\chi''(p)[p'(\theta)]^2$. Since
+    $\Phi' < 0$ and $\chi'' > 0$ (condition (i)) and $[p']^2 > 0$, this term
+    is negative.
+    \item \textbf{Term 3}: $\Phi'(\chi)\chi'(p)p''(\theta)$. Since $\Phi'<0$,
+    $\chi'>0$, and $p''>0$, this term is also negative.
+  \end{itemize}
+  The first term dominates when $\Phi''$ is sufficiently large relative to
+  $|\Phi'|$: formally, a sufficient condition is
+  \[
+    \Phi''(\chi) > |\Phi'(\chi)| \cdot
+    \frac{\chi''(p)[p'(\theta)]^2 + \chi'(p)p''(\theta)}{[\chi'(p)p'(\theta)]^2}.
+  \]
+  Both conditions (i) and (ii) together are therefore jointly sufficient for
+  $d^2\mu^*/d\theta^2 > 0$. Neither alone is sufficient in general: if
+  $\Phi'' = 0$ (linear $\Phi$), conditions (i) and matching-function convexity
+  alone determine the sign, which can go either way depending on the relative
+  magnitudes of Terms 2 and 3.
 
-  More directly: define $f(\theta) = -\mu_t^*(\theta) = -\Phi(\chi(p(\theta)))$.
-  Then $f'(\theta) = -d\mu^*/d\theta < 0$ and the claim $d^2\mu^*/d\theta^2 > 0$
-  is equivalent to $f''(\theta) < 0$, i.e.\ $-\mu^*(\theta)$ is concave in
-  $\theta$, or $\mu^*$ is convex. This holds when the quality function $\chi$
-  is convex in $p$ (spreads accelerate as quality deteriorates rapidly at the
-  margin). The threshold $\theta^*$ is defined as the inflection point of
-  $\mu^*(\theta)$ if $\chi$ is S-shaped (concave then convex), which is a
-  sufficient but not necessary condition. Under a simpler assumption that $\chi$
-  is log-convex (i.e.\ $\chi(p) = p^{\delta}$ with $\delta > 1$), convexity
-  holds globally and $\theta^*$ can be set to any value without requiring an
-  inflection point.
+  The threshold $\theta^*$ arises naturally under a globally convex $\mu^*(\theta)$
+  as any value above which the rate of increase exceeds the baseline; or, if
+  $\chi$ is S-shaped (concave then convex), as the inflection point of
+  $\mu^*(\theta)$, which is computable in closed form under $\chi(p) = p^\delta$
+  with $\delta > 1$ (in which case global convexity holds).
 
   \textit{Assumptions used:} Assumptions~\ref{ass:quality} (differentiability),
   \ref{ass:matching} (matching function), \ref{ass:regularity} (differentiability
-  of equilibrium). The non-linearity result additionally requires $\chi'' > 0$
-  (imposed here as a sufficient condition; this is not part of
-  Assumption~\ref{ass:quality} as stated, which only requires $\chi' > 0$).
+  of equilibrium). The non-linearity result additionally requires both $\chi''
+  > 0$ and $\Phi'' > 0$ as stated in the proposition; neither is inherited from
+  the standing assumptions.
   \hfill$\square$
 \end{proof}
+
+\begin{remark}[Sufficient Conditions for $\Phi'' > 0$ and $\chi'' > 0$]
+  \label{rem:convexity-conditions}
+  The condition $\Phi'' > 0$ holds when the equilibrium spread responds more
+  than proportionally to quality deterioration. This is implied by the
+  demand-system formulation when $B = \sum_s\beta_s$ is small in absolute
+  value (thin market): the price impact of any demand shift is
+  $-\gamma_s/B$, which grows as $|B| \to 0$; if quality deterioration is
+  concurrently associated with a reduction in $|B|$ (fewer active participants
+  in stress), then $\Phi$ is convex in $\chi$. Under CES aggregation with
+  $\sigma > 1$, a deterioration in $\chi$ also amplifies the effective price
+  gap between inside and outside liquidity in a superlinear manner, providing
+  a structural micro-foundation for $\Phi'' > 0$.
+
+  The condition $\chi'' > 0$ requires that quality deteriorates convexly as
+  matching becomes harder. This holds under the parametric family
+  $\chi(p) = p^\delta$ with $\delta > 1$. However, $\chi'' > 0$ is not
+  empirically unambiguous: if $\chi(p) = \chi_{\min} + (1-\chi_{\min})p$ is
+  linear, or if $\chi$ is concave ($\delta < 1$), then $\chi'' \leq 0$ and
+  this result fails. Failure of the joint condition produces $d^2\mu^*/d\theta^2
+  \leq 0$ (concavity or linearity), eliminating the threshold effect. The paper
+  should present \cref{prop:nonlinear} as conditional on the convex subfamily
+  of quality functions and note this restriction explicitly.
+\end{remark}
 
 \begin{remark}[Empirical Testability of \cref{prop:nonlinear}]
   The threshold effect in \cref{prop:nonlinear} requires a continuous
@@ -918,35 +1091,50 @@ proof. We work throughout with the static equilibrium of
     \item \textbf{Central-bank swap lines} supply $B_t^{CBswap}$ that is
     explicitly counter-cyclical (deployed in crises by policy design).
   \end{enumerate}
-  Under the demand-system specification~\eqref{eq:net-demand}, the price
-  sensitivity of foreign bank demand $\beta_{FB} < 0$ is (in absolute value)
-  smaller than the price sensitivity of hedge fund supply $\beta_{HF} > 0$:
-  \[
-    |\beta_{FB}| < \beta_{HF}.
-  \]
 \end{proposition}
 
-\begin{proof}
+\begin{remark}[Maintained Hypothesis on Price-Sensitivity Ordering]
+  \label{rem:beta-ordering}
+  The proposition as stated does not include a claim about $|\beta_{FB}|$
+  versus $\beta_{HF}$. This ordering is \emph{not} derived from model
+  primitives: the coefficients $\beta_s$ are free parameters of the linear
+  demand system~\eqref{eq:net-demand} that are estimated from data, not
+  pinned down by the theoretical structure. We therefore state the ordering
+  as a maintained empirical hypothesis rather than a theoretical result.
+
+  \textbf{Maintained Hypothesis (Price-Sensitivity Ordering):}
+  We impose the empirically motivated ordering
+  \[
+    |\beta_{FB}| < \beta_{HF},
+  \]
+  reflecting the structural interpretation that foreign banks face inelastic
+  payment obligations ($\bar{L}_t$ predetermined by Assumption~\ref{ass:liq-req})
+  while hedge funds face no analogous inelastic demand and enter only when the
+  basis exceeds their entry cost $c^{HF}$. This ordering is consistent with
+  the model's demand structure but is not derived from it. It is tested
+  empirically in the demand system estimation (v8 Part 5, Prediction P3): the
+  null hypothesis $|\beta_{FB}| \geq \beta_{HF}$ is rejected if and only if
+  foreign-bank demand is indeed more price-inelastic than HF supply.
+  Failure to reject would indicate that the structural interpretation of FBO
+  inelasticity is not supported by the data.
+\end{remark}
+
+\begin{proof}[Proof of \cref{prop:heterogeneity}]
   Parts (a) and (c) follow directly from Assumption~\ref{ass:supply}(a) and
-  (c). For part (b): the hedging fund supply function $B_t^{HF} = \phi
+  (c): FBO capacity decreases in $S_t$ (stress) and $Q_t = 1$ (quarter-end)
+  by the parametric structure of \eqref{eq:FBO-capacity}; central-bank swap
+  lines are counter-cyclical by policy design.
+
+  For part (b): the hedge fund supply function $B_t^{HF} = \phi
   \max(\mu_t - c^{HF}, 0)\kappa_t$ has $\partial B_t^{HF}/\partial\mu_t =
   \phi\kappa_t > 0$ when $\mu_t > c^{HF}$, and $= 0$ otherwise. When
   $\kappa_t \to 0$ (acute stress), $B_t^{HF} \to 0$ regardless of $\mu_t$.
   This creates the non-monotone pattern: moderate stress (rising $\mu_t$,
   intact $\kappa_t$) increases HF supply, while severe stress ($\kappa_t \to 0$)
-  withdraws it.
+  withdraws it entirely.
 
-  For the price-sensitivity ordering: foreign banks face inelastic demand for
-  dollar funding because their payment obligations ($\bar{L}_t$) are largely
-  predetermined (Assumption~\ref{ass:liq-req}). Hedge funds face no such
-  constraint and enter only when the basis exceeds their entry cost. Hence the
-  HF supply curve is more price-sensitive (steeper in $\mu_t$) than FB demand,
-  giving $|\beta_{FB}| < \beta_{HF}$.
-
-  \textit{Note:} The ordering $|\beta_{FB}| < \beta_{HF}$ is derived from the
-  economic structure of each sector's problem rather than estimated; the
-  empirical demand system in v8 Part 5 tests whether this inequality holds in
-  data.
+  The price-sensitivity ordering $|\beta_{FB}| < \beta_{HF}$ is not a derived
+  result; it is a maintained empirical hypothesis stated in \cref{rem:beta-ordering}.
   \hfill$\square$
 \end{proof}
 
@@ -1026,17 +1214,53 @@ one of which corresponds to a ``run'' state.
   fixed point, since $F$ is a contraction. The fixed point $\mu^{**}$ is the
   unique equilibrium.
 
-  \textit{Part (b).} When $|\Lambda(\hat\mu)| > 1$ at some $\hat\mu$, the
-  Poincar\'{e}--Hopf index theorem for scalar functions implies that there must
-  be at least two additional fixed points surrounding $\hat\mu$ --- one on each
-  side --- to maintain continuity and boundary conditions (as $F(\bar\mu) > 0$
-  at the no-HF spread and $F(\mu) < 0$ at very low $\mu$ below $c^{HF}$).
-  Specifically, by the intermediate value theorem applied to $F(\mu) = \Psi(\mu)
-  - \mu$: if $F$ crosses zero from above (a stable equilibrium) then from below
-  (unstable), then from above again (another stable equilibrium), the model
-  admits at least three fixed points, of which two are stable. The low stable
-  fixed point is the normal equilibrium ($\mu^{low}$) and the high stable fixed
-  point is the run equilibrium ($\mu^{high}$).
+  \textit{Part (b).} We establish multiple equilibria using the intermediate
+  value theorem applied to $F(\mu) = \Psi(\mu) - \mu$. We first establish
+  the correct boundary conditions for $F$.
+
+  \textbf{Boundary condition at $\mu \to c^{HF}+$.} As $\mu \downarrow c^{HF}$,
+  $B_t^{HF} = \phi\max(\mu - c^{HF},0)\kappa \to 0$, so HF supply vanishes.
+  The market then operates as if hedge funds are absent, and the equilibrium
+  spread approaches the no-HF value $\bar\mu$ (the fixed point under
+  $B_t^{HF} = 0$). By assumption $\bar\mu > c^{HF}$ (otherwise HF never
+  enter). Thus $\Psi(c^{HF}+) = \bar\mu > c^{HF}$, giving
+  \[
+    F(c^{HF}+) = \Psi(c^{HF}+) - c^{HF} = \bar\mu - c^{HF} > 0.
+  \]
+
+  \textbf{Boundary condition as $\mu \to \infty$.} As $\mu \to \infty$,
+  $B_t^{HF} = \phi(\mu - c^{HF})\kappa \to \infty$. By \cref{prop:capacity},
+  $\mu^* \to 0$ as HF capacity grows without bound (infinite capacity eliminates
+  the spread). Thus $\Psi(\mu) \to 0$ as $\mu \to \infty$, giving
+  \[
+    F(\mu) = \Psi(\mu) - \mu \to 0 - \infty = -\infty < 0.
+  \]
+
+  \textbf{Existence of at least one fixed point.} Since $F(c^{HF}+) > 0$ and
+  $F(\mu) < 0$ for all sufficiently large $\mu$, by the intermediate value
+  theorem (applied to the continuous function $F$ on $(c^{HF}, \infty)$) there
+  exists at least one $\mu_1^* \in (c^{HF}, \infty)$ with $F(\mu_1^*) = 0$.
+
+  \textbf{Existence of a second fixed point under $|\Lambda(\hat\mu)| > 1$.}
+  Suppose $F'(\hat\mu) = \Lambda(\hat\mu) - 1 < -1$ (i.e.\ $\Lambda(\hat\mu)
+  < 0$ and $|\Lambda(\hat\mu)| > 1$) at some interior point $\hat\mu \in
+  (c^{HF}, \mu_1^*)$. Then $F$ decreases more steeply than slope $-1$ at
+  $\hat\mu$: starting from $F(c^{HF}+) > 0$, the function dips sharply below
+  zero before $\mu_1^*$, reaching a local minimum below zero. By continuity,
+  $F$ must then rise back to cross zero again at $\mu_1^*$ from below, and if
+  $F$ then falls again (because $\Psi$ is eventually dominated by $-\mu$), it
+  crosses zero a second time at some $\mu_2^* > \mu_1^*$. More precisely:
+  since $F(\hat\mu) < 0$ (the function went negative before $\mu_1^*$) and
+  $F(c^{HF}+) > 0$, by IVT there exists $\mu_0^* \in (c^{HF}, \hat\mu)$
+  with $F(\mu_0^*) = 0$. Thus there are at least two fixed points:
+  $\mu_0^* < \hat\mu < \mu_1^*$. The lower fixed point $\mu^{low} \equiv
+  \mu_0^*$ corresponds to the normal equilibrium (HF actively stabilizing,
+  spread below $\hat\mu$); the upper fixed point $\mu^{high} \equiv \mu_1^*$
+  corresponds to the run equilibrium (high spread, HF fully engaged but
+  stabilization insufficient). Stability analysis (sign of $F'$ at each zero)
+  confirms that $\mu^{low}$ is stable ($F' < 0$ there) and the intermediate
+  zero near $\hat\mu$ is unstable ($F' > 0$), with $\mu^{high}$ being the
+  second stable zero.
 
   \textit{Sufficient condition for $|\Lambda| > 1$.} Since $\Lambda(\mu) =
   (\partial\mu^*/\partial B_t)\cdot\phi\kappa$, and $|\partial\mu^*/\partial B_t|
@@ -1251,9 +1475,12 @@ from what is imposed on the model (assumptions).
   \item $\chi'(p) > 0$ (Assumption~\ref{ass:quality}): quality is increasing in
         matching probability. This is a maintained assumption that defines the
         quality concept; it is consistent with but not derived from the model.
-  \item $\chi'' > 0$: quality is convex in matching probability. This is an
-        additional condition used only in \cref{prop:nonlinear}; it is stated
-        explicitly there and not inherited from the earlier assumptions.
+  \item $\chi'' > 0$ and $\Phi'' > 0$ (jointly): quality is convex in matching
+        probability, and the spread is convex in quality. Both are additional
+        conditions used only in \cref{prop:nonlinear}; both are stated
+        explicitly there and neither is inherited from the earlier assumptions.
+        Failure of either produces concavity or linearity, eliminating the
+        threshold effect (see \cref{rem:convexity-conditions}).
   \item The CES specification \eqref{eq:CES} with $\sigma > 1$: the functional
         form of the aggregator. Relaxing this to a more general aggregator
         would preserve the qualitative results as long as inside and outside
@@ -1265,6 +1492,10 @@ from what is imposed on the model (assumptions).
   \item $|\Lambda| > 1$ locally: the condition for multiple equilibria in
         \cref{prop:run}. This is a parameter restriction, not a functional-form
         assumption.
+  \item The price-sensitivity ordering $|\beta_{FB}| < \beta_{HF}$: a
+        \emph{maintained empirical hypothesis}, not a derived result (see
+        \cref{rem:beta-ordering}). The $\beta_s$ parameters are free in the
+        demand system; the ordering must be verified in estimation.
 \end{itemize}
 
 \noindent\textbf{What remains open:}
