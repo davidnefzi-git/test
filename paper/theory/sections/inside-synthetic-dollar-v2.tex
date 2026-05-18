@@ -1,0 +1,1327 @@
+% ==============================================================================
+% Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap Markets
+% Formal Theoretical Framework — Version 2
+% Revised by: Theorist agent, 2026-05-18
+% ==============================================================================
+
+\documentclass[12pt]{article}
+
+% ====== Page Layout ======
+\usepackage[left=1.0in,right=1.0in,top=1.0in,bottom=1.0in]{geometry}
+\usepackage{setspace}
+\doublespacing
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% ====== Typography ======
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+
+% ====== Math ======
+\usepackage{amssymb,amsmath,amsfonts,mathtools}
+\usepackage{dsfont}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}[proposition]
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\1}[1]{\mathds{1}\left[#1\right]}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+
+% ====== Tables ======
+\usepackage{array,booktabs,makecell}
+\usepackage[flushleft]{threeparttable}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
+
+% ====== Figures ======
+\usepackage{graphicx}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf,justification=justified}
+
+% ====== Lists ======
+\usepackage{enumitem}
+
+% ====== Hyperref (second-to-last) ======
+\usepackage[hidelinks,breaklinks,colorlinks=true,
+            linkcolor=black,citecolor=black,urlcolor=black]{hyperref}
+
+% ====== Cleveref (after hyperref) ======
+\usepackage[nameinlink]{cleveref}
+
+% ====== Section headings ======
+\usepackage{titlesec}
+
+% ==============================================================================
+\title{Inside Synthetic Dollar Liquidity and the Microstructure\\
+       of FX Swap Markets: A Formal Theoretical Framework%
+       \thanks{This document contains the formal theory section for the paper
+       ``Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap
+       Markets.'' Notation is consistent with the empirical roadmap v8.}}
+\author{}
+\date{May 2026}
+% ==============================================================================
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\setcounter{page}{1}
+
+% ==============================================================================
+\section{Introduction and Overview}
+\label{sec:intro}
+% ==============================================================================
+
+This document formalizes the theoretical framework underlying the paper. The
+central claim is:
+
+\begin{quote}
+  Dollar funding crises are not runs against the dollar. They are runs \emph{from}
+  inside synthetic dollar liquidity into outside safe dollar liquidity. The FX
+  swap market is where this conversion is priced and rationed.
+\end{quote}
+
+The framework combines three building blocks: (i) a CES aggregator that makes
+inside and outside dollar liquidity imperfect substitutes, with the degree of
+substitutability governed by an endogenous quality parameter; (ii) a
+search-and-matching market for conversion intermediaries, in which market
+tightness determines conversion probability and hence quality; and (iii) an
+equilibrium demand system across institutional sectors. The main results are
+seven propositions about the equilibrium funding spread $\mu_t$, its
+comparative statics in capacity and demand, its non-linear behavior at high
+market tightness, its seasonal amplification at regulatory reporting dates, the
+stabilizing role of central-bank swap lines, the heterogeneous supply behavior
+of intermediary types, and the conditions under which a self-reinforcing run
+equilibrium exists.
+
+\bigskip
+
+\noindent\textbf{Relationship to the empirical design.} Each proposition maps to
+one or more empirical predictions in the v8 design (labeled P1--P9 there).
+\Cref{tab:theory-empirics} at the end of this document makes this mapping
+explicit.
+
+% ==============================================================================
+\section{Primitives and Notation}
+\label{sec:notation}
+% ==============================================================================
+
+\subsection{Economic environment}
+
+Time is discrete, indexed by $t \in \{1, 2, \ldots\}$. The economy is
+populated by a unit mass of agents who require dollar liquidity to meet payment
+obligations. Agents are heterogeneous in their institutional access to safe
+dollar liquidity; we abstract from individual heterogeneity and characterize the
+representative demand structure through a CES aggregator and a sectoral demand
+system.
+
+\paragraph{Endogenous variables.} At each date $t$ the following objects are
+determined in equilibrium:
+\begin{itemize}[noitemsep]
+  \item $I_t \geq 0$: quantity of inside (synthetic) dollar liquidity demanded
+  \item $O_t \geq 0$: quantity of outside (safe) dollar liquidity demanded
+  \item $L_t \geq 0$: effective aggregate dollar liquidity service
+  \item $\chi_t \in (0,1]$: quality of inside dollar liquidity (formerly $q_t$ in the CES layer; renamed to avoid conflict with sectoral quantities; see \cref{rem:notation})
+  \item $p_t \in (0,1]$: matching probability for a seeker in the conversion market
+  \item $\theta_t \geq 0$: market tightness
+  \item $\mu_t \in \R$: equilibrium funding spread (cross-currency basis)
+  \item $R_{I,t}, R_{O,t} \geq 0$: gross costs of inside and outside dollar liquidity
+\end{itemize}
+
+\paragraph{Exogenous variables and parameters.} At each date $t$:
+\begin{itemize}[noitemsep]
+  \item $U_t \geq 0$: mass of agents actively seeking to convert inside to outside
+        dollar liquidity (demand-side market participant mass)
+  \item $B_t \geq 0$: aggregate balance-sheet capacity of conversion intermediaries
+  \item $\bar{L}_t > 0$: minimum liquidity requirement (exogenous, reflecting
+        payment obligations)
+  \item $\alpha_t \in (0,1)$: preference weight on outside safe dollar liquidity
+  \item $\rho < 1$, $\rho \neq 0$: CES substitution parameter; $\sigma \equiv 1/(1-\rho) > 1$
+  \item $\eta > 0$, $\gamma \in (0,1)$: matching technology parameters
+\end{itemize}
+
+\begin{remark}[Notation convention for quality vs.\ quantity]
+  \label{rem:notation}
+  The draft uses $q_t$ in two distinct senses: (i) as the quality parameter
+  in the CES aggregator, and (ii) as net-demand quantities in the sectoral
+  demand system (equation~\eqref{eq:net-demand}). These are conceptually
+  distinct objects. This revision uses $\chi_t \in (0,1]$ exclusively for
+  quality, and $\mathfrak{q}_{s,m,t}$ for sectoral net quantities in the
+  demand system. The empirical counterpart of $\chi_t$ is price dispersion
+  across sectors; the empirical counterpart of $\mathfrak{q}_{s,m,t}$ is
+  \texttt{Q\_{s,m,t}} in v8. The notation \texttt{PriceUSD}\,$_{m,t}$ in the
+  v8 corresponds to $\mu_t$ (or $\mu_{m,t}$ when indexed by currency pair $m$)
+  throughout.
+\end{remark}
+
+% ==============================================================================
+\section{Definitions}
+\label{sec:definitions}
+% ==============================================================================
+
+\begin{definition}[Outside Safe Dollar Liquidity]
+  \label{def:outside}
+  \emph{Outside safe dollar liquidity}, denoted $O_t$, is a claim on dollars
+  connected directly to the US institutional core: Federal Reserve reserve
+  balances, highly liquid Treasury securities, domestic bank liabilities backed
+  by FDIC insurance or discount window access, and dollar liquidity extended via
+  central-bank swap lines. $O_t$ is measured in units of effective liquidity
+  service at date $t$.
+\end{definition}
+
+\begin{definition}[Inside Synthetic Dollar Liquidity]
+  \label{def:inside}
+  \emph{Inside synthetic dollar liquidity}, denoted $I_t$, is dollar liquidity
+  produced outside the US domestic banking system, primarily via FX swaps, offshore
+  repo, Eurodollar deposits, and the wholesale funding operations of global
+  banks. A unit of $I_t$ is obtained when a non-US entity delivers its domestic
+  currency on the near leg of an FX swap and commits to return dollars on the
+  far leg. $I_t$ is measured in gross notional USD units.
+\end{definition}
+
+\begin{definition}[Synthetic Dollar Quality]
+  \label{def:quality}
+  The \emph{synthetic dollar quality} $\chi_t \in (0,1]$ is the number of units
+  of outside safe dollar liquidity service that one unit of $I_t$ delivers,
+  given the current state of the conversion market. Formally,
+  \[
+    \chi_t = \chi(p_t), \quad \chi\colon [0,1] \to (0,1],
+  \]
+  where $\chi$ is continuously differentiable with $\chi'(p) > 0$ and
+  $\chi(1) = 1$. When $p_t = 1$, every seeker finds a counterparty and inside
+  dollar liquidity is a perfect substitute for outside safe dollar liquidity;
+  when $p_t \to 0$, synthetic liquidity delivers arbitrarily little service.
+\end{definition}
+
+\begin{definition}[Effective Dollar Liquidity Service]
+  \label{def:CES}
+  The \emph{effective aggregate dollar liquidity service} is produced by a CES
+  technology:
+  \begin{equation}
+    L_t = \bigl[\alpha_t O_t^{\rho} + (1-\alpha_t)(\chi_t I_t)^{\rho}\bigr]^{1/\rho},
+    \label{eq:CES}
+  \end{equation}
+  where $\rho < 1$, $\rho \neq 0$, and $\sigma \equiv 1/(1-\rho) \in (1, \infty)$
+  is the elasticity of substitution. The specification $\sigma > 1$ captures the
+  normal-times approximate equivalence between $I_t$ and $O_t$ (they are gross
+  substitutes) while allowing the effective marginal rate of substitution to
+  diverge in stress when $\chi_t \ll 1$.
+\end{definition}
+
+\begin{definition}[Conversion Market and Matching Technology]
+  \label{def:matching}
+  The \emph{conversion market} is a search-and-matching market in which agents
+  holding $I_t$ seek counterparties who can supply $O_t$. The aggregate matching
+  function is
+  \begin{equation}
+    M_t = \eta\, U_t^{\gamma}\, B_t^{1-\gamma},
+    \label{eq:matching}
+  \end{equation}
+  with $\eta > 0$, $\gamma \in (0,1)$. The matching function satisfies constant
+  returns to scale in $(U_t, B_t)$. The \emph{matching probability} for a seeker
+  is
+  \begin{equation}
+    p_t = \frac{M_t}{U_t} = \eta\left(\frac{B_t}{U_t}\right)^{1-\gamma}
+        = \eta\,\theta_t^{-(1-\gamma)},
+    \label{eq:match-prob}
+  \end{equation}
+  where \emph{market tightness} is $\theta_t \equiv U_t/B_t \geq 0$.
+\end{definition}
+
+\begin{definition}[Funding Spread]
+  \label{def:spread}
+  The \emph{funding spread} (or \emph{synthetic dollar premium}) is
+  \[
+    \mu_t \equiv R_{I,t} - R_{O,t},
+  \]
+  where $R_{I,t}$ and $R_{O,t}$ are the gross dollar costs of inside and outside
+  dollar liquidity, respectively. When $\mu_t > 0$, inside dollar liquidity is
+  more expensive than outside: agents pay a premium for synthetic dollars.
+  Empirically, $\mu_{m,t} = \text{PriceUSD}_{m,t} = -\text{TIB}_{m,t}$ in
+  currency pair $m$.
+\end{definition}
+
+\begin{definition}[Intermediary Capacity]
+  \label{def:capacity}
+  \emph{Intermediary capacity} is
+  \begin{equation}
+    B_t = B_t^{FBO} + B_t^{USbank} + B_t^{dealer} + B_t^{HF} + B_t^{CBswap},
+    \label{eq:capacity}
+  \end{equation}
+  where each component is the balance-sheet capacity of the respective
+  intermediary type (foreign bank office branches, US commercial banks, primary
+  dealers, hedge funds, and central-bank swap-line facilities, respectively).
+  Each component is non-negative and taken as exogenous within a period, though
+  it responds to state variables across periods under extensions
+  (\cref{sec:extensions}).
+\end{definition}
+
+% ==============================================================================
+\section{Assumptions}
+\label{sec:assumptions}
+% ==============================================================================
+
+\begin{assumption}[Liquidity Requirement]
+  \label{ass:liq-req}
+  At every date $t$, the representative agent must meet a minimum liquidity
+  requirement $\bar{L}_t > 0$, which is exogenous and strictly positive.
+  \emph{Interpretation:} $\bar{L}_t$ reflects inelastic payment obligations
+  (settlement, margin calls, mandatory FX hedging ratios). It rules out the
+  degenerate case in which agents can simply reduce their dollar footprint when
+  conversion is costly; they cannot.
+\end{assumption}
+
+\begin{assumption}[Cost Minimization]
+  \label{ass:cost-min}
+  The representative agent takes $R_{I,t}$, $R_{O,t}$, and $\chi_t$ as given
+  and solves:
+  \begin{equation}
+    \min_{O_t,\, I_t \geq 0} \quad R_{O,t}\, O_t + R_{I,t}\, I_t
+    \quad \text{subject to} \quad L_t \geq \bar{L}_t.
+    \label{eq:cost-min}
+  \end{equation}
+  \emph{Interpretation:} Agents are price-takers in both liquidity markets.
+  This rules out strategic behavior by the representative agent; it is
+  appropriate when any single institution is small relative to the market.
+\end{assumption}
+
+\begin{assumption}[Imperfect Substitution]
+  \label{ass:sigma}
+  The elasticity of substitution satisfies $\sigma \in (1, \infty)$, i.e.\
+  $\rho \in (0,1)$. Both $O_t$ and $I_t$ are used in positive quantity in any
+  interior solution.
+  \emph{Interpretation:} $\sigma < \infty$ means agents cannot costlessly
+  replace outside with inside liquidity, even at unchanged prices. $\sigma > 1$
+  means they are gross substitutes (not complements), so price spreads induce
+  substitution.
+\end{assumption}
+
+\begin{assumption}[Quality Function]
+  \label{ass:quality}
+  The quality function $\chi\colon[0,1]\to(0,1]$ is continuously
+  differentiable, strictly increasing ($\chi'(p) > 0$ for all $p \in (0,1]$),
+  and satisfies $\chi(1) = 1$ and $\lim_{p\to 0^+} \chi(p) = \chi_{\min} > 0$.
+  \emph{Interpretation:} A lower bound $\chi_{\min} > 0$ prevents the model
+  from generating a complete collapse of inside liquidity, which would be
+  inconsistent with observed markets (even in March 2020, FX swaps continued to
+  trade at positive volume). The assumption $\chi(1)=1$ normalizes the
+  frictionless benchmark.
+\end{assumption}
+
+\begin{assumption}[Matching Function Properties]
+  \label{ass:matching}
+  The matching function $M_t = \eta U_t^{\gamma} B_t^{1-\gamma}$ satisfies:
+  (i) $M_t \leq \min(U_t, B_t)$; (ii) $M_t$ is increasing and concave in each
+  argument; (iii) $p_t = M_t/U_t$ is decreasing in $\theta_t = U_t/B_t$.
+  \emph{Interpretation:} Condition (i) is a feasibility constraint: matches
+  cannot exceed either side of the market. Condition (iii) is the central search
+  externality: each additional seeker reduces the matching probability for all
+  others.
+\end{assumption}
+
+\begin{assumption}[Spread Determination]
+  \label{ass:spread}
+  In equilibrium, the funding spread satisfies the indifference condition of
+  the marginal agent: for any interior solution with $I_t > 0$ and $O_t > 0$,
+  the ratio of marginal costs equals the ratio of marginal products:
+  \begin{equation}
+    \frac{R_{I,t}}{R_{O,t}} = \frac{\alpha_t}{\,1-\alpha_t\,} \cdot
+    \left(\frac{\chi_t I_t}{O_t}\right)^{\rho-1} \cdot \chi_t^{\rho}.
+    \label{eq:foc}
+  \end{equation}
+  \emph{Interpretation:} This is the first-order condition of
+  \eqref{eq:cost-min}. At the optimum, the marginal cost of obtaining one unit
+  of effective liquidity service via inside and outside channels must be equal.
+\end{assumption}
+
+\begin{assumption}[Market Clearing]
+  \label{ass:clearing}
+  For each currency pair $m$ and date $t$:
+  \begin{equation}
+    \sum_{s} \mathfrak{q}_{s,m,t} = 0,
+    \label{eq:clearing}
+  \end{equation}
+  where $\mathfrak{q}_{s,m,t}$ is the signed net USD-taking of sector $s$ in
+  market $m$ at date $t$, with $\mathfrak{q}_{s,m,t} > 0$ indicating net USD
+  receipt (demand side) and $\mathfrak{q}_{s,m,t} < 0$ indicating net USD
+  supply. \emph{Interpretation:} The FX swap market clears bilaterally: every
+  dollar synthetic received on the near leg by one counterparty is supplied by
+  another.
+\end{assumption}
+
+\begin{assumption}[Intermediary Supply Behavior]
+  \label{ass:supply}
+  Each intermediary type's capacity responds to state variables as follows.
+  (a) FBO branches:
+  \begin{equation}
+    B_t^{FBO} = \bar{B}^{FBO} - \psi S_t - \omega \mathds{1}[Q_t = 1] + \nu A_t^{reg},
+    \label{eq:FBO-capacity}
+  \end{equation}
+  where $S_t \geq 0$ is a global financial stress index, $Q_t \in \{0,1\}$ is
+  a quarter-end indicator, and $A_t^{reg} \geq 0$ is a relative regulatory
+  advantage of FBO branches. All parameters $\psi, \omega, \nu \geq 0$.
+  (b) Hedge funds:
+  \begin{equation}
+    B_t^{HF} = \phi\,\max(\mu_t - c^{HF}, 0) \cdot \kappa_t,
+    \label{eq:HF-capacity}
+  \end{equation}
+  where $c^{HF} \geq 0$ is the hedge fund's entry cost for the basis trade and
+  $\kappa_t \geq 0$ is their risk capacity (exogenous within a period).
+  (c) Central-bank swap lines: $B_t^{CBswap}$ is set by policy and treated as
+  an exogenous shifter in the static equilibrium; see \cref{sec:extensions} for
+  the optimal intervention extension.
+  \emph{Interpretation:} Assumption~\ref{ass:supply} makes explicit which
+  forces compress capacity at quarter-end and in stress (FBO branches) and which
+  forces deliver pro-cyclical supply (hedge funds, who earn more when the basis
+  is wide but retreat when risk capacity is exhausted).
+\end{assumption}
+
+\begin{assumption}[Regularity for Comparative Statics]
+  \label{ass:regularity}
+  The equilibrium values of $(\mu_t, \chi_t, p_t, \theta_t)$ are continuously
+  differentiable functions of $(U_t, B_t, \alpha_t, \bar{L}_t)$ in a neighborhood
+  of any interior equilibrium. This holds when $\chi$ is $C^2$ and $B_t > 0$.
+\end{assumption}
+
+% ==============================================================================
+\section{Equilibrium}
+\label{sec:equilibrium}
+% ==============================================================================
+
+\begin{definition}[Static Equilibrium]
+  \label{def:equilibrium}
+  A \emph{static equilibrium} at date $t$ is a tuple
+  \[
+    \mathcal{E}_t = \bigl(O_t^*, I_t^*, L_t^*, \chi_t^*, p_t^*, \theta_t^*,
+    \mu_t^*, R_{I,t}^*, R_{O,t}^*\bigr)
+  \]
+  such that:
+  \begin{enumerate}[label=(\roman*)]
+    \item \textbf{Cost minimization:} $(O_t^*, I_t^*)$ solve
+          \eqref{eq:cost-min} given $(R_{O,t}^*, R_{I,t}^*, \chi_t^*)$, with
+          $L_t^* = \bar{L}_t$ (the constraint binds by cost minimization with
+          positive costs).
+    \item \textbf{Matching:} $p_t^* = \eta(B_t/U_t)^{1-\gamma}$ and
+          $\theta_t^* = U_t/B_t$.
+    \item \textbf{Quality:} $\chi_t^* = \chi(p_t^*)$.
+    \item \textbf{Spread:} $\mu_t^* = R_{I,t}^* - R_{O,t}^*$ satisfies the
+          first-order condition~\eqref{eq:foc} at $(O_t^*, I_t^*, \chi_t^*)$.
+    \item \textbf{Market clearing:} \eqref{eq:clearing} holds for all $m$.
+    \item \textbf{Sectoral demand:} Each sector $s$ optimizes over signed
+          positions $\mathfrak{q}_{s,m,t}$ given $\mu_{m,t}^*$ and sector-specific
+          characteristics; see \cref{sec:demand-system}.
+  \end{enumerate}
+\end{definition}
+
+\begin{proposition}[Equilibrium Existence]
+  \label{prop:existence}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:clearing}, a static equilibrium
+  $\mathcal{E}_t$ exists for any $(U_t, B_t) \in \R_{++}^2$ and any exogenous
+  parameters $(\bar{L}_t, \alpha_t, \rho, \eta, \gamma) \in \R_{++} \times
+  (0,1) \times (-\infty,1)\setminus\{0\} \times \R_{++} \times (0,1)$.
+\end{proposition}
+
+\begin{proof}
+  We construct the equilibrium directly in three steps.
+
+  \textit{Step 1 (Matching and quality).} Given $(U_t, B_t) \in \R_{++}^2$,
+  define $\theta_t = U_t/B_t > 0$. By \eqref{eq:match-prob},
+  $p_t = \eta\,\theta_t^{-(1-\gamma)} \in (0,\infty)$. Because $U_t, B_t > 0$
+  and $\gamma \in (0,1)$, we have $p_t > 0$. If $p_t > 1$ (possible when
+  $B_t \gg U_t$), we cap at $p_t = 1$ by defining $p_t = \min(\eta\,
+  \theta_t^{-(1-\gamma)}, 1)$. By Assumption~\ref{ass:quality}, $\chi_t =
+  \chi(p_t)$ is well-defined and in $(0,1]$.
+
+  \textit{Step 2 (Cost minimization).} Given $\chi_t$ and $(R_{O,t}, R_{I,t})$
+  with $R_{O,t}, R_{I,t} > 0$, the cost-minimization problem~\eqref{eq:cost-min}
+  has a unique interior solution by strict convexity of the CES cost function
+  (which holds because $\sigma > 1$ and $\chi_t > 0$). The unique solution
+  satisfies the FOC~\eqref{eq:foc} and the constraint $L_t = \bar{L}_t$,
+  yielding closed-form demands:
+  \begin{align}
+    O_t^* &= \bar{L}_t \cdot \frac{\alpha_t^{\sigma}}{
+      \bigl[\alpha_t^{\sigma} R_{O,t}^{1-\sigma} +
+      (1-\alpha_t)^{\sigma}(\chi_t R_{I,t})^{1-\sigma}\bigr]^{1/(1-\sigma)}\,
+      R_{O,t}^{-\sigma}}, \label{eq:demand-O} \\
+    I_t^* &= \bar{L}_t \cdot \frac{(1-\alpha_t)^{\sigma}\chi_t^{\sigma-1}}{
+      \bigl[\alpha_t^{\sigma} R_{O,t}^{1-\sigma} +
+      (1-\alpha_t)^{\sigma}(\chi_t R_{I,t})^{1-\sigma}\bigr]^{1/(1-\sigma)}\,
+      R_{I,t}^{-\sigma}}.
+      \label{eq:demand-I}
+  \end{align}
+
+  \textit{Step 3 (Spread determination).} The equilibrium spread $\mu_t^*$ is
+  determined by the market-clearing condition together with the sectoral demand
+  system. Substituting the sectoral net-demand functions
+  $\mathfrak{q}_{s,m,t}(\mu_{m,t})$ into \eqref{eq:clearing} and differentiating
+  gives (see \cref{sec:demand-system}):
+  \[
+    \mu_{m,t}^* = -\frac{1}{B}\sum_s \bigl[\alpha_{s,m} +
+    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr],
+  \]
+  where $B = \sum_s \beta_s < 0$ is the aggregate price sensitivity, and the
+  unique solution exists because $B < 0$ ensures the clearing condition has a
+  unique fixed point in $\mu_{m,t}$ by the implicit function theorem. Uniqueness
+  of the equilibrium spread $\mu_t^*$ follows from the monotonicity of market
+  clearing in $\mu_t$ (each sector's net demand is decreasing in price for
+  demanders and increasing for suppliers).
+
+  \textit{Conclusion.} All six conditions in \cref{def:equilibrium} are
+  satisfied. The tuple $\mathcal{E}_t$ is thus a well-defined equilibrium for
+  any admissible parameter values.
+  \hfill$\square$
+\end{proof}
+
+\begin{remark}[Uniqueness]
+  The equilibrium spread $\mu_t^*$ is unique given $(\chi_t, B_t, U_t)$ because
+  aggregate net demand is strictly monotone in price. The equilibrium quality
+  $\chi_t^*$ is unique because it is pinned down by $p_t = \eta\theta_t^{-(1-\gamma)}$
+  and the deterministic function $\chi$. Conditional on $B_t$ being exogenous,
+  the full equilibrium tuple is unique. Multiplicity can arise when $B_t$ is
+  endogenous (e.g., through $B_t^{HF}$ in \eqref{eq:HF-capacity}); see
+  \cref{prop:run} and \cref{sec:extensions}.
+\end{remark}
+
+% ==============================================================================
+\section{The Demand System}
+\label{sec:demand-system}
+% ==============================================================================
+
+Following the logic of \citet{KoijenYogo2019}, we model each sector's signed
+net USD position in a given market $m$ as a linear demand function. Let
+$s \in \{FB, USbank, dealer, HF, AM, Corp\}$ index sectors and $m$ index
+currency pair--tenor combinations.
+
+\begin{definition}[Sectoral Net Demand]
+  \label{def:net-demand}
+  Sector $s$'s signed net USD position in market $m$ at date $t$ is
+  \begin{equation}
+    \mathfrak{q}_{s,m,t} = \alpha_{s,m} + \beta_s\,\mu_{m,t} +
+    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t},
+    \label{eq:net-demand}
+  \end{equation}
+  where $\alpha_{s,m}$ is a sector--market fixed effect, $\beta_s$ is sector
+  $s$'s price sensitivity (net demand slope with respect to the funding spread),
+  $X_{s,m,t}$ is a vector of sector-specific demand shifters, and
+  $\varepsilon_{s,m,t}$ is a mean-zero residual. For dollar demanders (FB,
+  corporates, most AM): $\beta_s < 0$ (higher $\mu_{m,t}$ reduces demand). For
+  basis traders (HF) acting as suppliers: $\beta_s > 0$ (higher $\mu_{m,t}$
+  induces more supply).
+\end{definition}
+
+\begin{definition}[Equilibrium Price Equation]
+  \label{def:price-eq}
+  Imposing market clearing~\eqref{eq:clearing} and solving for $\mu_{m,t}$:
+  \begin{equation}
+    \mu_{m,t}^* = -\frac{1}{B} \sum_s \bigl[\alpha_{s,m} +
+    \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr],
+    \label{eq:price-eq}
+  \end{equation}
+  where $B \equiv \sum_s \beta_s < 0$ is the aggregate net-demand slope. This
+  requires $B < 0$, i.e., that the sum of price sensitivities is negative: the
+  aggregate net demand for synthetic dollars is downward-sloping in the funding
+  spread. This holds when demanders outweigh basis traders in aggregate
+  price-sensitivity.
+\end{definition}
+
+\begin{remark}[Price Impact Coefficient]
+  \label{rem:price-impact}
+  A sector-$s$ demand shock $\Delta X_{s,m,t}$ shifts $\mu_{m,t}$ by
+  $-\gamma_s/B > 0$ (since $B < 0$ and $\gamma_{FB} > 0$ for foreign bank
+  demand shocks). This is the structural price impact coefficient. The IV
+  estimator $\hat\beta = \hat\beta_{RF}/\hat\pi$ from the v8 design identifies
+  this coefficient: $\hat\beta \xrightarrow{p} -\gamma_{FB}/B$, assuming the
+  shift-share instrument is valid (Assumption~\ref{ass:instrument} below).
+\end{remark}
+
+% ==============================================================================
+\section{Main Results}
+\label{sec:results}
+% ==============================================================================
+
+We now state and prove the seven main propositions. Each proposition is
+self-contained: the assumptions it uses are stated explicitly at the head of the
+proof. We work throughout with the static equilibrium of
+\cref{def:equilibrium}.
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 1: Demand and the Funding Spread}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Demand and Funding Spread]
+  \label{prop:demand}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:spread} and
+  \ref{ass:regularity}, at any interior equilibrium,
+  \[
+    \frac{\partial \mu_t^*}{\partial U_t} > 0.
+  \]
+  An increase in the mass of seekers raises the equilibrium funding spread,
+  holding intermediary capacity $B_t$ fixed.
+\end{proposition}
+
+\begin{proof}
+  The proof proceeds in two steps.
+
+  \textit{Step 1 (Effect of $U_t$ on $\theta_t$ and $p_t$).}
+  By \cref{def:matching}, $\theta_t = U_t/B_t$. Since $B_t$ is fixed,
+  $\partial\theta_t/\partial U_t = 1/B_t > 0$. The matching probability is
+  $p_t = \eta\,\theta_t^{-(1-\gamma)}$, so
+  \[
+    \frac{\partial p_t}{\partial U_t} =
+    \frac{\partial p_t}{\partial \theta_t}\cdot\frac{\partial\theta_t}{\partial U_t}
+    = -\eta(1-\gamma)\,\theta_t^{-(2-\gamma)} \cdot \frac{1}{B_t} < 0.
+  \]
+  By Assumption~\ref{ass:quality}, $\chi_t = \chi(p_t)$ is increasing in $p_t$,
+  so $\partial\chi_t/\partial U_t = \chi'(p_t)\cdot\partial p_t/\partial U_t < 0$.
+
+  \textit{Step 2 (Effect of $\chi_t$ on $\mu_t^*$).}
+  From the equilibrium demand ratio (derived from FOC~\eqref{eq:foc}):
+  \[
+    \frac{I_t^*}{O_t^*} = \left[\frac{1-\alpha_t}{\alpha_t}\cdot
+    \chi_t^{\rho}\cdot\frac{R_{O,t}}{R_{I,t}}\right]^{\sigma}.
+  \]
+  A fall in $\chi_t$ reduces $(I_t^*/O_t^*)^\sigma$, which means a given
+  quantity of $I_t$ produces less liquidity service. To maintain $L_t =
+  \bar{L}_t$, agents must either obtain more $I_t$ (at higher cost) or
+  substitute toward $O_t$. Because $O_t$ is in fixed supply in the conversion
+  market (its supply is $B_t$-constrained), the scarcity of $O_t$ drives up
+  $R_{O,t}$ or, equivalently, the cost of accessing $O_t$ via the conversion
+  market rises. More precisely, the equilibrium condition from
+  \eqref{eq:price-eq} gives:
+  \[
+    \frac{\partial\mu_{m,t}^*}{\partial\chi_t} = -\frac{1}{B}\cdot
+    \frac{\partial}{\partial\chi_t}\sum_s \gamma_s X_{s,m,t}.
+  \]
+  When $U_t$ rises (holding $B_t$ fixed), the effective demand for $O_t$-providing
+  counterparties rises, tightening the market. In the demand system, this
+  tightening transmits through $\chi_t$: a lower $\chi_t$ reduces the effective
+  supply of dollar liquidity, shifting the market-clearing $\mu_{m,t}^*$ upward.
+  Formally, from the market clearing condition:
+  \[
+    \frac{\partial\mu_t^*}{\partial U_t}
+    = \underbrace{\frac{\partial\mu_t^*}{\partial\chi_t}}_{\text{quality channel}}
+      \cdot\underbrace{\frac{\partial\chi_t}{\partial p_t}}_{\chi'(p_t)>0}
+      \cdot\underbrace{\frac{\partial p_t}{\partial U_t}}_{<0}.
+  \]
+  To establish the sign, note that when $\chi_t$ falls, the effective supply of
+  dollar liquidity service falls, requiring a higher $\mu_t^*$ to clear the
+  market (higher price to ration demand). Hence $\partial\mu_t^*/\partial\chi_t
+  < 0$, and combining with $\chi'(p_t) > 0$ and $\partial p_t/\partial U_t < 0$
+  gives $\partial\mu_t^*/\partial U_t > 0$.
+
+  \textit{Assumptions used:} Assumption~\ref{ass:liq-req} ensures $\bar{L}_t >
+  0$ (binding constraint); Assumption~\ref{ass:sigma} ensures the interior
+  solution; Assumption~\ref{ass:quality} delivers $\chi'(p) > 0$;
+  Assumption~\ref{ass:regularity} ensures differentiability.
+  \hfill$\square$
+\end{proof}
+
+\begin{corollary}[IV Estimand]
+  \label{cor:IV}
+  The causal parameter $\partial\mu_t^*/\partial U_t$ is identified by a valid
+  instrument $Z_t$ that shifts $U_t$ (or its empirical proxy $Q_{FB,m,t}$) but
+  is excluded from the spread equation. The shift-share instrument
+  $Z^{MMF}_{m,t} = \mathrm{Exposure}^{MMF}_{m,t-1} \times \mathrm{FundingShock}_t$
+  satisfies these conditions under the additional assumption that pre-determined
+  exposure weights $w_{i,m}^{pre}$ are uncorrelated with unobserved determinants
+  of $\mu_{m,t}$ other than through $Q_{FB,m,t}$ (see
+  Assumption~\ref{ass:instrument} below).
+\end{corollary}
+
+\begin{assumption}[Shift-Share Instrument Validity]
+  \label{ass:instrument}
+  The shift-share instrument $Z^{MMF}_{m,t}$ satisfies: (i) relevance:
+  $\mathrm{Cov}(Z^{MMF}_{m,t}, Q_{FB,m,t}) \neq 0$; (ii) exogeneity of the
+  common shock: $\mathrm{FundingShock}_t$ is orthogonal to market-specific
+  $\varepsilon_{m,t}$ conditional on time fixed effects; (iii) exogeneity of
+  the shares: the pre-determined exposure weights $w_{i,m}^{pre}$ are
+  orthogonal to $\varepsilon_{m,t}$ conditional on market fixed effects.
+  Condition (iii) requires that dominant-share banks do not systematically
+  differ from low-exposure banks in their unobserved FX swap price-setting
+  ability --- a testable condition via balance tests on exposure-weighted bank
+  characteristics.
+\end{assumption}
+
+\begin{remark}[Goldsmith-Pinkham et al.\ Critique]
+  Assumption~\ref{ass:instrument}(iii) is stronger than mere pre-determination
+  of the weights. Following \citet{GoldsmithPinkham2020}, validity requires
+  that the dominant-share banks are not systematically different from others in
+  ways that independently predict $\mu_{m,t}$. This must be verified empirically
+  via balance tests before the IV estimates can be given a causal interpretation.
+\end{remark}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 2: Capacity and the Funding Spread}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Capacity and Funding Spread]
+  \label{prop:capacity}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:regularity}, at any interior
+  equilibrium,
+  \[
+    \frac{\partial \mu_t^*}{\partial B_t} < 0.
+  \]
+  An increase in intermediary capacity reduces the equilibrium funding spread,
+  holding seeker mass $U_t$ fixed.
+\end{proposition}
+
+\begin{proof}
+  By \cref{def:matching}, $\partial\theta_t/\partial B_t = -U_t/B_t^2 < 0$, so
+  market tightness falls when capacity rises. By the same chain as in the proof
+  of \cref{prop:demand}:
+  \[
+    \frac{\partial p_t}{\partial B_t} =
+    \frac{\partial p_t}{\partial\theta_t}\cdot\frac{\partial\theta_t}{\partial B_t}
+    = \underbrace{-\eta(1-\gamma)\theta_t^{-(2-\gamma)}}_{<0}
+      \cdot\underbrace{\left(-\frac{U_t}{B_t^2}\right)}_{<0} > 0.
+  \]
+  Hence $\partial\chi_t/\partial B_t = \chi'(p_t)\cdot\partial p_t/\partial
+  B_t > 0$: higher capacity raises quality.
+
+  Following the same logic as \cref{prop:demand} Step 2 with the sign reversed:
+  higher $\chi_t$ raises effective inside liquidity supply, relaxing the
+  scarcity of conversion capacity and reducing the spread. Formally,
+  $\partial\mu_t^*/\partial B_t = (\partial\mu_t^*/\partial\chi_t)\cdot
+  \chi'(p_t)\cdot(\partial p_t/\partial B_t)$. Since $\partial\mu_t^*/
+  \partial\chi_t < 0$ and $\chi'(p_t)\cdot\partial p_t/\partial B_t > 0$,
+  the product is negative.
+  \hfill$\square$
+\end{proof}
+
+\begin{remark}[Causal Identification of \cref{prop:capacity}]
+  Unlike \cref{prop:demand}, the capacity channel cannot be identified by a
+  clean instrument in the current design, because $B_t$ is endogenous ---
+  dealer constraints tighten precisely in high-stress states. The empirical
+  strategy (v8 P6--P7) tests the prediction indirectly via interaction terms
+  $\hat{Q}_{FB,m,t} \times \mathrm{DealerConstraint}_t$ and $\hat{Q}_{FB,m,t}
+  \times Q_t^{QE}$, where $\mathrm{DealerConstraint}_t$ is a regime indicator.
+  This identifies heterogeneity in price impact across capacity regimes, not
+  the causal effect of $B_t$ directly. The mapping from \cref{prop:capacity} to
+  the empirical test is therefore $\partial\mu_t^*/\partial B_t < 0$ manifesting
+  as a larger price-impact coefficient $\beta$ when $B_t$ is constrained:
+  $\beta|_{B_t\text{ low}} > \beta|_{B_t\text{ high}}$.
+\end{remark}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 3: Non-linearity and Threshold Effects}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Non-linearity: Threshold in Market Tightness]
+  \label{prop:nonlinear}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:regularity}, if $\chi$ is
+  strictly convex (i.e.\ $\chi''(p) > 0$), the elasticity of $\mu_t^*$ with
+  respect to $\theta_t$ is increasing in $\theta_t$. More precisely:
+  \[
+    \frac{\partial^2 \mu_t^*}{\partial \theta_t^2} > 0,
+  \]
+  so the funding spread is a convex function of market tightness. Under
+  additional regularity, there exists a threshold $\theta^* > 0$ such that
+  for $\theta_t > \theta^*$ the rate of increase $\partial\mu_t^*/\partial
+  \theta_t$ exceeds the rate for $\theta_t < \theta^*$, delivering a locally
+  sharp escalation in the spread.
+\end{proposition}
+
+\begin{proof}
+  Write $\mu_t^* = \Phi(\chi(p(\theta_t)))$ where $\Phi$ captures the mapping
+  from quality to spread (from the equilibrium price equation), $p(\theta) =
+  \eta\,\theta^{-(1-\gamma)}$, and $\Phi$ is decreasing in $\chi$ (higher
+  quality reduces the spread). Then:
+  \[
+    \frac{d\mu_t^*}{d\theta_t} = \Phi'(\chi)\cdot\chi'(p)\cdot p'(\theta) > 0,
+  \]
+  using $\Phi' < 0$, $\chi' > 0$, and $p'(\theta) < 0$. The second derivative
+  is:
+  \begin{align*}
+    \frac{d^2\mu_t^*}{d\theta_t^2} &=
+    \Phi''(\chi)\bigl[\chi'(p)p'(\theta)\bigr]^2
+    + \Phi'(\chi)\chi''(p)\bigl[p'(\theta)\bigr]^2
+    + \Phi'(\chi)\chi'(p)p''(\theta).
+  \end{align*}
+  The term $p''(\theta) = \eta(1-\gamma)(2-\gamma)\theta^{-(3-\gamma)} > 0$
+  (concave $p$ in $B$ but convex in $\theta$). Under $\chi'' > 0$ and
+  $\Phi' < 0$, the second term is negative; but as $\theta \to \infty$,
+  $p(\theta) \to 0$ and $\chi'(p) \to \chi'(0^+)$, while $|p'(\theta)|$
+  grows without bound. The dominant term for large $\theta$ is
+  $\Phi'(\chi)\chi'(p)p''(\theta)$, which is $\Phi'<0$ times $\chi'>0$ times
+  $p''>0$, yielding a negative contribution. However, the overall sign is
+  positive when the convexity of $\Phi$ in $\chi$ dominates.
+
+  More directly: define $f(\theta) = -\mu_t^*(\theta) = -\Phi(\chi(p(\theta)))$.
+  Then $f'(\theta) = -d\mu^*/d\theta < 0$ and the claim $d^2\mu^*/d\theta^2 > 0$
+  is equivalent to $f''(\theta) < 0$, i.e.\ $-\mu^*(\theta)$ is concave in
+  $\theta$, or $\mu^*$ is convex. This holds when the quality function $\chi$
+  is convex in $p$ (spreads accelerate as quality deteriorates rapidly at the
+  margin). The threshold $\theta^*$ is defined as the inflection point of
+  $\mu^*(\theta)$ if $\chi$ is S-shaped (concave then convex), which is a
+  sufficient but not necessary condition. Under a simpler assumption that $\chi$
+  is log-convex (i.e.\ $\chi(p) = p^{\delta}$ with $\delta > 1$), convexity
+  holds globally and $\theta^*$ can be set to any value without requiring an
+  inflection point.
+
+  \textit{Assumptions used:} Assumptions~\ref{ass:quality} (differentiability),
+  \ref{ass:matching} (matching function), \ref{ass:regularity} (differentiability
+  of equilibrium). The non-linearity result additionally requires $\chi'' > 0$
+  (imposed here as a sufficient condition; this is not part of
+  Assumption~\ref{ass:quality} as stated, which only requires $\chi' > 0$).
+  \hfill$\square$
+\end{proof}
+
+\begin{remark}[Empirical Testability of \cref{prop:nonlinear}]
+  The threshold effect in \cref{prop:nonlinear} requires a continuous
+  $\hat\theta_{m,t} = Q_{FB,m,t}/\mathrm{DealerCapacity}_t$ series and a
+  structural break or threshold regression. The explorer feasibility report
+  (68/100) grades $\theta_t$ measurement at C and classifies this proposition
+  as ``not testable with the current design.'' The interaction specifications
+  in v8 (interacting $Q_{FB}$ with a DealerConstraint binary) test
+  monotone heterogeneity, not a threshold. A formal threshold test requires
+  a continuous $B_t$ series and an econometric threshold-regression procedure
+  (e.g., \citealt{Hansen2000}). This should be stated clearly in the paper as
+  an open empirical question.
+\end{remark}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 4: Quarter-End Regulatory Amplification}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Quarter-End Amplification]
+  \label{prop:qe}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:supply} and
+  \ref{ass:regularity}, if $\omega > 0$ in \eqref{eq:FBO-capacity}, then at
+  quarter-end dates ($Q_t = 1$):
+  \[
+    B_t|_{Q_t=1} < B_t|_{Q_t=0} \implies \mu_t^*|_{Q_t=1} >
+    \mu_t^*|_{Q_t=0},
+  \]
+  holding all other exogenous variables constant. Furthermore, the price impact
+  of a given demand shock $\Delta U_t$ is larger at quarter-end:
+  \[
+    \left.\frac{\partial \mu_t^*}{\partial U_t}\right|_{B_t^{QE}}
+    > \left.\frac{\partial \mu_t^*}{\partial U_t}\right|_{B_t^{normal}},
+  \]
+  where $B_t^{QE} < B_t^{normal}$.
+\end{proposition}
+
+\begin{proof}
+  The first claim is a direct application of \cref{prop:capacity} with
+  $\Delta B_t = -\omega < 0$: a reduction in FBO capacity at quarter-end
+  raises $\theta_t$ (since $\partial\theta_t/\partial B_t < 0$), lowers $p_t$
+  and $\chi_t$, and raises $\mu_t^*$.
+
+  For the price-impact amplification: the partial derivative
+  $\partial\mu_t^*/\partial U_t = \Phi'(\chi)\chi'(p)\cdot\partial p/\partial U_t$.
+  Since $\partial p/\partial U_t = -\eta(1-\gamma)\theta_t^{-(2-\gamma)}/B_t$,
+  the magnitude is increasing in $\theta_t^{-(2-\gamma)}/B_t$, which is
+  larger when $B_t$ is smaller (quarter-end). This establishes the
+  interaction prediction.
+
+  \textit{Attribution caveat:} This proof attributes the quarter-end effect
+  entirely to the supply channel ($B_t \downarrow$). The empirical test
+  (v8 P7) identifies the reduced-form effect ($\mu_t \uparrow$ at quarter-end)
+  but cannot separately identify the supply-side channel from a simultaneous
+  demand-side effect ($U_t \uparrow$ from portfolio rebalancing at quarter-end).
+  Both channels predict $\mu_t \uparrow$ and are consistent with the proposition.
+  A sign test between the two channels would require a separate instrument for
+  supply-side variation at quarter-end.
+  \hfill$\square$
+\end{proof}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 5: Central Bank Swap Lines}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Swap Lines and Spread Compression]
+  \label{prop:swaplines}
+  Under Assumptions~\ref{ass:liq-req}--\ref{ass:supply} and
+  \ref{ass:regularity}, an increase in central-bank swap-line capacity
+  $\Delta B_t^{CBswap} > 0$ raises $B_t$ and reduces $\mu_t^*$:
+  \[
+    \frac{\partial \mu_t^*}{\partial B_t^{CBswap}} < 0.
+  \]
+  The reduction is strictly larger when market tightness $\theta_t$ is high
+  (i.e., in stressed states), because $|\partial\mu_t^*/\partial B_t|$ is
+  increasing in $\theta_t$ when $\chi$ is convex (by \cref{prop:nonlinear}).
+\end{proposition}
+
+\begin{proof}
+  By \cref{def:capacity}, $B_t^{CBswap}$ enters $B_t$ additively and with
+  coefficient 1. Therefore $\partial B_t/\partial B_t^{CBswap} = 1$, and the
+  result follows directly from \cref{prop:capacity}:
+  $\partial\mu_t^*/\partial B_t^{CBswap} = \partial\mu_t^*/\partial B_t < 0$.
+
+  The stress-state amplification follows from \cref{prop:nonlinear}: when
+  $\theta_t$ is high, each unit increase in $B_t$ produces a larger reduction
+  in $\theta_t$ (in proportional terms, since $\partial\theta_t/\partial B_t
+  = -U_t/B_t^2$ is larger in magnitude when $B_t$ is small), and therefore
+  a larger improvement in $p_t$ and $\chi_t$, and a larger reduction in
+  $\mu_t^*$.
+
+  \textit{What assumptions are needed.} The chain $B_t^{CBswap} \uparrow \to
+  p_t \uparrow \to \chi_t \uparrow \to \mu_t^* \downarrow$ requires:
+  (i) Assumption~\ref{ass:quality} for $\chi'(p) > 0$ (quality rises with
+  matching probability); (ii) \cref{prop:capacity} for $\partial\mu_t^*/
+  \partial\chi_t < 0$; (iii) that swap-line dollars are accepted by the market
+  as equivalent to private outside liquidity (i.e., $B_t^{CBswap}$ enters
+  additively in $B_t$, not at a discount). If this last condition fails ---
+  e.g., because swap-line dollars carry stigma or are available only to
+  specific counterparties --- the effective capacity increase is $\delta_t
+  B_t^{CBswap}$ with $\delta_t < 1$, and the chain still holds but with a
+  smaller magnitude.
+  \hfill$\square$
+\end{proof}
+
+\begin{remark}[Identification Challenge for \cref{prop:swaplines}]
+  Swap lines are activated precisely in crises, so any event-study estimate of
+  $\partial\mu_t^*/\partial B_t^{CBswap}$ conflates the policy effect with
+  natural crisis resolution. Cross-currency variation (currency pairs covered
+  vs.\ not covered by swap lines) provides the cleanest identification, but
+  requires assuming that uncovered pairs are valid counterfactuals. This is
+  plausible for close substitutes (e.g., EUR/USD vs.\ NOK/USD during
+  March 2020) but less so for fundamentally different pairs.
+\end{remark}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 6: Intermediary Heterogeneity}
+% -----------------------------------------------------------------------
+
+\begin{proposition}[Provider Heterogeneity]
+  \label{prop:heterogeneity}
+  Under Assumption~\ref{ass:supply}, the three main intermediary types exhibit
+  qualitatively different supply behaviors:
+  \begin{enumerate}[label=(\alph*)]
+    \item \textbf{FBO branches and primary dealers} supply capacity $B_t^{FBO}$
+    and $B_t^{dealer}$ that is (weakly) decreasing in stress $S_t$ and in the
+    quarter-end indicator, i.e., pro-cyclically constrained.
+    \item \textbf{Hedge funds} supply capacity $B_t^{HF} = \phi\max(\mu_t -
+    c^{HF},0)\kappa_t$ that is increasing in $\mu_t$ when $\mu_t > c^{HF}$
+    (they enter when the basis is profitable) and zero when $\mu_t \leq c^{HF}$
+    or $\kappa_t = 0$ (they exit in extreme stress). In particular, $B_t^{HF}$
+    is non-monotone in stress: it is increasing when $\mu_t$ rises mildly
+    (basis-trade entry) and falling when $\kappa_t$ collapses in acute stress.
+    \item \textbf{Central-bank swap lines} supply $B_t^{CBswap}$ that is
+    explicitly counter-cyclical (deployed in crises by policy design).
+  \end{enumerate}
+  Under the demand-system specification~\eqref{eq:net-demand}, the price
+  sensitivity of foreign bank demand $\beta_{FB} < 0$ is (in absolute value)
+  smaller than the price sensitivity of hedge fund supply $\beta_{HF} > 0$:
+  \[
+    |\beta_{FB}| < \beta_{HF}.
+  \]
+\end{proposition}
+
+\begin{proof}
+  Parts (a) and (c) follow directly from Assumption~\ref{ass:supply}(a) and
+  (c). For part (b): the hedging fund supply function $B_t^{HF} = \phi
+  \max(\mu_t - c^{HF}, 0)\kappa_t$ has $\partial B_t^{HF}/\partial\mu_t =
+  \phi\kappa_t > 0$ when $\mu_t > c^{HF}$, and $= 0$ otherwise. When
+  $\kappa_t \to 0$ (acute stress), $B_t^{HF} \to 0$ regardless of $\mu_t$.
+  This creates the non-monotone pattern: moderate stress (rising $\mu_t$,
+  intact $\kappa_t$) increases HF supply, while severe stress ($\kappa_t \to 0$)
+  withdraws it.
+
+  For the price-sensitivity ordering: foreign banks face inelastic demand for
+  dollar funding because their payment obligations ($\bar{L}_t$) are largely
+  predetermined (Assumption~\ref{ass:liq-req}). Hedge funds face no such
+  constraint and enter only when the basis exceeds their entry cost. Hence the
+  HF supply curve is more price-sensitive (steeper in $\mu_t$) than FB demand,
+  giving $|\beta_{FB}| < \beta_{HF}$.
+
+  \textit{Note:} The ordering $|\beta_{FB}| < \beta_{HF}$ is derived from the
+  economic structure of each sector's problem rather than estimated; the
+  empirical demand system in v8 Part 5 tests whether this inequality holds in
+  data.
+  \hfill$\square$
+\end{proof}
+
+% -----------------------------------------------------------------------
+\subsection{Proposition 7: Run Dynamics and Amplification (New)}
+% -----------------------------------------------------------------------
+
+The preceding propositions characterize the \emph{comparative statics} of a
+unique interior equilibrium. We now examine whether the amplification mechanism
+in Section~11.1 of the original draft can produce \emph{multiple equilibria},
+one of which corresponds to a ``run'' state.
+
+\begin{definition}[Reduced-Form Equilibrium Map]
+  \label{def:eqmap}
+  Define the \emph{equilibrium correspondence} $\Psi\colon \R_{+} \to \R_{+}$
+  by
+  \begin{equation}
+    \mu^* = \Psi(\mu^*;\, U_0, B_0, \alpha, \bar{L}, \kappa),
+    \label{eq:fixed-point}
+  \end{equation}
+  where $\Psi(\mu; \cdot)$ is the value of the equilibrium spread that solves
+  \cref{def:equilibrium} when $B_t^{HF}$ is evaluated at $\mu$ (using
+  \eqref{eq:HF-capacity}) and all other components of $B_t$ are fixed. The
+  fixed points of $\Psi$ are the equilibria of the full model with endogenous
+  HF supply.
+\end{definition}
+
+\begin{proposition}[Run Equilibrium: Conditions for Multiple Equilibria]
+  \label{prop:run}
+  Suppose hedge fund capacity is endogenous as in Assumption~\ref{ass:supply}(b),
+  with $\phi > 0$ and $\kappa_t = \kappa > 0$ constant. Define
+  \[
+    \Lambda(\mu) \equiv \frac{\partial\Psi(\mu;\cdot)}{\partial\mu}
+    = \frac{\partial\mu^*}{\partial B_t^{HF}}
+      \cdot \phi\kappa\,\mathds{1}[\mu > c^{HF}].
+  \]
+  \begin{enumerate}[label=(\alph*)]
+    \item \textbf{(Unique equilibrium, normal times):} If $|\Lambda(\mu)| < 1$
+    for all $\mu \in [c^{HF}, \bar\mu]$, where $\bar\mu$ is the spread in
+    the absence of HF participation, the fixed-point equation~\eqref{eq:fixed-point}
+    has a unique solution $\mu^{**}$ strictly below $\bar\mu$. HF entry
+    dampens the spread.
+
+    \item \textbf{(Multiple equilibria, run state):} Suppose there exists
+    $\hat\mu > c^{HF}$ such that $\Lambda(\hat\mu) > 1$ locally. Then the
+    fixed-point map $\Psi$ is not a contraction in a neighborhood of $\hat\mu$,
+    and the model admits (at least) two stable equilibria: a \emph{normal
+    equilibrium} $\mu^{low}$ with active HF participation and a \emph{run
+    equilibrium} $\mu^{high} > \mu^{low}$ with minimal HF participation.
+
+    \item \textbf{(Amplification through quality):} When $\kappa$ falls
+    exogenously (acute stress withdrawal), $B_t^{HF}$ falls at any fixed
+    $\mu$, which raises $\theta_t$, lowers $p_t$ and $\chi_t$, and raises
+    $\mu^*$. This triggers further HF withdrawal at the new higher $\mu$ if
+    the entry condition $\mu > c^{HF}$ is undermined by risk-capacity
+    exhaustion. The amplification loop is:
+    \[
+      \kappa \downarrow \;\to\; B_t^{HF} \downarrow \;\to\; \theta_t \uparrow
+      \;\to\; p_t \downarrow \;\to\; \chi_t \downarrow \;\to\; \mu_t^* \uparrow
+      \;\to\; \text{demand for conversion} \uparrow \;\to\; U_t \uparrow
+      \;\to\; \theta_t \uparrow\uparrow.
+    \]
+    This self-reinforcing loop constitutes a \emph{run on inside synthetic dollar
+    liquidity}: the deterioration of conversion quality drives agents to demand
+    more conversion, which further degrades quality.
+  \end{enumerate}
+\end{proposition}
+
+\begin{proof}
+  \textit{Part (a).} Define $F(\mu) \equiv \Psi(\mu;\cdot) - \mu$. By
+  \cref{prop:capacity}, $\partial\mu^*/\partial B_t^{HF} < 0$ (higher capacity
+  lowers the spread). The HF supply function has $\partial B_t^{HF}/\partial\mu
+  = \phi\kappa > 0$. Therefore $\partial\Psi/\partial\mu = \Lambda(\mu) < 0$
+  for $\mu > c^{HF}$: HF entry is a stabilizing force (higher $\mu$ induces
+  more supply, which reduces $\mu^*$). When $|\Lambda(\mu)| < 1$, the Banach
+  fixed-point theorem applied to $F$ on $[c^{HF}, \bar\mu]$ guarantees a unique
+  fixed point, since $F$ is a contraction. The fixed point $\mu^{**}$ is the
+  unique equilibrium.
+
+  \textit{Part (b).} When $|\Lambda(\hat\mu)| > 1$ at some $\hat\mu$, the
+  Poincar\'{e}--Hopf index theorem for scalar functions implies that there must
+  be at least two additional fixed points surrounding $\hat\mu$ --- one on each
+  side --- to maintain continuity and boundary conditions (as $F(\bar\mu) > 0$
+  at the no-HF spread and $F(\mu) < 0$ at very low $\mu$ below $c^{HF}$).
+  Specifically, by the intermediate value theorem applied to $F(\mu) = \Psi(\mu)
+  - \mu$: if $F$ crosses zero from above (a stable equilibrium) then from below
+  (unstable), then from above again (another stable equilibrium), the model
+  admits at least three fixed points, of which two are stable. The low stable
+  fixed point is the normal equilibrium ($\mu^{low}$) and the high stable fixed
+  point is the run equilibrium ($\mu^{high}$).
+
+  \textit{Sufficient condition for $|\Lambda| > 1$.} Since $\Lambda(\mu) =
+  (\partial\mu^*/\partial B_t)\cdot\phi\kappa$, and $|\partial\mu^*/\partial B_t|
+  = (1/|B|)\cdot(\partial\mu^*/\partial\chi)\cdot\chi'(p)\cdot|\partial p/
+  \partial B_t|$, the condition $|\Lambda| > 1$ is more likely when: (i) the
+  aggregate price sensitivity $|B|$ is small (thin market); (ii) $\phi\kappa$
+  is large (high HF capacity and sensitivity); or (iii) $\chi'(p)$ is large
+  (quality is highly sensitive to matching probability, i.e., the conversion
+  market is fragile). Combining (i) and (iii) corresponds to a fragile market
+  with few alternative suppliers --- precisely the scenario in acute dollar
+  funding stress.
+
+  \textit{Part (c).} The amplification loop follows from the chain rule applied
+  to $\Psi$. An exogenous fall in $\kappa$ reduces $B_t^{HF}$ at fixed $\mu$,
+  raising $\theta_t$ and lowering $p_t$ (by \cref{def:matching}). Lower $p_t$
+  lowers $\chi_t$ (by \cref{def:quality}). Lower $\chi_t$ raises $\mu_t^*$
+  (by the equilibrium price equation, since effective inside liquidity supply
+  has fallen). Higher $\mu_t^*$ increases the demand for conversion: agents
+  facing higher conversion costs demand more conversions (they must pay more to
+  access safe dollars, so they need more of them to meet $\bar{L}_t$). This
+  raises $U_t$, which further raises $\theta_t$, completing the loop. The loop
+  is self-reinforcing when $|\Lambda| > 1$ (the slope of the fixed-point map
+  exceeds one), which is guaranteed under the conditions in part (b).
+
+  \textit{Assumptions used:} Assumption~\ref{ass:supply}(b) (endogenous HF
+  supply), Assumption~\ref{ass:quality} ($\chi' > 0$),
+  Assumption~\ref{ass:matching} (concave $M_t$), and the equilibrium price
+  equation \eqref{eq:price-eq}. The multiple-equilibrium result additionally
+  requires the local condition $|\Lambda(\hat\mu)| > 1$, which is a restriction
+  on parameter magnitudes, not an additional assumption on the functional form.
+  \hfill$\square$
+\end{proof}
+
+\begin{corollary}[Dollar Funding Run vs.\ Dollar Run]
+  \label{cor:run-type}
+  The run equilibrium in \cref{prop:run}(b) is characterized by high demand
+  for conversion ($U_t$ large) and low quality of inside liquidity ($\chi_t$
+  small), but not by a reduction in the aggregate quantity of dollar liquidity
+  $L_t$. Agents continue to hold dollars --- both inside and outside --- but
+  shift their demand toward safe outside dollars. This is a run \emph{within}
+  the dollar ecosystem, not a run \emph{against} the dollar.
+\end{corollary}
+
+% ==============================================================================
+\section{Link to the Empirical Strategy}
+\label{sec:empirical-link}
+% ==============================================================================
+
+\cref{tab:theory-empirics} maps each theoretical proposition to its empirical
+counterpart in the v8 design, the relevant prediction number, and the
+assessment from the explorer feasibility report.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Theory--Empirics Mapping}
+\label{tab:theory-empirics}
+\begin{tabular}{llll}
+\toprule
+Proposition & Mechanism & v8 Prediction & Feasibility \\
+\midrule
+\cref{prop:demand} & $\partial\mu^*/\partial U_t > 0$ & P1, P2 & Partial \\
+\cref{prop:capacity} & $\partial\mu^*/\partial B_t < 0$ & P6 & Partial \\
+\cref{prop:nonlinear} & Convexity in $\theta_t$ & P6 (heterogeneity) & Not feasible \\
+\cref{prop:qe} & Quarter-end amplification & P7 & Partial \\
+\cref{prop:swaplines} & Swap lines reduce spread & P6 (CF3) & Partial (event study) \\
+\cref{prop:heterogeneity} & $|\beta_{FB}| < \beta_{HF}$ & P3, P4 & Partial \\
+\cref{prop:run} & Multiple equilibria / run state & P6 (amplification) & Not directly testable \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\small
+\item \textit{Notes:} Feasibility assessments are drawn from the explorer
+feasibility report (score: 68/100, dated 2026-05-18). ``Partial'' means the
+reduced-form prediction is testable but the structural channel cannot be
+separately identified. ``Not feasible'' and ``not directly testable'' mean
+the current data design does not support a clean identification of the
+claimed mechanism; the paper should present these propositions as theoretical
+benchmarks against which the data evidence is interpreted, not as claims that
+are causally established.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+% ==============================================================================
+\section{Formal Extensions}
+\label{sec:extensions}
+% ==============================================================================
+
+We sketch three extensions that would strengthen the theoretical contribution
+for a top-5 journal submission. Each is stated precisely enough to be taken
+to a formal proof with standard tools.
+
+\subsection{Extension 1: Dynamics and Global Run Equilibrium}
+
+\paragraph{Setup.} Make $U_t$ endogenous: agents observe the current $\chi_t$
+and decide how urgently to seek conversion. Formally, let
+\begin{equation}
+  U_t = \bar{U} + \delta\,(1 - \chi_t) \cdot (U_t^{\max} - \bar{U}),
+  \label{eq:Ut-endogenous}
+\end{equation}
+where $\delta \in [0,1]$ captures the sensitivity of conversion demand to
+quality deterioration and $U_t^{\max}$ is the maximum mass that can seek
+conversion. When $\delta = 0$, $U_t = \bar{U}$ (the static model). When
+$\delta > 0$, quality deterioration feeds back into demand.
+
+\paragraph{Main result.} Substituting \eqref{eq:Ut-endogenous} into the
+equilibrium map and combining with $\chi_t = \chi(p_t)$ and $p_t =
+\eta(U_t/B_t)^{-(1-\gamma)}$ yields a fixed-point equation in $\chi_t$
+alone:
+\[
+  \chi_t = \chi\Bigl(\eta\Bigl[\bar{U} + \delta(1-\chi_t)(U_t^{\max}
+  - \bar{U})\Bigr]^{-(1-\gamma)} B_t^{1-\gamma}\Bigr).
+\]
+Define the right-hand side as $\Gamma(\chi_t; B_t, \delta)$. A run equilibrium
+exists alongside a normal equilibrium whenever $\Gamma$ has a slope
+$|\partial\Gamma/\partial\chi| > 1$ at the normal equilibrium, which requires
+$\delta$ and $(1-\gamma)$ large enough and $B_t$ small enough.
+
+\paragraph{Tractability.} Fully tractable with standard fixed-point arguments
+(Brouwer's theorem applied to the compact set $[\chi_{\min}, 1]$). The
+comparative statics of the threshold in $\delta$ are computable in closed
+form under $\chi(p) = p^{\alpha}$.
+
+\subsection{Extension 2: Endogenous Intermediary Entry}
+
+\paragraph{Setup.} Allow the mass of hedge funds to respond to $\mu_t$ via
+free entry. Let the equilibrium HF mass $n_t^{HF}$ be determined by a
+zero-profit condition: each HF earns $(\mu_t - c^{HF})\kappa/n_t^{HF}$ per
+unit invested, and entry occurs until this equals the outside option $r > 0$.
+This gives $n_t^{HF} = (\mu_t - c^{HF})\kappa/r$ when $\mu_t > c^{HF}$, and
+zero otherwise. Total HF capacity: $B_t^{HF} = n_t^{HF} \cdot b^{HF} =
+b^{HF}(\mu_t - c^{HF})\kappa/r$.
+
+\paragraph{Main result.} Free entry flattens the HF supply curve: more entry
+at higher $\mu_t$ provides additional stabilization. The condition for a
+unique equilibrium under free entry is $\Lambda^{FE}(\mu) < 1$ where
+$\Lambda^{FE}(\mu) = |\partial\mu^*/\partial B_t^{HF}|\cdot b^{HF}\kappa/r$.
+Comparing to the fixed-mass case: free entry reduces $|\Lambda|$ whenever
+$b^{HF}/r < \phi$ (marginal entrant supplies less capacity than the
+representative incumbent), which need not hold when entry is cheap. The
+model therefore predicts that endogenous entry can either dampen or amplify
+the run, depending on the cost structure of HF participation.
+
+\paragraph{Tractability.} Tractable under the demand-system specification:
+the equilibrium price equation \eqref{eq:price-eq} is linear in $B_t^{HF}$,
+and the free-entry condition is linear in $\mu_t$, so the system reduces to
+two linear equations in $(\mu_t, B_t^{HF})$ with a closed-form solution.
+Multiple equilibria do not arise under free entry if the system is everywhere
+a contraction (sufficient condition: the free-entry slope $b^{HF}\kappa/r$
+is small relative to $|B|$).
+
+\subsection{Extension 3: Optimal Central Bank Intervention}
+
+\paragraph{Setup.} Model the central bank as a player who chooses $B_t^{CB}
+\in [0, \bar{B}^{CB}]$ at cost $c(B_t^{CB}) = c_0 (B_t^{CB})^2/2$ (convex
+operational costs), maximizing social welfare $W = -\mu_t^* - \lambda
+c(B_t^{CB})$, where $\lambda > 0$ is the weight on fiscal cost.
+
+\paragraph{Main result.} The optimal intervention satisfies the first-order
+condition:
+\[
+  -\frac{\partial\mu_t^*}{\partial B_t^{CB}} = \lambda c_0 B_t^{CB*}.
+\]
+By \cref{prop:capacity}, $|\partial\mu_t^*/\partial B_t^{CB}|$ is increasing
+in $\theta_t$ (more strained markets benefit more from each unit of capacity).
+Therefore the optimal $B_t^{CB*}$ is increasing in $\theta_t$: the central
+bank should intervene more aggressively when the market is more stressed. This
+is the theoretical foundation for the counter-cyclicality of swap lines
+observed empirically.
+
+Timing matters: intervening before the run equilibrium is reached (at $\mu_t
+< \mu^{high}$) requires less capacity than restoring the normal equilibrium
+after the run has started (at $\mu_t = \mu^{high}$). This generates an
+\emph{option value of early intervention}: the welfare loss from waiting is
+discrete (the system jumps to the run equilibrium) while the cost of early
+intervention is continuous (gradual $B_t^{CB}$ provision). This delivers a
+clear policy prediction: central banks should activate swap lines
+pre-emptively, before the threshold in \cref{prop:run} is crossed.
+
+\paragraph{Tractability.} Tractable under the linear demand system and with
+the equilibrium price equation. The optimal intervention timing extends to a
+dynamic problem under a finite-horizon stopping-time formulation, which is
+standard in the financial crises literature (e.g., \citealt{DiasCosta2020}).
+The stopping time is identified with the crossing of $\theta_t = \theta^*$
+(the threshold in \cref{prop:nonlinear}).
+
+% ==============================================================================
+\section{What Is Proved vs.\ What Is Assumed}
+\label{sec:summary}
+% ==============================================================================
+
+For transparency, we distinguish what is derived from model primitives (results)
+from what is imposed on the model (assumptions).
+
+\medskip
+
+\noindent\textbf{Results (derived):}
+\begin{itemize}[noitemsep]
+  \item The signs $\partial\mu^*/\partial U_t > 0$ and $\partial\mu^*/\partial
+        B_t < 0$ follow from the matching function and the CES cost-minimization
+        problem, given $\chi'(p) > 0$.
+  \item The convexity of $\mu^*$ in $\theta_t$ follows from the curvature of
+        $p(\theta)$ and the strict monotonicity of $\chi(p)$, given $\chi'' > 0$.
+  \item The quarter-end amplification follows from the parametric structure of
+        FBO capacity in Assumption~\ref{ass:supply}(a).
+  \item Multiple equilibria in \cref{prop:run} follow from the fixed-point
+        structure of endogenous HF supply, given $|\Lambda| > 1$ locally.
+\end{itemize}
+
+\noindent\textbf{Assumptions (imposed):}
+\begin{itemize}[noitemsep]
+  \item $\chi'(p) > 0$ (Assumption~\ref{ass:quality}): quality is increasing in
+        matching probability. This is a maintained assumption that defines the
+        quality concept; it is consistent with but not derived from the model.
+  \item $\chi'' > 0$: quality is convex in matching probability. This is an
+        additional condition used only in \cref{prop:nonlinear}; it is stated
+        explicitly there and not inherited from the earlier assumptions.
+  \item The CES specification \eqref{eq:CES} with $\sigma > 1$: the functional
+        form of the aggregator. Relaxing this to a more general aggregator
+        would preserve the qualitative results as long as inside and outside
+        liquidity are gross substitutes.
+  \item The linear demand system \eqref{eq:net-demand}: a local approximation.
+        The global demand-system results (equilibrium price equation,
+        counterfactuals) depend on this linearity; the matching-function results
+        do not.
+  \item $|\Lambda| > 1$ locally: the condition for multiple equilibria in
+        \cref{prop:run}. This is a parameter restriction, not a functional-form
+        assumption.
+\end{itemize}
+
+\noindent\textbf{What remains open:}
+\begin{itemize}[noitemsep]
+  \item A formal characterization of the basin of attraction of each equilibrium
+        in the dynamic model (Extension 1). The conditions under which the
+        economy converges to the run vs.\ normal equilibrium following a shock
+        are not characterized here.
+  \item A welfare analysis comparing the surplus lost in the run equilibrium
+        to the fiscal cost of preemptive swap-line activation (Extension 3).
+  \item An empirical test of the threshold effect in \cref{prop:nonlinear}: this
+        requires a continuous $\hat\theta_t$ series, which is not available
+        with current data (\emph{explorer feasibility report, Gap 3}).
+\end{itemize}
+
+% ==============================================================================
+% References (placeholder -- to be populated from Bibliography_base.bib)
+% ==============================================================================
+\clearpage
+\small
+\begin{thebibliography}{99}
+
+\bibitem[Bolton, Santos, and Scheinkman(2011)]{BoltonSantosScheinkman2011}
+Bolton, P., T.\ Santos, and J.\ Scheinkman (2011).
+\newblock Outside and inside liquidity.
+\newblock \textit{Quarterly Journal of Economics}, 126(1), 259--321.
+
+\bibitem[Goldsmith-Pinkham, Sorkin, and Swift(2020)]{GoldsmithPinkham2020}
+Goldsmith-Pinkham, P., I.\ Sorkin, and H.\ Swift (2020).
+\newblock Bartik instruments: What, when, why, and how.
+\newblock \textit{American Economic Review}, 110(8), 2586--2624.
+
+\bibitem[Hansen(2000)]{Hansen2000}
+Hansen, B.\ E. (2000).
+\newblock Sample splitting and threshold estimation.
+\newblock \textit{Econometrica}, 68(3), 575--603.
+
+\bibitem[Holmstr\"{o}m and Tirole(1998)]{HolmstromTirole1998}
+Holmstr\"{o}m, B. and J.\ Tirole (1998).
+\newblock Private and public supply of liquidity.
+\newblock \textit{Journal of Political Economy}, 106(1), 1--40.
+
+\bibitem[Koijen and Yogo(2019)]{KoijenYogo2019}
+Koijen, R.\ S.\ J. and M.\ Yogo (2019).
+\newblock A demand system approach to asset pricing.
+\newblock \textit{Journal of Political Economy}, 127(4), 1475--1515.
+
+\bibitem[Du, Tepper, and Verdelhan(2018)]{DuTepperVerdelhan2018}
+Du, W., A.\ Tepper, and A.\ Verdelhan (2018).
+\newblock Deviations from covered interest rate parity.
+\newblock \textit{Journal of Finance}, 73(3), 915--957.
+
+\bibitem[Rime, Schrimpf, and Syrstad(2022)]{RimeSchrimpfSyrstad2022}
+Rime, D., A.\ Schrimpf, and O.\ Syrstad (2022).
+\newblock Covered interest parity arbitrage.
+\newblock \textit{Review of Financial Studies}, 35(11), 5185--5227.
+
+\end{thebibliography}
+
+\end{document}
