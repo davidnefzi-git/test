@@ -1,0 +1,503 @@
+% ==============================================================================
+% Sections 4--6: Data, IV Estimation, and Structural Extension
+% Paper: Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap Markets
+% ==============================================================================
+
+\section{Data and Descriptive Statistics}
+\label{sec:data}
+
+% ------------------------------------------------------------------------------
+\subsection{Transaction Data and Cell Structure}
+\label{subsec:data-structure}
+% ------------------------------------------------------------------------------
+
+The paper is built on confidential bilateral regulatory transaction data in which
+both counterparties to each FX swap are identified by name, sector, country of
+incorporation, and market-maker/taker role. The taker/maker flag is particularly
+valuable: it lets us separate active demand from passive supply within each
+bilateral pair, a distinction that is central to the matching-framework
+interpretation. The version used throughout this paper uses synthetic data
+constructed to replicate the distributional properties of the confidential
+source---cross-sectional and time-series moments, sector shares, and basis
+dynamics---while keeping all underlying institution identities masked.%
+\footnote{The synthetic dataset is constructed following the procedure described
+in the data appendix. All structural estimates, identification tests, and
+robustness checks are designed to apply directly to the confidential source when
+access is obtained.}
+
+We aggregate individual transactions into \emph{cells} defined by the interaction
+of sector $s$, counterparty country $c$, currency pair $m$, tenor bucket $k$,
+and date $t$:
+\[
+  \text{cell} = s \times c \times m \times k \times t.
+\]
+Tenor buckets are overnight (ON), one week (1W), one month (1M), three months
+(3M), six months (6M), and one year or more (1Y+). The signed USD flow for sector
+$s$ in market $m$ at date $t$ is
+\[
+  Q_{s,m,t} = \sum_{c \in m,\; \text{sector}=s} \text{SignedUSDFlow}_{c,t},
+\]
+where SignedUSDFlow $> 0$ indicates net USD receipt (demand for synthetic dollars)
+and SignedUSDFlow $< 0$ indicates net USD supply. The primary demand-side variable
+is $Q_{FB,m,t}$, the net USD-taking of foreign banks in market $m$ at date $t$.
+
+The outcome variable is the transaction-implied basis for currency pair $m$:
+\[
+  \text{PriceUSD}_{m,t} = -\text{TIB}_{m,t},
+\]
+where $\text{TIB}_{m,t}$ is the volume-weighted median of forward points across
+all transactions in market $m$ on date $t$. A positive PriceUSD means synthetic
+dollars are expensive relative to outside dollars---the model's $\mu_{m,t} > 0$.
+We winsorize at the first and ninety-ninth percentiles and apply minimum-liquidity
+filters (minimum transaction count and volume thresholds) to exclude illiquid
+cell-date observations.
+
+Internal consistency check: under market clearing, signed net flows must sum to
+approximately zero within each cell, $r_{m,t} = \sum_s Q_{s,m,t} \approx 0$.
+We verify this holds in the synthetic data, with the residual $r_{m,t}$ having
+mean close to zero and small variance relative to gross volumes.
+
+% ------------------------------------------------------------------------------
+\subsection{Summary Statistics}
+\label{subsec:summary-stats}
+% ------------------------------------------------------------------------------
+
+\Cref{tab:summary-stats} reports means and standard deviations for the main
+variables, pooled across all currency pair-tenor-date cells. Foreign banks hold
+the dominant position among dollar seekers: their net USD-taking accounts for
+the largest share of total signed demand in the sample. Primary dealers and US
+bank branches are the dominant suppliers. The basis (PriceUSD) averages near
+zero in the full sample but exhibits substantial dispersion---the interquartile
+range spans roughly 15 basis points---driven by acute episodes and quarter-end
+patterns.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Summary Statistics}
+\label{tab:summary-stats}
+\input{../tables/summary_stats.tex}
+\begin{tablenotes}\small
+\item \textit{Notes:} The sample covers all currency pair--tenor--date cells with
+at least the minimum transaction count and volume thresholds. Signed USD flow is
+positive for net dollar recipients and negative for net dollar suppliers.
+PriceUSD $= -$TIB, where TIB is the volume-weighted median forward basis in
+basis points; positive values indicate that synthetic dollars are expensive.
+DomShare is the share of cell gross volume attributable to the bank with the
+highest pre-period MMF exposure. Observations are at the cell-date level.
+All variables are winsorized at the 1st and 99th percentiles. Source: synthetic
+data with distributional properties matched to confidential regulatory bilateral
+FX swap transaction data.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\Cref{fig:intermediation-matrix} maps the bilateral intermediation structure:
+for each demand sector (rows) we show the distribution of counterparty types
+supplying the dollars (columns). The matrix reveals that foreign banks receive
+synthetic dollars almost entirely from dealers and US bank branches, while
+asset managers and corporates have more diffuse counterparty distributions.
+Hedge funds appear primarily as suppliers to asset managers, consistent with the
+basis-trade interpretation: they enter when the spread is wide and exit in acute
+stress.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{../figures/intermediation_matrix.pdf}
+\caption{Intermediation Matrix: Who Supplies Synthetic Dollars to Whom}
+\label{fig:intermediation-matrix}
+\textit{Notes:} Each cell reports the fraction of total dollar supply to the
+row sector that originates from the column sector, averaged over the full sample
+period. Row sectors are dollar demanders (net USD takers); column sectors are
+dollar suppliers (net USD makers). Foreign banks receive dollars from dealers and
+US bank branches; hedge funds function primarily as suppliers to asset managers
+and other non-bank intermediaries. Values are computed from cell-level
+bilateral flows in the synthetic dataset. Source: synthetic regulatory bilateral
+FX swap transaction data.
+\end{figure}
+
+\Cref{fig:tightness-premium} plots the market-tightness proxy $\theta_t$ and
+the average funding premium $\mu_t$ over the sample period. Two features stand
+out. First, the March 2020 COVID episode produces the largest joint spike in
+tightness and the premium, consistent with both channels in Proposition~1: demand
+surged (foreign banks scrambled for dollars as offshore funding markets seized)
+while dealer capacity contracted. Second, quarter-end spikes recur with clockwork
+regularity, generating short-lived basis widening that dissipates within days.
+The pattern at quarter-end is consistent with Proposition~2: capacity contracts
+deterministically as FBO branches reduce their balance sheets for regulatory
+reporting, and the same demand shock produces a larger price response.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{../figures/tightness_premium_ts.pdf}
+\caption{Market Tightness and the Funding Premium, 2015--2023}
+\label{fig:tightness-premium}
+\textit{Notes:} The top panel plots the market-tightness proxy $\theta_t =
+Q_{FB,m,t} / \text{DealerCapacity}_t$, averaged across currency pairs. The
+bottom panel plots the average funding premium $\mu_t = \text{PriceUSD}_{m,t}$
+in basis points, weighted by gross cell volume. Shaded regions indicate quarter-end
+months. The vertical dashed line marks March 2020. The co-movement between
+tightness and the premium is consistent with Propositions~1 and~2 and motivates
+the IV design in \cref{sec:iv-results}. Source: synthetic regulatory bilateral FX
+swap transaction data.
+\end{figure}
+
+\Cref{tab:balance-tests} in \cref{sec:appendix} presents balance tests for the
+shift-share instrument. For each currency pair-tenor market $m$, we identify the
+bank with the dominant pre-period MMF exposure share. We then test whether these
+dominant banks differ from low-exposure banks on pre-treatment observables:
+gross FX swap volume, tenor composition, and credit default swap spread level.
+Table~\ref{tab:balance-tests} shows that MMF-exposed banks hold a dominant
+position in most currency pair-tenor cells, consistent with the identification
+assumption underlying Proposition~1. The balance tests confirm that
+dominant-exposure banks do not differ systematically from others on pre-treatment
+pricing behavior, supporting the Goldsmith-Pinkham et al.\ (2020) validity
+condition for the shift-share design.
+
+
+% ==============================================================================
+\section{IV Estimation}
+\label{sec:iv-results}
+% ==============================================================================
+
+% ------------------------------------------------------------------------------
+\subsection{Identification Strategy}
+\label{subsec:identification}
+% ------------------------------------------------------------------------------
+
+The primary empirical strategy exploits variation in foreign banks' exposure to
+prime money market fund (MMF) funding shocks to identify the causal effect of
+synthetic dollar demand on the funding premium. The instrument is a shift-share
+design:
+\[
+  Z_{i,m,t}^{MMF} = \text{DomShare}_{i,m} \times \text{MMFOutflow}_t,
+\]
+where $\text{DomShare}_{i,m}$ is bank $i$'s share of pre-period gross volume in
+market $m$ (a measure of how exposed the market is to bank $i$'s funding
+structure) and $\text{MMFOutflow}_t$ is the aggregate prime MMF outflow at date
+$t$. We aggregate to the market level:
+\[
+  Z_{m,t}^{MMF} = \text{Exposure}^{MMF}_{m,t-1} \times \text{MMFOutflow}_t,
+\]
+where $\text{Exposure}^{MMF}_{m,t-1} = \sum_i w_{i,m}^{pre} \times
+\text{MMFShare}_{i,t-1}$ is the pre-determined exposure of market $m$ to
+prime MMF funding, constructed from rolling twelve-month lagged volume weights.
+
+Instrument validity requires two conditions. First, aggregate MMF outflows
+are uncorrelated with cell-level demand shocks conditional on market and time
+fixed effects---the common-shock component is absorbed by $\tau_t$, and
+identification comes from cross-market variation in the predetermined exposure
+weights. Second, dominant-share banks transmit the MMF shock to FX swap demand:
+banks with high prime MMF exposure respond to funding outflows by increasing net
+dollar-taking in the swap market. The balance tests in Table~\ref{tab:balance-tests}
+provide supporting evidence for this second condition by confirming that
+high-exposure banks are not systematically different from others in their
+pre-treatment FX swap pricing behavior.
+
+All specifications include market fixed effects $\alpha_m$ (absorbing permanent
+differences across currency pair-tenor combinations), time fixed effects $\tau_t$
+(absorbing all common time variation including aggregate dollar-shortage episodes),
+the aggregate CDS spread $\text{CDSAgg}_{m,t}$ (constructed with the same
+exposure weights as $Z^{MMF}$ to control for the credit component of bank
+funding costs), and the EPFR bond-flow instrument as an additional control for
+the asset-manager hedging channel.
+
+Standard errors are two-way clustered by market and week. Given approximately
+36 markets, we report wild cluster bootstrap $p$-values as the primary inference
+for all main specifications. Adão-Kolesár-Morales (2019) shift-share standard
+errors are reported in the robustness tables.
+
+% ------------------------------------------------------------------------------
+\subsection{First Stage}
+\label{subsec:first-stage}
+% ------------------------------------------------------------------------------
+
+The first stage estimates the relationship between the shift-share instrument and
+foreign bank net dollar-taking:
+\begin{equation}
+  Q_{FB,m,t} = \alpha_m + \tau_t + \pi Z_{m,t}^{MMF} + \gamma
+  \text{CDSAgg}_{m,t} + \delta Z_{m,t}^{EPFR} + u_{m,t}.
+  \label{eq:first-stage}
+\end{equation}
+
+\Cref{tab:iv-first-stage} reports first-stage estimates. The instrument is
+strongly relevant: the Kleibergen-Paap $F$-statistic comfortably exceeds the
+conventional threshold of 10 in all specifications. The coefficient $\hat\pi$ is
+positive and significant---markets with higher pre-period MMF exposure see larger
+increases in foreign bank net dollar-taking when aggregate MMF outflows rise.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{First Stage: MMF Instrument and Foreign Bank Dollar Demand}
+\label{tab:iv-first-stage}
+\input{../tables/iv_first_stage.tex}
+\begin{tablenotes}\small
+\item \textit{Notes:} The dependent variable is $Q_{FB,m,t}$, the net USD-taking
+of foreign banks in currency pair-tenor market $m$ at date $t$, in billions of
+USD. The instrument $Z_{m,t}^{MMF}$ is the shift-share MMF exposure measure
+(pre-period exposure weight times aggregate MMF outflow). All specifications
+include market and time fixed effects. $\text{CDSAgg}_{m,t}$ is the
+exposure-weighted aggregate bank CDS spread; $Z_{m,t}^{EPFR}$ is the EPFR
+bond-flow control. Kleibergen-Paap $F$-statistics test instrument relevance;
+the null of weak instruments is rejected in all columns. Standard errors are
+two-way clustered by market and week; wild cluster bootstrap $p$-values in
+brackets. Source: synthetic regulatory bilateral FX swap transaction data.
+* $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+A diagnostic test separates taker demand from maker demand. Proposition~1
+operates through active seekers: banks that are takers in the matching process
+should drive the first-stage relationship, not passive makers. We estimate the
+first stage separately for $Q_{FB,m,t}^{taker}$ and $Q_{FB,m,t}^{maker}$.
+The taker first-stage coefficient is larger in magnitude than the maker coefficient
+and accounts for the bulk of the instrument's relevance, consistent with the
+search-friction mechanism: the funding shock drives active dollar-seeking, not
+passive market-making.
+
+% ------------------------------------------------------------------------------
+\subsection{Second Stage}
+\label{subsec:second-stage}
+% ------------------------------------------------------------------------------
+
+The second stage regresses the funding premium on instrumented foreign bank demand:
+\begin{equation}
+  \Delta\text{PriceUSD}_{m,t} = \alpha_m + \tau_t + \beta \hat{Q}_{FB,m,t} +
+  \gamma \text{CDSAgg}_{m,t} + \varepsilon_{m,t},
+  \label{eq:second-stage}
+\end{equation}
+where $\hat{Q}_{FB,m,t}$ is the fitted value from \cref{eq:first-stage}.
+
+\Cref{tab:iv-second-stage} reports the main results. Column 1 presents the
+OLS estimate; columns 2 through 4 present IV estimates with progressively richer
+controls. The preferred specification is column 3, which includes market and time
+fixed effects and the CDS control. A one-standard-deviation increase in
+instrumented foreign bank net dollar-taking raises the funding premium by
+$\hat\beta$ basis points (see Table~\ref{tab:iv-second-stage}, row ``Fitted
+$Q_{FB,m,t}$''). The IV estimates exceed the OLS estimates, consistent with
+attenuation bias from measurement error in $Q_{FB,m,t}$ or from simultaneous
+supply-side accommodation: when foreign banks increase dollar demand, dealers
+supply more, attenuating the raw price response. Column 4 reports Adão-Kolesár-Morales
+(2019) shift-share standard errors, which account for cross-market correlation
+from the common MMF shock component; this is the baseline inference throughout.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Second Stage: Price Impact of Foreign Bank Dollar Demand}
+\label{tab:iv-second-stage}
+\input{../tables/iv_second_stage.tex}
+\begin{tablenotes}\small
+\item \textit{Notes:} The dependent variable is $\Delta\text{PriceUSD}_{m,t}$,
+the change in the funding premium (basis points) for currency pair-tenor market
+$m$ at date $t$. The endogenous regressor $\hat{Q}_{FB,m,t}$ is fitted net
+foreign bank USD-taking (billions USD) from \cref{eq:first-stage}. Column 1 is
+OLS. Columns 2--4 are 2SLS using the shift-share MMF instrument. Column 4
+replaces two-way clustered standard errors with Adão-Kolesár-Morales (2019) AKM
+standard errors, which are the baseline for inference. All specifications include
+market and time fixed effects. $\text{CDSAgg}_{m,t}$ is the exposure-weighted
+aggregate bank CDS spread. Wild cluster bootstrap $p$-values in brackets.
+Standard errors in parentheses. Source: synthetic regulatory bilateral FX swap
+transaction data. * $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The structural interpretation follows from \cref{rem:price-impact}:
+$\hat\beta \to -\gamma_{FB}/\mathcal{B}$, the ratio of the foreign-bank demand
+loading to the aggregate demand slope. A positive and significant $\hat\beta$
+is consistent with Proposition~1 ($\partial\mu^*/\partial U > 0$) and confirms
+that the aggregate demand slope is negative ($\mathcal{B} < 0$), since
+$\gamma_{FB} > 0$ by the first-stage relevance condition.
+
+% ------------------------------------------------------------------------------
+\subsection{Heterogeneity}
+\label{subsec:heterogeneity}
+% ------------------------------------------------------------------------------
+
+We test three state-dependent predictions from the model: capacity amplification
+(Proposition~2), quarter-end amplification (Proposition~4), and term-structure
+concentration.
+
+\paragraph{Dealer capacity amplification.} Proposition~2 predicts that the price
+impact of demand shocks is larger when intermediary capacity is constrained. We
+interact instrumented demand with an indicator for constrained dealer capacity:
+\begin{equation}
+  \Delta\text{PriceUSD}_{m,t} = \alpha_m + \tau_t + \beta_1 \hat{Q}_{FB,m,t} +
+  \beta_2 \widehat{Q_{FB,m,t} \times \text{DealerConstraint}_t} + \varepsilon_{m,t}.
+  \label{eq:interaction}
+\end{equation}
+We instrument both the level $Q_{FB,m,t}$ and the interaction $Q_{FB,m,t} \times
+\text{DealerConstraint}_t$ with $Z_{m,t}^{MMF}$ and $Z_{m,t}^{MMF} \times
+\text{DealerConstraint}_t$, respectively. The exclusion restriction for the
+interaction instrument requires that conditional on the level $Q_{FB,m,t}$ and
+all controls, the product $Z_{m,t}^{MMF} \times \text{DealerConstraint}_t$
+affects the premium only through the interaction term. We assess this restriction
+in three ways: DealerConstraint is measured at the previous quarter-end (lagged,
+reducing simultaneity), the main effect of DealerConstraint on pricing is
+absorbed by a DealerConstraint indicator in the regression, and a specification
+with DealerConstraint $\times$ year fixed effects yields similar estimates.
+
+\Cref{tab:iv-interactions} reports results. The coefficient $\hat\beta_2 > 0$:
+price impact is larger when dealers are constrained. This is consistent with
+Proposition~2, though the interaction identifies effect heterogeneity across
+capacity regimes rather than the causal effect of $B_t$ directly.
+
+\paragraph{Quarter-end amplification.} Quarter-end dates provide a clean test
+of Proposition~4: dealer capacity contracts deterministically for regulatory
+reporting, and the same foreign-bank demand shock should produce a larger basis
+spike. We replace DealerConstraint with a QuarterEnd indicator in
+\cref{eq:interaction}. The positive and significant coefficient on the QuarterEnd
+interaction confirms that price impact is amplified at quarter-end, consistent
+with supply-side capacity withdrawal. The supply versus demand attribution remains
+unresolved---both channels predict higher spreads at quarter-end---but the
+deterministic timing of quarter-end is inconsistent with a demand-driven
+explanation that would require simultaneous foreign-bank demand spikes at every
+quarter-end date.
+
+\paragraph{Term structure.} Short-tenor markets are more responsive than
+long-tenor markets. Table~\ref{tab:iv-interactions} Panel C presents estimates
+by tenor bucket. The price impact coefficient $\hat\beta$ is largest for overnight
+and one-week maturities, declines monotonically through three months, and is
+small and statistically indistinguishable from zero for six-month and longer
+maturities. This pattern is consistent with the model: foreign-bank dollar
+demand for payment and settlement obligations is concentrated at short tenors,
+so the search friction is most acute where tightness is highest.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Heterogeneity in Price Impact: Capacity, Quarter-End, and Tenor}
+\label{tab:iv-interactions}
+\input{../tables/iv_interactions.tex}
+\begin{tablenotes}\small
+\item \textit{Notes:} Panel A reports the DealerConstraint interaction
+specification (\cref{eq:interaction}) with two-instrument IV (level and
+interaction instrumented). DealerConstraint is an indicator for periods in which
+primary dealer repo borrowings fall below the 25th percentile of their
+rolling four-quarter distribution. Panel B replaces DealerConstraint with a
+QuarterEnd indicator (last week of each fiscal quarter). Panel C reports
+separate IV estimates by tenor bucket: ON (overnight), 1W (one week), 1M (one
+month), 3M (three months), 6M (six months), 1Y+ (one year or more). All
+specifications include market and time fixed effects and the CDS control.
+AKM standard errors throughout. Wild cluster bootstrap $p$-values in brackets.
+Source: synthetic regulatory bilateral FX swap transaction data.
+* $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+% ------------------------------------------------------------------------------
+\subsection{Robustness}
+\label{subsec:robustness}
+% ------------------------------------------------------------------------------
+
+The main result is stable across a battery of checks. The pre-trend diagnostic
+in Table~\ref{tab:pretrend-diagnostic} regresses $\Delta\text{PriceUSD}_{m,t}$
+on leads of the instrument $Z_{m,t-k}^{MMF}$ for $k = 1, 2, 3$ periods prior to
+the funding shock; the coefficients are statistically indistinguishable from zero,
+confirming that the instrument captures genuinely unexpected demand variation
+rather than anticipated changes. Table~\ref{tab:iv-bootstrap} reports wild cluster
+bootstrap $p$-values for the main specification; inference is unchanged. We also
+verify robustness to: (i) the alternative monthly instrument (aggregate prime MMF
+losses by bank, rather than the shift-share design), (ii) alternative weight
+windows of six months and twenty-four months, (iii) Anderson-Rubin confidence
+sets as protection against weak instruments in markets with small cross-sections,
+and (iv) using total sector-aggregate $Q_{all,m,t}$ instead of the foreign-bank
+sub-aggregate to address potential attenuation from the FB-only proxy for $U_t$.
+
+
+% ==============================================================================
+\section{Structural Extension: Demand System}
+\label{sec:demand-system}
+% ==============================================================================
+
+We now embed the equilibrium in a demand system to recover the aggregate demand
+elasticity $\mathcal{B} = \sum_s \beta_s$ and its sector-specific components.
+This section is a structural extension of the reduced-form IV design; the IV
+estimates in \cref{sec:iv-results} do not depend on the assumptions maintained
+here. The demand system provides two things the IV design cannot: (i) a test of
+the maintained hypothesis $\mathcal{B} < 0$ that underlies the equilibrium price
+equation, and (ii) a structural decomposition of the IV estimate $\hat\beta \approx
+-\gamma_{FB}/\mathcal{B}$ into the demand loading $\gamma_{FB}$ and the
+aggregate slope $\mathcal{B}$.
+
+\paragraph{Estimating equation.} Following \cref{eq:net-demand}, we estimate
+sector-specific price sensitivities from:
+\begin{equation}
+  \mathfrak{q}_{s,m,t} = \alpha_{s,m} + \beta_s\,\mu_{m,t} +
+  \gamma_s X_{s,m,t} + \varepsilon_{s,m,t},
+  \label{eq:ds-estimation}
+\end{equation}
+where $\mathfrak{q}_{s,m,t} = Q_{s,m,t} / \text{GrossVolume}_{s,m}^{pre}$ is the
+normalized signed net USD position of sector $s$ in market $m$ at date $t$,
+scaled by pre-period gross volume to make estimates comparable across markets.
+Because $\mu_{m,t}$ is endogenous to each sector's demand, we instrument it
+with a cross-sector excluded instrument: $Z_{m,t}^{MMF}$ identifies the FB
+equation (because it shifts FB demand while being excluded from NBFI pricing
+under the maintained cross-equation restriction), and $Z_{m,t}^{EPFR}$ identifies
+the NBFI equation analogously.
+
+The cross-sector exclusion restrictions are maintained assumptions, not directly
+testable from the data. We assess their plausibility via the Hansen $J$
+overidentification test and a spillover diagnostic that tests whether
+$Z_{m,t}^{MMF}$ predicts lagged NBFI flows after controlling for time fixed
+effects.
+
+\paragraph{Results.} \Cref{tab:demand-system} reports sector-specific price
+sensitivity estimates. Foreign banks are price-inelastic: $\hat\beta_{FB} < 0$
+but small in absolute value, consistent with inelastic payment obligations
+($\bar{L}_t$ predetermined). Hedge funds display $\hat\beta_{HF} > 0$, consistent
+with basis-trade entry when the spread is wide. The ordering $|\hat\beta_{FB}|
+< \hat\beta_{HF}$ is consistent with the maintained hypothesis in
+\cref{rem:beta-ordering}, though as noted there it is a maintained empirical
+ordering rather than a theoretical prediction.
+
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Demand System: Sector-Specific Price Sensitivities}
+\label{tab:demand-system}
+\input{../tables/demand_system.tex}
+\begin{tablenotes}\small
+\item \textit{Notes:} Each column reports GMM estimates of \cref{eq:ds-estimation}
+for one sector. $\hat\beta_s$ is the sector's price sensitivity (net demand slope
+with respect to the funding premium $\mu_{m,t}$, in normalized quantity units per
+basis point). Foreign banks (FB) and asset managers (AM) show negative
+sensitivities (demand falls with the premium). Hedge funds (HF) show positive
+sensitivity (supply increases with the premium). The row $\mathcal{B} = \sum_s
+\hat\beta_s$ tests the maintained hypothesis of downward-sloping aggregate demand;
+a negative and significant estimate confirms $\mathcal{B} < 0$. All specifications
+include sector-market and time fixed effects. Cross-sector instruments: $Z^{MMF}$
+for the FB equation, $Z^{EPFR}$ for the NBFI equation. GMM standard errors in
+parentheses. Hansen $J$ $p$-value tests overidentifying restrictions.
+Source: synthetic regulatory bilateral FX swap transaction data.
+* $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The row $\mathcal{B} = \sum_s \hat\beta_s$ at the bottom of
+Table~\ref{tab:demand-system} reports the aggregate slope. The estimate is
+negative and statistically significant. A negative and significant estimate of
+$\mathcal{B}$ is consistent with the maintained hypothesis in Remark~1 and
+provides a structural interpretation of the IV estimates: the positive price
+impact $\hat\beta > 0$ from \cref{sec:iv-results} is the ratio of the
+foreign-bank demand loading $\gamma_{FB}$ to the aggregate slope $|\mathcal{B}|$,
+not merely a reduced-form correlation. Markets with thinner aggregate price
+sensitivity ($|\mathcal{B}|$ small) would exhibit proportionally larger price
+impacts for the same demand shock---a prediction consistent with the shorter-tenor
+and constrained-capacity results in \cref{subsec:heterogeneity}.
+
+% ==============================================================================
+% CLAIM-SOURCE MAP
+% Every quantitative claim → output file
+% β (main IV): paper/tables/iv_second_stage.tex, row "Fitted Q_{FB,m,t}"
+% First-stage F: paper/tables/iv_first_stage.tex, row "KP F-stat"
+% B_agg < 0: paper/tables/demand_system.tex, row "\mathcal{B} = \sum_s \hat\beta_s"
+% Balance test concentration: paper/tables/balance_tests.tex
+% Pre-trend p-values: paper/tables/pretrend_diagnostic.tex
+% Bootstrap p-value: paper/tables/iv_bootstrap.tex
+% ==============================================================================

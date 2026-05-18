@@ -1,0 +1,352 @@
+% ==============================================================================
+% Section 3: Theoretical Framework
+% Paper: Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap Markets
+% ==============================================================================
+
+\section{Theoretical Framework}
+\label{sec:theory}
+
+Dollar funding crises are not runs against the dollar. They are runs \emph{from}
+inside synthetic dollar liquidity into outside safe dollar liquidity. This section
+formalizes that claim. We construct an equilibrium model of the FX swap market
+in which the conversion premium between synthetic and safe dollars is determined
+by a matching process between dollar seekers and conversion intermediaries. Three
+results follow: demand pressure raises the equilibrium premium (Proposition~1),
+capacity tightening amplifies the effect (Proposition~2), and the premium
+responds convexly to market tightness under plausible conditions on the quality
+function (Proposition~3). The first two propositions map directly to the IV and
+interaction specifications in \cref{sec:results}; the third characterizes the
+theoretical shape of price impact and motivates our descriptive evidence on
+crisis episodes.
+
+
+% ------------------------------------------------------------------------------
+\subsection{Environment: Inside and Outside Dollar Liquidity}
+\label{subsec:environment}
+% ------------------------------------------------------------------------------
+
+We model two forms of dollar liquidity that differ in their institutional
+connection to the US monetary core. \emph{Outside safe dollar liquidity}, $O_t$,
+encompasses Federal Reserve reserve balances, highly liquid Treasury securities,
+and domestic bank liabilities backstopped by FDIC insurance or discount window
+access, as well as dollar liquidity extended through central-bank swap lines.
+\emph{Inside synthetic dollar liquidity}, $I_t$, is dollar liquidity produced
+outside the US domestic banking system---primarily through FX swaps, offshore
+repo, Eurodollar deposits, and the wholesale funding operations of global banks.
+A unit of $I_t$ is obtained when a non-US entity delivers domestic currency on
+the near leg of an FX swap and commits to return dollars on the far leg.
+
+The distinction matters because in normal times $I_t$ and $O_t$ are near-perfect
+substitutes: arbitrage keeps the cross-currency basis close to zero. In stress,
+they are not. When the probability of finding a counterparty able to supply
+outside dollars at short notice falls, the effective service that one unit of
+$I_t$ delivers deteriorates. We capture this through an endogenous quality
+parameter $\chi_t \in (0,1]$, defined as the number of units of outside safe
+dollar service that one unit of $I_t$ delivers given the current state of the
+conversion market. When every seeker finds a counterparty instantly, $\chi_t = 1$
+and inside liquidity is a perfect substitute. When matching is difficult,
+$\chi_t < 1$ and agents pay a premium to convert.
+
+The aggregate dollar liquidity service available to agents is produced by a CES
+technology:
+\begin{equation}
+  L_t = \bigl[\alpha_t O_t^{\rho} + (1-\alpha_t)(\chi_t I_t)^{\rho}
+  \bigr]^{1/\rho},
+  \label{eq:CES}
+\end{equation}
+where $\sigma \equiv 1/(1-\rho) > 1$ is the elasticity of substitution.
+The parameter $\sigma > 1$ captures the gross-substitutes property:
+a higher premium on inside dollars induces substitution toward outside
+dollars. Under $\sigma > 1$, inside and outside dollars are not complements,
+and a stress shock that degrades $\chi_t$ triggers demand reallocation---the
+run-from-inside mechanism. The condition $\sigma > 1$ is maintained as a
+testable hypothesis: if the demand system estimation yields $\mathcal{B} =
+\sum_s \beta_s \geq 0$ (upward-sloping aggregate net demand), the substitution
+assumption is rejected by the data.%
+\footnote{This test is reported in \cref{subsec:demand-system}. Failure would
+imply that inside and outside dollar liquidity are gross complements in our
+sample, which would undermine the run-from-inside interpretation.}
+
+The FX swap market is where the conversion of $I_t$ to $O_t$ is priced and
+intermediated. Three institutional actors structure this market. \emph{Foreign
+banks} (and their FBO branches in the US) are the primary dollar seekers: they
+raise foreign-currency funding and convert it to dollars synthetically to meet
+dollar payment obligations. \emph{Primary dealers, US commercial banks, and FBO
+branches} are the primary converters: they supply dollars against foreign
+currency, intermediating between the dollar money market (outside liquidity) and
+foreign-currency-funded balance sheets. \emph{Hedge funds} enter as a secondary
+supplier when the basis is wide enough to make the basis trade profitable; they
+withdraw in acute stress when risk capacity is exhausted.
+
+The equilibrium funding spread $\mu_t \equiv R_{I,t} - R_{O,t}$, where $R_{I,t}$
+and $R_{O,t}$ are the gross costs of inside and outside dollar liquidity, is the
+primary object of interest. In the data, $\mu_{m,t} = \text{PriceUSD}_{m,t} =
+-\text{TIB}_{m,t}$, where TIB is the transaction-implied basis for currency pair
+$m$. A positive spread means inside dollar liquidity is more expensive than
+outside: agents pay a premium for synthetic dollars.
+
+
+% ------------------------------------------------------------------------------
+\subsection{Matching Technology}
+\label{subsec:matching}
+% ------------------------------------------------------------------------------
+
+Agents who wish to convert inside to outside dollar liquidity must find a
+counterparty willing to supply outside dollars. This is a search process: not
+every seeker finds a counterparty in every period. We model the conversion market
+as a standard search-and-matching market.
+
+Let $U_t \geq 0$ denote the mass of agents actively seeking conversion in period
+$t$---the demand side---and $B_t \geq 0$ the aggregate balance-sheet capacity
+of conversion intermediaries---the supply side. Total matches are given by the
+Cobb-Douglas matching function
+\begin{equation}
+  M_t = \eta\, U_t^{\gamma}\, B_t^{1-\gamma},
+  \label{eq:matching}
+\end{equation}
+where $\eta > 0$ is matching efficiency and $\gamma \in (0,1)$ is the
+demand-side elasticity of matching. The function satisfies constant returns to
+scale in $(U_t, B_t)$ and is increasing and concave in each argument. The
+matching probability for a given seeker is
+\begin{equation}
+  p_t = \frac{M_t}{U_t} = \eta \left(\frac{B_t}{U_t}\right)^{1-\gamma}
+  = \eta\,\theta_t^{-(1-\gamma)},
+  \label{eq:match-prob}
+\end{equation}
+where $\theta_t \equiv U_t / B_t$ is \emph{market tightness}. When $\theta_t$
+is high---many seekers relative to intermediary capacity---each seeker is less
+likely to find a counterparty. This is the search externality: each additional
+seeker reduces the matching probability for all others.
+
+The matching probability determines quality: $\chi_t = \chi(p_t)$, where $\chi$
+is strictly increasing with $\chi(1) = 1$ and $\chi'(p) > 0$. A lower
+matching probability thus degrades the effective service that inside dollar
+liquidity provides.
+
+\begin{lemma}[Matching Function Properties]
+  \label{lem:matching}
+  The matching function $M_t = \eta U_t^{\gamma} B_t^{1-\gamma}$ satisfies:
+  (i) $M_t \leq \min(U_t, B_t)$ for $\eta \leq 1$ (feasibility); (ii) $M_t$
+  is increasing in both $U_t$ and $B_t$; (iii) $p_t = M_t / U_t$ is strictly
+  decreasing in $\theta_t = U_t / B_t$; (iv) $\partial p_t / \partial B_t > 0$:
+  additional intermediary capacity raises the matching probability for seekers.
+\end{lemma}
+
+Properties (iii) and (iv) are the model's core mechanism. A rise in $U_t$ (more
+seekers) tightens the market and reduces $p_t$; a rise in $B_t$ (more capacity)
+loosens it and raises $p_t$. Both work through $\theta_t$.
+
+Intermediary capacity is the sum of contributions from five institutional types:
+\begin{equation}
+  B_t = B_t^{FBO} + B_t^{USbank} + B_t^{dealer} + B_t^{HF} + B_t^{CBswap}.
+  \label{eq:capacity}
+\end{equation}
+FBO branches and primary dealers supply capacity that is (weakly) decreasing in
+financial stress and compresses at quarter-end when regulatory reporting
+constraints bind. Hedge funds supply capacity that is increasing in $\mu_t$ when
+the basis exceeds their entry cost but collapses when risk capacity is exhausted
+in acute stress. Central-bank swap lines provide explicitly counter-cyclical
+capacity by policy design.
+
+
+% ------------------------------------------------------------------------------
+\subsection{Equilibrium}
+\label{subsec:equilibrium}
+% ------------------------------------------------------------------------------
+
+Each sector $s \in \{FB, USbank, dealer, HF, AM, Corp\}$ takes the funding
+spread $\mu_{m,t}$ as given and chooses a signed net USD position
+$\mathfrak{q}_{s,m,t}$, with positive values indicating net USD receipt (demand)
+and negative values indicating net USD supply. Following \citet{KoijenYogo2019},
+sectoral net demand is linear in the spread:
+\begin{equation}
+  \mathfrak{q}_{s,m,t} = \alpha_{s,m} + \beta_s\,\mu_{m,t} +
+  \gamma_s X_{s,m,t} + \varepsilon_{s,m,t},
+  \label{eq:net-demand}
+\end{equation}
+where $\alpha_{s,m}$ is a sector-market fixed effect, $\beta_s$ is sector $s$'s
+price sensitivity, $X_{s,m,t}$ is a vector of sector-specific demand shifters,
+and $\varepsilon_{s,m,t}$ is a mean-zero residual. Dollar demanders (foreign
+banks, corporates, most asset managers) have $\beta_s < 0$; basis traders (hedge
+funds acting as suppliers) have $\beta_s > 0$.
+
+Market clearing requires that signed net positions sum to zero in each market:
+$\sum_s \mathfrak{q}_{s,m,t} = 0$. Under the maintained hypothesis that
+aggregate net demand is downward-sloping, $\mathcal{B} \equiv \sum_s \beta_s <
+0$, the market-clearing condition yields a unique equilibrium spread:
+\begin{equation}
+  \mu_{m,t}^{*} = -\frac{1}{\mathcal{B}} \sum_s \bigl[\alpha_{s,m} +
+  \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}\bigr].
+  \label{eq:price-eq}
+\end{equation}
+
+\begin{theorem}[Equilibrium Existence and Uniqueness]
+  \label{thm:equilibrium}
+  Under the standard assumptions on preferences, the matching technology, and
+  $\mathcal{B} < 0$, a static equilibrium $\mathcal{E}_t =
+  (O_t^*, I_t^*, \chi_t^*, p_t^*, \theta_t^*, \mu_t^*)$ exists and is unique
+  for any $(U_t, B_t) \in \mathbb{R}_{++}^2$.
+\end{theorem}
+
+The proof has three steps. Given $(U_t, B_t)$, market tightness $\theta_t =
+U_t / B_t$ determines matching probability $p_t = \eta \theta_t^{-(1-\gamma)}$
+and hence quality $\chi_t = \chi(p_t)$. Cost minimization by the representative
+agent---who must meet a binding liquidity requirement $\bar{L}_t > 0$ and takes
+prices as given---then yields unique demands $(O_t^*, I_t^*)$. Finally,
+market clearing in the sectoral demand system pins down the unique $\mu_{m,t}^*$,
+because the aggregate net-demand function $F(\mu) = \mathcal{B}\mu + \text{const}$
+is strictly decreasing in $\mu$ under $\mathcal{B} < 0$ and crosses zero exactly
+once.
+
+The economic intuition is direct. The funding spread $\mu_t^*$ adjusts to clear
+the market: when more seekers compete for a given stock of intermediary capacity,
+$\theta_t$ rises, matching becomes harder, quality $\chi_t$ falls, and agents
+must demand more inside liquidity to meet their payment obligations. Aggregate
+net demand rises at any posted spread, and $\mu_t^*$ must increase to restore
+clearing. The spread is thus the price that equilibrates the conversion market.
+
+\begin{remark}[Maintained Hypothesis on Aggregate Demand Slope]
+  The condition $\mathcal{B} < 0$ is maintained as a hypothesis and tested ex
+  post by the sign of the estimated $\hat{\mathcal{B}}$ from the demand system
+  in \cref{subsec:demand-system}. If $\hat{\mathcal{B}} \geq 0$, downward-sloping
+  aggregate demand is rejected by the data, and the equilibrium price equation
+  fails. A negative and significant $\hat{\mathcal{B}}$ confirms the maintained
+  hypothesis and provides a structural interpretation of the IV estimates.
+\end{remark}
+
+
+% ------------------------------------------------------------------------------
+\subsection{Comparative Statics}
+\label{subsec:comparative-statics}
+% ------------------------------------------------------------------------------
+
+Three propositions govern the response of the equilibrium spread to demand and
+capacity shocks. Together they constitute the testable content of the model.
+
+\bigskip
+\noindent\textbf{Proposition 1: Demand pressure raises the funding premium.}
+
+\begin{proposition}[Demand and the Funding Spread]
+  \label{prop:demand}
+  At any interior equilibrium, $\partial \mu_t^* / \partial U_t > 0$: an
+  increase in the mass of seekers raises the equilibrium funding spread, holding
+  intermediary capacity $B_t$ fixed.
+\end{proposition}
+
+The mechanism runs through quality. A rise in $U_t$ tightens the market
+($\theta_t \uparrow$), reduces the matching probability ($p_t \downarrow$), and
+degrades quality ($\chi_t \downarrow$). Agents facing a binding liquidity
+requirement must then demand more inside liquidity at any posted spread, shifting
+the aggregate net-demand curve up. The equilibrium spread rises to restore
+clearing. Formally, $\partial \mu_t^* / \partial U_t = (\partial \mu_t^* /
+\partial \chi_t) \cdot \chi'(p_t) \cdot (\partial p_t / \partial U_t) > 0$,
+where each term has a determinate sign: quality deterioration raises the spread
+($\partial \mu_t^* / \partial \chi_t < 0$, from the implicit function theorem on
+market clearing), quality is increasing in matching probability ($\chi' > 0$),
+and matching probability is decreasing in seekers ($\partial p_t / \partial U_t
+< 0$). The product is positive.
+
+\paragraph{Testable prediction.} Proposition~1 is the primary empirical target.
+The shift-share instrument $Z^{MMF}_{m,t} = \text{Exposure}^{MMF}_{m,t-1}
+\times \text{FundingShock}_t$ shifts $U_t$ via the foreign-bank funding channel
+while leaving intermediary capacity unaffected, identifying $\partial \mu_t^* /
+\partial U_t > 0$. The IV estimate $\hat{\beta} \to -\gamma_{FB}/\mathcal{B}$
+under instrument validity, where $\gamma_{FB}$ is the loading of the
+foreign-bank sector-specific demand shifter on the aggregate demand shock and
+$\mathcal{B}$ is the aggregate slope.
+
+\bigskip
+\noindent\textbf{Proposition 2: Capacity tightening amplifies price impact.}
+
+\begin{proposition}[Capacity and the Funding Spread]
+  \label{prop:capacity}
+  At any interior equilibrium, $\partial \mu_t^* / \partial B_t < 0$: an
+  increase in intermediary capacity reduces the equilibrium funding spread,
+  holding seeker mass $U_t$ fixed. Furthermore, the price impact of a given
+  demand shock is larger when capacity is low:
+  \[
+    \left.\frac{\partial \mu_t^*}{\partial U_t}\right|_{B_t = B^{low}} \;>\;
+    \left.\frac{\partial \mu_t^*}{\partial U_t}\right|_{B_t = B^{high}}.
+  \]
+\end{proposition}
+
+Higher capacity loosens the market, raises matching probability, improves quality,
+and allows the same mass of seekers to be accommodated at a lower spread. The
+amplification result---the interaction prediction---follows from the fact that
+$|\partial p_t / \partial U_t| = \eta(1-\gamma)\theta_t^{-(2-\gamma)} / B_t$ is
+larger when $B_t$ is smaller: the same demand shock produces a larger tightening
+of $\theta_t$ when intermediary capacity is already thin.
+
+\paragraph{Testable prediction.} Proposition~2 maps to the interaction
+specifications in \cref{subsec:heterogeneity}. The causal effect of $B_t$ cannot
+be cleanly identified---dealer constraints tighten precisely in high-stress
+states---so the empirical test is stated as effect heterogeneity: the price
+impact of instrumented foreign-bank demand is larger when dealers are constrained
+(DealerConstraint $= 1$) than when they are not. A positive coefficient on the
+$\hat{Q}_{FB,m,t} \times \text{DealerConstraint}_t$ interaction term is
+consistent with Proposition~2 but does not establish the causal capacity
+channel.
+
+\bigskip
+\noindent\textbf{Proposition 3: Convexity of price impact.}
+
+\begin{proposition}[Non-linearity and Threshold Effects]
+  \label{prop:nonlinear}
+  Under the additional conditions that quality is strictly convex in matching
+  probability ($\chi'' > 0$) and that the equilibrium spread responds more than
+  proportionally to quality deterioration ($\Phi'' > 0$ where $\Phi$ maps quality
+  to the equilibrium spread), the second derivative satisfies
+  $\partial^2 \mu_t^* / \partial \theta_t^2 > 0$: the funding spread is a convex
+  function of market tightness. Under additional regularity, there exists a
+  threshold $\theta^* > 0$ above which the rate of increase $\partial \mu_t^* /
+  \partial \theta_t$ escalates sharply.
+\end{proposition}
+
+The result is driven by the composition of three effects in the chain
+$\theta_t \to p_t \to \chi_t \to \mu_t^*$. Convexity of $p(\theta)$ in
+$\theta$ is inherited from the matching function (since
+$p''(\theta) = \eta(1-\gamma)(2-\gamma)\theta^{-(3-\gamma)} > 0$). Convexity
+of $\chi$ in $p$ (condition $\chi'' > 0$) requires that quality deteriorates
+at an accelerating rate as matching becomes difficult. Convexity of $\Phi$ in
+$\chi$ (condition $\Phi'' > 0$) requires that the spread responds more than
+proportionally to quality deterioration---a condition implied when the market is
+thin (small $|\mathcal{B}|$) and quality deterioration reduces the number of
+active participants.
+
+\emph{Proposition~3 characterizes the theoretical shape of the price impact
+function; testing this result directly would require a threshold specification
+beyond the scope of this paper.} The feasibility assessment grades continuous
+$\hat{\theta}_t$ measurement at C, and the explorer's report confirms the result
+is not testable with the current design. The interaction specifications in
+\cref{subsec:heterogeneity} test monotone heterogeneity in price impact across
+capacity regimes---a necessary but not sufficient condition for a threshold. We
+present Proposition~3 as a theoretical result that motivates our focus on
+crisis episodes and quarter-end patterns as high-$\theta_t$ regimes.
+
+
+% ------------------------------------------------------------------------------
+\subsection{Extensions: Demand System and Structural Interpretation}
+\label{subsec:theory-extensions}
+% ------------------------------------------------------------------------------
+
+The static equilibrium in \cref{thm:equilibrium} yields the price equation
+$\mu_{m,t}^* = -(1/\mathcal{B}) \sum_s [\alpha_{s,m} + \gamma_s X_{s,m,t} +
+\varepsilon_{s,m,t}]$, which connects the IV estimate to structural parameters.
+Specifically, the IV estimator $\hat\beta$ converges to $-\gamma_{FB}/\mathcal{B}$
+under instrument validity: it is the price impact of a unit shift in foreign-bank
+demand, scaled by the aggregate demand slope. This structural interpretation has
+two implications. First, the sign of $\hat\beta$ is positive if and only if
+$\mathcal{B} < 0$ (downward-sloping aggregate demand) and $\gamma_{FB} > 0$
+(foreign-bank demand is increasing in the funding shock). Second, the magnitude
+of $\hat\beta$ depends on $\mathcal{B}$: markets with fewer active participants
+($|\mathcal{B}|$ small) exhibit larger price impacts for the same demand shock.
+
+In \cref{sec:demand-system}, we embed the equilibrium in a demand system to
+recover the aggregate demand elasticity $\mathcal{B} = \sum_s \beta_s$ from
+sector-specific price sensitivity estimates. The maintained hypothesis
+$\mathcal{B} < 0$ is then testable: a negative and significant
+$\hat{\mathcal{B}}$ confirms that the equilibrium pricing equation holds in the
+data and provides a structural interpretation of the IV estimates from
+\cref{sec:results}.
+
+% ==============================================================================
