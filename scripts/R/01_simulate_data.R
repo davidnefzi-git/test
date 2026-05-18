@@ -200,9 +200,9 @@ panel_cell <- panel_cell %>%
     # Bloomberg CCBS (proxy for basis from swap data): TIB + noise + small bias
     CCBS_bloomberg = TIB + rnorm(n(), 0, 0.5) - 0.3,
 
-    # Taker ratio (proxy for q_t)
-    taker_ratio = q_t * 0.8 + 0.1 + rnorm(n(), 0, 0.05) %>%
-      pmin(1) %>% pmax(0),
+    # Taker ratio (proxy for q_t): clamp the full composite expression to [0,1].
+    # The pipe would bind only to rnorm() without the outer pmin/pmax wrapping.
+    taker_ratio = pmin(1, pmax(0, q_t * 0.8 + 0.1 + rnorm(n(), 0, 0.05))),
 
     # Price dispersion across counterparties within cell (bps)
     price_dispersion = abs(2 + 0.8 * theta_t + rnorm(n(), 0, 0.5)) *

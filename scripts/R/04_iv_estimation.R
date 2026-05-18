@@ -4,6 +4,8 @@
 ## Date:    2026-05-18
 ## Purpose: IV estimation for Parts 2–3 of the paper (Task 3).
 ##          First stage, second stage, and interaction heterogeneity.
+##          Robustness: pre-trend diagnostic, AKM SEs, wild cluster bootstrap,
+##          DealerConstraint × year FE sensitivity (strategy memo Fix B3a/B3b).
 ##          Sign convention: SignedUSDFlow > 0 = entity obtains USD.
 ##          Naming convention: B_cap = dealer capacity; B_agg = aggregate
 ##          demand slope (Sigma beta_s). Never use bare B.
@@ -13,6 +15,8 @@
 ## Outputs: paper/tables/iv_first_stage.tex
 ##          paper/tables/iv_second_stage.tex
 ##          paper/tables/iv_interactions.tex
+##          paper/tables/pretrend_diagnostic.tex
+##          paper/tables/iv_bootstrap.tex
 ##          Output/fx_swap/iv_results.rds
 ## =============================================================================
 
@@ -20,6 +24,9 @@ library(here)
 library(dplyr)
 library(tidyr)
 library(fixest)    # for two-way FE IV and cluster SE
+library(lubridate)
+
+source(here::here("scripts", "R", "functions", "helpers.R"))
 
 # ---------------------------------------------------------------------------
 # 0. Load and merge data
@@ -51,6 +58,7 @@ est_data <- panel %>%
   mutate(
     cell_fe = cell_id,
     tenor_f = factor(tenor, levels = c("ON", "1W", "1M", "3M")),
+    year    = year(date),
     # Taker vs maker decomposition for mechanism test (strategy memo, Obj. 2)
     U_taker = taker_ratio * U_t,
     U_maker = (1 - taker_ratio) * U_t,
@@ -58,7 +66,15 @@ est_data <- panel %>%
     Z_MMF_x_DC = Z_MMF * DealerConstraint,
     Z_MMF_x_QE = Z_MMF * QuarterEnd,
     Z_MMF_x_3M = Z_MMF * (tenor == "3M")
-  )
+  ) %>%
+  # Lagged instruments for pre-trend diagnostic (B3b)
+  group_by(cell_id) %>%
+  mutate(
+    Z_MMF_lag1 = lag(Z_MMF, 1),
+    Z_MMF_lag2 = lag(Z_MMF, 2),
+    Z_MMF_lag3 = lag(Z_MMF, 3)
+  ) %>%
+  ungroup()
 
 # ---------------------------------------------------------------------------
 # 1. First stage
