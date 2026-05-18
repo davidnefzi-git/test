@@ -1151,9 +1151,9 @@ one of which corresponds to a ``run'' state.
     has a unique solution $\mu^{**}$ strictly below $\bar\mu$. HF entry
     dampens the spread.
 
-    \item \textbf{(Multiple equilibria, run state):} Suppose there exists
-    $\hat\mu > c^{HF}$ such that $\Lambda(\hat\mu) > 1$ locally. Then the
-    fixed-point map $\Psi$ is not a contraction in a neighborhood of $\hat\mu$,
+    \item \textbf{(Multiple equilibria, run state):} Suppose
+    $|\Lambda(\mu)| > 1$ for all $\mu \in (c^{HF}, \bar\mu)$. Then the
+    fixed-point map $\Psi$ is not a contraction on $(c^{HF}, \bar\mu)$,
     and the model admits (at least) two stable equilibria: a \emph{normal
     equilibrium} $\mu^{low}$ with active HF participation and a \emph{run
     equilibrium} $\mu^{high} > \mu^{low}$ with minimal HF participation.
@@ -1225,14 +1225,13 @@ one of which corresponds to a ``run'' state.
   by more than $\Delta$ (since slope $< -1$ throughout). Therefore $F$
   crosses zero before reaching $\mu_1^*$, establishing $F(\mu^{low}) = 0$
   for some $\mu^{low} \in (c^{HF}, \mu_1^*)$. The two fixed points are
-  $\mu^{low}$ and $\mu_1^*$, with $\mu^{low} < \hat\mu < \mu_1^*$, where
-  $\hat\mu$ is any interior point in $(c^{HF}, \mu_1^*)$ where the slope
-  condition is verified. The lower fixed point $\mu^{low}$ corresponds to
-  the normal equilibrium (HF actively stabilizing); the upper fixed point
+  $\mu^{low}$ and $\mu_1^*$. The lower fixed point $\mu^{low}$ corresponds
+  to the normal equilibrium (HF actively stabilizing); the upper fixed point
   $\mu^{high} \equiv \mu_1^*$ corresponds to the run equilibrium (spread
-  at the no-stabilization level). Stability analysis (sign of $F'$ at each
-  zero) confirms that $\mu^{low}$ is stable ($F' < 0$ there) and
-  $\mu^{high}$ is the second stable zero, with an unstable zero between them.
+  at the no-stabilization level). The sign of $F'$ at each zero can be
+  verified from the global slope condition: $F'(\mu^{low}) > 0$ (stable)
+  and $F'(\mu^{high}) < -1 < 0$ (stable), consistent with two stable
+  equilibria separated by a region where $F < 0$.
 
   \textit{Sufficient condition for $|\Lambda| > 1$.} Since $\Lambda(\mu) =
   (\partial\mu^*/\partial B_t)\cdot\phi\kappa$, and $|\partial\mu^*/\partial B_t|
