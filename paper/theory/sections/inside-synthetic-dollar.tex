@@ -1,0 +1,415 @@
+% Inside Synthetic Dollar Liquidity and the Microstructure of FX Swap Markets
+% A Theoretical Framework — First Draft
+
+\section*{1. Motivation}
+
+Le dollar est l'unité dominante de financement, de règlement et de
+réserve à l'échelle mondiale. Mais une part importante de cette
+liquidité dollar est produite en dehors du système bancaire domestique
+américain, notamment via les FX swaps, le repo offshore et les bilans
+des banques globales.
+
+En temps normal, un dollar synthétique obtenu via un FX swap semble
+équivalent à un dollar onshore. Mais en période de stress, cette
+équivalence se dégrade. Les agents ne cherchent pas à sortir du
+dollar — ils cherchent à sortir des quasi-dollars privés/offshore
+pour accéder à des dollars sûrs, connectés au cœur institutionnel
+américain.
+
+Ce cadre formalise les crises de funding dollar comme des \textbf{runs sur
+la liquidité dollar synthétique} : non pas des runs contre le dollar,
+mais des runs depuis la liquidité dollar privée/offshore (inside)
+vers la liquidité dollar sûre/onshore (outside).
+
+Le marché des FX swaps est le lieu principal où cette conversion
+se produit, se tarife et se rationne.
+
+\section*{2. Positionnement}
+
+Le cadre combine trois traditions.
+
+\textbf{Liquidité privée et publique.} Holmström-Tirole (JPE 1998) posent
+la question de savoir si les créances privées fournissent une liquidité
+suffisante ou si l'État doit intervenir. Notre inside synthetic dollar
+liquidity est une forme de liquidité privée ; l'outside safe dollar
+liquidity est adossée à l'infrastructure publique américaine.
+
+\textbf{Inside/outside liquidity.} Bolton-Santos-Scheinkman (QJE 2011)
+distinguent les réserves internes (inside) de la liquidité obtenue
+en vendant à des investisseurs externes (outside). Nous adaptons
+cette distinction à deux formes institutionnelles de la même monnaie.
+
+\textbf{Demand systems.} Koijen-Yogo (2019) estiment des fonctions de
+demande par type d'investisseur avec market clearing. Nous appliquons
+cette logique non pas à des actifs différenciés par rendement/risque,
+mais à des créances dollar différenciées par qualité institutionnelle
+et convertibilité.
+
+\textbf{Contribution théorique :} la marge nouvelle est la substitution
+imparfaite entre formes institutionnelles de liquidité dollar, avec
+une qualité endogène dépendant de la capacité de conversion.
+
+\section*{3. Inside vs Outside Dollar Liquidity}
+
+\subsection*{3.1 Deux formes de liquidité dollar}
+
+\textbf{Outside safe dollar liquidity ($O_t$) :}
+Créances dollar connectées au cœur institutionnel américain.
+Réserves Fed, Treasuries très liquides, passifs bancaires
+domestiques backstoppés (FDIC, discount window), accès direct
+ou indirect aux facilités Fed. Les swap lines et standing repo
+facilities augmentent cette offre.
+
+\textbf{Inside synthetic dollar liquidity ($I_t$) :}
+Liquidité dollar produite dans le réseau offshore/global, en
+particulier via les FX swaps. Une banque non-US obtient des
+dollars synthétiques en apportant sa devise locale sur la near
+leg d'un FX swap et en s'engageant à rendre les dollars sur la
+far leg. Le FX swap est la technologie de conversion principale.
+Le repo offshore, les dépôts eurodollars et le wholesale
+funding interbancaire complètent cette production.
+
+\subsection*{3.2 Substituabilité imparfaite}
+
+Les deux formes fournissent un service de liquidité dollar.
+En temps normal, elles sont proches substituables :
+\[
+I_t \approx O_t
+\]
+En stress, la substituabilité se dégrade :
+\[
+I_t \neq O_t
+\]
+parce que la conversion de $I$ en $O$ requiert une capacité
+institutionnelle rare (bilan de dealers, accès Fed, collatéral
+éligible, réseaux de correspondants, swap lines).
+
+\section*{4. Agrégateur de liquidité dollar}
+
+Le service agrégé de liquidité dollar est produit par une CES :
+\begin{equation}
+L_t = \left[ \alpha_t O_t^{\rho} + (1 - \alpha_t)(q_t I_t)^{\rho} \right]^{1/\rho}
+\label{eq:CES}
+\end{equation}
+
+\begin{itemize}
+  \item $O_t$ : liquidité dollar sûre/onshore
+  \item $I_t$ : liquidité dollar synthétique/offshore (FX swaps)
+  \item $q_t \in (0,1]$ : qualité effective de la liquidité synthétique
+  \item $\alpha_t \in (0,1)$ : préférence relative pour la liquidité sûre
+  \item $\rho < 1$ : paramètre de substituabilité
+\end{itemize}
+
+L'élasticité de substitution est :
+\[
+\sigma = \frac{1}{1-\rho}
+\]
+
+Le cas pertinent est $1 < \sigma < \infty$ : substituts imparfaits.
+
+\subsection*{4.1 Qualité effective $q_t$}
+
+$q_t$ mesure combien une unité de dollar synthétique fournit
+effectivement de service de liquidité dollar sûre.
+
+\begin{itemize}
+  \item $q_t \approx 1$ : le dollar synthétique est quasi-équivalent au dollar sûr
+    (temps normal, marchés liquides, dealers avec capacité).
+  \item $q_t \ll 1$ : le dollar synthétique fournit peu de service de liquidité
+    sûre (stress, dealers contraints, conversion difficile).
+\end{itemize}
+
+$q_t$ est \textbf{endogène} — il dépend de la facilité avec laquelle les
+agents peuvent effectivement convertir $I$ en $O$.
+
+\section*{5. Problème de choix de liquidité}
+
+Un agent représentatif doit obtenir un niveau de liquidité dollar :
+\[
+L_t \geq \bar{L}_t
+\]
+
+Il choisit $O_t$ et $I_t$ pour minimiser le coût :
+\begin{equation}
+\min_{O,I} \quad R_O \times O_t + R_I \times I_t
+\quad \text{s.c.} \quad L_t \geq \bar{L}_t
+\label{eq:cost-min}
+\end{equation}
+
+La condition de premier ordre donne la demande relative :
+\begin{equation}
+\frac{I_t}{O_t} = \left[ \frac{1-\alpha_t}{\alpha_t} \cdot q_t^{\rho} \cdot \frac{R_O}{R_I} \right]^{\sigma}
+\label{eq:demand-ratio}
+\end{equation}
+
+\subsection*{Interprétation}
+
+La demande relative d'inside liquidity :
+\begin{itemize}
+  \item augmente quand le coût relatif $R_I/R_O$ baisse ;
+  \item \textbf{diminue} quand la qualité $q_t$ se détériore.
+\end{itemize}
+
+Donc un dollar synthétique peut devenir moins demandé même s'il
+offre un rendement plus élevé, parce que sa qualité institutionnelle
+baisse.
+
+Le \textbf{spread de funding} requis est :
+\[
+\mu_t = R_I - R_O
+\]
+
+C'est le prix de la rareté de la liquidité sûre, ou le coût de la
+conversion inside $\to$ outside. Empiriquement, c'est le cross-currency
+basis (ou PriceUSD dans la v8).
+
+\section*{6. Friction de search : conversion imparfaite}
+
+\subsection*{6.1 Le marché de conversion}
+
+Les agents détenant $I_t$ cherchent des contreparties capables
+de fournir $O_t$. Cette recherche s'opère sur le marché FX swap.
+
+Fonction de matching :
+\begin{equation}
+M_t = \eta \cdot U_t^{\gamma} \cdot B_t^{1-\gamma}
+\label{eq:matching}
+\end{equation}
+
+\begin{itemize}
+  \item $U_t$ : masse d'agents cherchant à convertir (demande de dollars synthétiques)
+  \item $B_t$ : capacité de bilan des intermédiaires de conversion (offre)
+  \item $\eta$ : efficacité du matching
+  \item $\gamma \in (0,1)$
+\end{itemize}
+
+Probabilité de matching pour un demandeur :
+\begin{equation}
+p_t = \frac{M_t}{U_t} = \eta \cdot \left(\frac{B_t}{U_t}\right)^{1-\gamma}
+\label{eq:match-prob}
+\end{equation}
+
+Tension du marché :
+\[
+\theta_t = \frac{U_t}{B_t}
+\]
+\[
+\theta_t \uparrow \;\Rightarrow\; p_t \downarrow \;\Rightarrow\; q_t \downarrow
+\]
+
+\subsection*{6.2 Qualité endogène}
+
+\begin{equation}
+q_t = q(p_t), \quad q'(p) > 0
+\label{eq:quality}
+\end{equation}
+
+Le dollar synthétique est liquide tant qu'il est facile de
+trouver une contrepartie capable de le convertir en dollar sûr.
+
+\subsection*{6.3 Correspondance avec les FX swaps}
+
+Dans le marché FX swap :
+\begin{itemize}
+  \item \textbf{$U_t$} correspond à la demande nette de USD des banques étrangères
+    ($Q_{FB}$ dans la v8) — les agents qui cherchent à convertir leur
+    devise locale en dollars synthétiques.
+  \item \textbf{$B_t$} correspond à la capacité des dealers, banques US, FBO
+    branches et hedge funds à fournir ces dollars.
+  \item \textbf{$p_t$} correspond inversement au coût de la transaction —
+    approximé par le taker ratio, la dispersion des prix, ou le
+    spread client-interdealer.
+  \item \textbf{$\theta_t = U_t/B_t$} est la tension du marché, observable via le
+    ratio demande/capacité.
+\end{itemize}
+
+\section*{7. Intermédiaires de conversion}
+
+\subsection*{7.1 Capacité agrégée}
+
+\begin{equation}
+B_t = B_t^{FBO} + B_t^{USbank} + B_t^{dealer} + B_t^{HF} + B_t^{CBswap}
+\label{eq:capacity}
+\end{equation}
+
+\subsection*{7.2 FBO branches}
+
+\begin{equation}
+B_t^{FBO} = \bar{B}^{FBO} - \psi S_t - \omega Q_t + \nu A_t^{reg}
+\label{eq:FBO}
+\end{equation}
+
+\begin{itemize}
+  \item $S_t$ : stress financier global $\to$ $B \downarrow$ en stress
+  \item $Q_t$ : reporting date (quarter-end) $\to$ $B \downarrow$ autour des dates
+  \item $A_t^{reg}$ : avantage réglementaire relatif des FBO
+\end{itemize}
+
+\subsection*{7.3 Hedge funds}
+
+\begin{equation}
+B_t^{HF} = \phi \cdot \max(\mu_t - c^{HF}, 0) \cdot \text{RiskCapacity}_t
+\label{eq:HF}
+\end{equation}
+
+Ils entrent quand le spread dépasse leur coût, mais se retirent
+quand les conditions de financement se dégradent.
+
+\subsection*{7.4 Correspondance avec la v8}
+
+\begin{tabular}{ll}
+\toprule
+Agent théorique & Agent empirique (v8) \\
+\midrule
+FBO branches + US banks & Dealers / US banks dans la matrice d'intermédiation \\
+Hedge funds & Hedge funds dans les données FX \\
+Fed swap lines & $B^{CBswap}$ — observable via les tirages de swap lines \\
+\bottomrule
+\end{tabular}
+
+\section*{8. Fournisseur public de liquidité dollar}
+
+\[
+\text{Intervention} \to B_t \uparrow \to p_t \uparrow \to q_t \uparrow \to \mu_t \downarrow
+\]
+
+L'intervention restaure la substituabilité entre inside et
+outside dollar liquidity.
+
+\section*{9. Demand system pour créances dollar}
+
+\subsection*{9.1 Adaptation de Koijen-Yogo}
+
+Part de portefeuille :
+\begin{equation}
+w_{i,n,t} = \frac{\exp(\beta_i^y y_n + \beta_i^q q_n + \beta_i^b b_n - \beta_i^c c_n + \beta_i^\kappa \kappa_n + \xi_{i,n})}{1 + \sum_m \exp(\cdots)}
+\label{eq:demand-system}
+\end{equation}
+
+\subsection*{9.2 Application aux FX swaps}
+
+Les fonctions de net-demand sectorielles :
+\begin{equation}
+q_{s,m,t} = \alpha_{s,m} + \beta_s \cdot \text{PriceUSD}_{m,t} + \gamma_s X_{s,m,t} + \varepsilon_{s,m,t}
+\label{eq:net-demand}
+\end{equation}
+
+sont la linéarisation locale du demand system multinomial appliqué
+aux segments du marché FX swap.
+
+\section*{10. Équilibre}
+
+Un équilibre est une séquence
+$\{O_t, I_t, L_t, U_t, B_t, p_t, q_t, R_O, R_I, \mu_t\}$ telle que :
+
+\begin{enumerate}
+  \item Les agents minimisent le coût de liquidité sous $L_t \geq \bar{L}_t$.
+  \item Les investisseurs/secteurs allouent selon le demand system.
+  \item Le matching : $M_t = \eta U_t^{\gamma} B_t^{1-\gamma}$.
+  \item La qualité : $q_t = q(p_t)$.
+  \item Les marchés clearent : $I^d = I^s$, $O^d = O^s$.
+  \item Le spread ajuste : $\mu_t = R_I - R_O = \text{PriceUSD}$.
+\end{enumerate}
+
+\section*{11. Mécanisme de crise}
+
+Un choc de stress $S_t$ produit trois effets simultanés :
+\[
+S_t \uparrow \;\to\; U_t \uparrow \;\text{(demande de conversion)}
+\]
+\[
+\phantom{S_t \uparrow \;\to\;} B_t \downarrow \;\text{(capacité des intermédiaires)}
+\]
+\[
+\phantom{S_t \uparrow \;\to\;} \alpha_t \uparrow \;\text{(préférence pour outside liquidity)}
+\]
+
+Donc :
+\[
+\theta_t = U_t/B_t \;\uparrow\uparrow \;\to\; p_t \downarrow\downarrow \;\to\; q_t \downarrow\downarrow \;\to\; \mu_t \uparrow\uparrow
+\]
+
+\subsection*{11.1 Externalité de search et amplification}
+
+\[
+\frac{\partial p_t}{\partial U_t} < 0
+\]
+
+\[
+q_t \downarrow \;\to\; \text{demande de conversion} \uparrow \;\to\; U_t \uparrow \;\to\; p_t \downarrow \;\to\; q_t \downarrow\downarrow
+\]
+
+\section*{12. Résultats théoriques}
+
+\begin{proposition}[Prime de liquidité synthétique]
+À capacité donnée, une hausse de la demande de conversion augmente le spread :
+\[
+\frac{\partial \mu_t}{\partial U_t} > 0
+\]
+\end{proposition}
+
+\begin{proposition}[Rôle stabilisateur de la capacité]
+Une hausse de la capacité réduit le spread :
+\[
+\frac{\partial \mu_t}{\partial B_t} < 0
+\]
+\end{proposition}
+
+\begin{proposition}[Non-linéarité]
+Lorsque $\theta_t = U_t/B_t$ dépasse un seuil, $q_t$ peut chuter rapidement.
+\end{proposition}
+
+\begin{proposition}[Quarter-end]
+\[
+Q_t = 1 \;\Rightarrow\; B_t \downarrow \;\Rightarrow\; \mu_t \uparrow
+\]
+\end{proposition}
+
+\begin{proposition}[Swap lines]
+\[
+\text{Swap lines} \;\Rightarrow\; B_t \uparrow \;\Rightarrow\; p_t \uparrow \;\Rightarrow\; q_t \uparrow \;\Rightarrow\; \mu_t \downarrow
+\]
+\end{proposition}
+
+\begin{proposition}[Hétérogénéité des fournisseurs]
+Les hedge funds fournissent de la capacité quand le basis est attractif mais se retirent en stress extrême. Les dealers fournissent par obligation de market-making mais sont contraints par le bilan. Les swap lines sont contracycliques.
+\end{proposition}
+
+\section*{13. Lien avec l'équation de prix d'équilibre}
+
+\begin{equation}
+\text{PriceUSD}_{m,t} = -\frac{1}{B} \sum_s \left[ \alpha_{s,m} + \gamma_s X_{s,m,t} + \varepsilon_{s,m,t} \right]
+\label{eq:price-eq}
+\end{equation}
+
+\textbf{Price impact d'un choc MMF :}
+\[
+\Delta\text{PriceUSD}^{MMF} = -\frac{\gamma_{FB}}{B} \cdot \Delta Z^{MMF}
+\]
+
+\section*{14. Contrefactuels structurels}
+
+\textbf{CF1 — Choc MMF :}
+\[
+\Delta\text{PriceUSD}_{USD/JPY} = -\frac{\gamma_{FB}}{B} \times 0.10 \times \text{MMFExposure}_{JP}
+\]
+
+\textbf{CF2 — Absence de basis trade ($\beta_{HF} = 0$) :}
+$|B|$ diminue $\to$ price impact augmente.
+
+\textbf{CF3 — Activation des swap lines :}
+$B^{CBswap}$ augmente $\to$ $B$ augmente $\to$ price impact diminue.
+
+\textbf{CF4 — Quarter-end avec dealers contraints :}
+Price impact augmente d'un facteur $1/(1 - \omega/|B|)$.
+
+\section*{15. Synthèse}
+
+\subsection*{15.1 La phrase centrale}
+
+\begin{quote}
+Dollar funding crises are not runs against the dollar.
+They are runs from inside synthetic dollar liquidity into
+outside safe dollar liquidity. The FX swap market is where
+this conversion is priced and rationed.
+\end{quote}
