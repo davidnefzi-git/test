@@ -206,12 +206,17 @@ net demand rises at any posted spread, and $\mu_t^*$ must increase to restore
 clearing. The spread is thus the price that equilibrates the conversion market.
 
 \begin{remark}[Maintained Hypothesis on Aggregate Demand Slope]
+  \label{rem:maintained}
+  \label{rem:beta-ordering}
   The condition $\mathcal{B} < 0$ is maintained as a hypothesis and tested ex
   post by the sign of the estimated $\hat{\mathcal{B}}$ from the demand system
   in \cref{subsec:demand-system}. If $\hat{\mathcal{B}} \geq 0$, downward-sloping
   aggregate demand is rejected by the data, and the equilibrium price equation
   fails. A negative and significant $\hat{\mathcal{B}}$ confirms the maintained
   hypothesis and provides a structural interpretation of the IV estimates.
+  The maintained empirical ordering $|\hat\beta_{FB}| < \hat\beta_{HF}$ follows
+  from the model's prediction that basis traders are more price-elastic than
+  foreign banks facing inelastic payment obligations.
 \end{remark}
 
 
@@ -325,9 +330,39 @@ crisis episodes and quarter-end patterns as high-$\theta_t$ regimes.
 
 
 % ------------------------------------------------------------------------------
+\subsection{Comparative Statics: Quarter-End Amplification}
+\label{subsec:comparative-statics-qe}
+% ------------------------------------------------------------------------------
+
+\begin{proposition}[Quarter-End Regulatory Amplification]\label{prop:qe}
+  Intermediary capacity $B_t$ contracts deterministically at quarter-end
+  reporting dates ($Q_t = 1$), lowering $B_t^{FBO}$ and $B_t^{USbank}$ by
+  amounts $\omega > 0$ (see \cref{eq:capacity}). By \cref{prop:capacity}, this contraction amplifies
+  the price impact of demand shocks:
+  $\partial^2 \mu_t^* / \partial U_t \partial Q_t > 0$.
+\end{proposition}
+
+The mechanism is the same as Proposition~2 but the supply-side variation is
+exogenous to demand: FBO branches reduce their balance sheets at each quarter-end
+for regulatory reporting, compressing $B_t^{FBO}$ and $B_t^{USbank}$ by
+$\omega > 0$ regardless of the concurrent demand state. The deterministic timing
+of this capacity withdrawal distinguishes the quarter-end amplification result
+from the endogenous dealer-constraint interaction in \cref{prop:capacity}.
+
+% ------------------------------------------------------------------------------
 \subsection{Extensions: Demand System and Structural Interpretation}
 \label{subsec:theory-extensions}
+\label{subsec:demand-system}
 % ------------------------------------------------------------------------------
+
+\begin{remark}[Price-Impact Decomposition and Structural Bridge]\label{rem:price-impact}
+The IV estimator $\hat\beta$ converges to $-\gamma_{FB}/\mathcal{B}$ under
+instrument validity. This structural bridge connects the reduced-form price
+impact to two structural objects: the foreign-bank demand loading $\gamma_{FB}$
+and the aggregate demand slope $\mathcal{B}$. Markets with thinner aggregate
+price sensitivity ($|\mathcal{B}|$ small) exhibit proportionally larger price
+impacts for any given demand shock.
+\end{remark}
 
 The static equilibrium in \cref{thm:equilibrium} yields the price equation
 $\mu_{m,t}^* = -(1/\mathcal{B}) \sum_s [\alpha_{s,m} + \gamma_s X_{s,m,t} +

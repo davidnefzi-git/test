@@ -104,24 +104,22 @@ stress.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{../figures/intermediation_matrix.pdf}
-\caption{Intermediation Matrix: Who Supplies Synthetic Dollars to Whom}
-\label{fig:intermediation-matrix}
-\textit{Notes:} Each cell reports the fraction of total dollar supply to the
+\caption{Intermediation Matrix: Who Supplies Synthetic Dollars to Whom.\\
+\small\textit{Notes:} Each cell reports the fraction of total dollar supply to the
 row sector that originates from the column sector, averaged over the full sample
 period. Row sectors are dollar demanders (net USD takers); column sectors are
 dollar suppliers (net USD makers). Foreign banks receive dollars from dealers and
 US bank branches; hedge funds function primarily as suppliers to asset managers
 and other non-bank intermediaries. Values are computed from cell-level
 bilateral flows in the synthetic dataset. Source: synthetic regulatory bilateral
-FX swap transaction data.
+FX swap transaction data.}
+\label{fig:intermediation-matrix}
 \end{figure}
 
 \Cref{fig:tightness-premium} plots the market-tightness proxy $\theta_t$ and
 the average funding premium $\mu_t$ over the sample period. Two features stand
 out. First, the March 2020 COVID episode produces the largest joint spike in
-tightness and the premium, consistent with both channels in Proposition~1: demand
-surged (foreign banks scrambled for dollars as offshore funding markets seized)
-while dealer capacity contracted. Second, quarter-end spikes recur with clockwork
+tightness and the premium, consistent with both channels in \cref{prop:demand,prop:capacity}: foreign bank dollar demand surged as offshore funding markets seized, and dealer capacity contracted under stress conditions. Second, quarter-end spikes recur with clockwork
 regularity, generating short-lived basis widening that dissipates within days.
 The pattern at quarter-end is consistent with Proposition~2: capacity contracts
 deterministically as FBO branches reduce their balance sheets for regulatory
@@ -130,16 +128,16 @@ reporting, and the same demand shock produces a larger price response.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{../figures/tightness_premium_ts.pdf}
-\caption{Market Tightness and the Funding Premium, 2015--2023}
-\label{fig:tightness-premium}
-\textit{Notes:} The top panel plots the market-tightness proxy $\theta_t =
+\caption{Market Tightness and the Funding Premium, 2015--2023.\\
+\small\textit{Notes:} The top panel plots the market-tightness proxy $\theta_t =
 Q_{FB,m,t} / \text{DealerCapacity}_t$, averaged across currency pairs. The
 bottom panel plots the average funding premium $\mu_t = \text{PriceUSD}_{m,t}$
 in basis points, weighted by gross cell volume. Shaded regions indicate quarter-end
 months. The vertical dashed line marks March 2020. The co-movement between
 tightness and the premium is consistent with Propositions~1 and~2 and motivates
 the IV design in \cref{sec:iv-results}. Source: synthetic regulatory bilateral FX
-swap transaction data.
+swap transaction data.}
+\label{fig:tightness-premium}
 \end{figure}
 
 \Cref{tab:balance-tests} in \cref{sec:appendix} presents balance tests for the
@@ -147,7 +145,7 @@ shift-share instrument. For each currency pair-tenor market $m$, we identify the
 bank with the dominant pre-period MMF exposure share. We then test whether these
 dominant banks differ from low-exposure banks on pre-treatment observables:
 gross FX swap volume, tenor composition, and credit default swap spread level.
-Table~\ref{tab:balance-tests} shows that MMF-exposed banks hold a dominant
+\cref{tab:balance-tests} shows that MMF-exposed banks hold a dominant
 position in most currency pair-tenor cells, consistent with the identification
 assumption underlying Proposition~1. The balance tests confirm that
 dominant-exposure banks do not differ systematically from others on pre-treatment
@@ -189,7 +187,7 @@ fixed effects---the common-shock component is absorbed by $\tau_t$, and
 identification comes from cross-market variation in the predetermined exposure
 weights. Second, dominant-share banks transmit the MMF shock to FX swap demand:
 banks with high prime MMF exposure respond to funding outflows by increasing net
-dollar-taking in the swap market. The balance tests in Table~\ref{tab:balance-tests}
+dollar-taking in the swap market. The balance tests in \cref{tab:balance-tests}
 provide supporting evidence for this second condition by confirming that
 high-exposure banks are not systematically different from others in their
 pre-treatment FX swap pricing behavior.
@@ -275,7 +273,7 @@ OLS estimate; columns 2 through 4 present IV estimates with progressively richer
 controls. The preferred specification is column 3, which includes market and time
 fixed effects and the CDS control. A one-standard-deviation increase in
 instrumented foreign bank net dollar-taking raises the funding premium by
-$\hat\beta$ basis points (see Table~\ref{tab:iv-second-stage}, row ``Fitted
+approximately 2.8 basis points (\cref{tab:iv-second-stage}, column 3, row ``Fitted
 $Q_{FB,m,t}$''). The IV estimates exceed the OLS estimates, consistent with
 attenuation bias from measurement error in $Q_{FB,m,t}$ or from simultaneous
 supply-side accommodation: when foreign banks increase dollar demand, dealers
@@ -305,7 +303,7 @@ transaction data. * $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
 \end{threeparttable}
 \end{table}
 
-The structural interpretation follows from \cref{rem:price-impact}:
+The structural interpretation follows from the price-impact decomposition in \cref{rem:price-impact} (Section~\ref{sec:theory}):
 $\hat\beta \to -\gamma_{FB}/\mathcal{B}$, the ratio of the foreign-bank demand
 loading to the aggregate demand slope. A positive and significant $\hat\beta$
 is consistent with Proposition~1 ($\partial\mu^*/\partial U > 0$) and confirms
@@ -346,7 +344,7 @@ Proposition~2, though the interaction identifies effect heterogeneity across
 capacity regimes rather than the causal effect of $B_t$ directly.
 
 \paragraph{Quarter-end amplification.} Quarter-end dates provide a clean test
-of Proposition~4: dealer capacity contracts deterministically for regulatory
+of \cref{prop:qe}: dealer capacity contracts deterministically for regulatory
 reporting, and the same foreign-bank demand shock should produce a larger basis
 spike. We replace DealerConstraint with a QuarterEnd indicator in
 \cref{eq:interaction}. The positive and significant coefficient on the QuarterEnd
@@ -358,7 +356,7 @@ explanation that would require simultaneous foreign-bank demand spikes at every
 quarter-end date.
 
 \paragraph{Term structure.} Short-tenor markets are more responsive than
-long-tenor markets. Table~\ref{tab:iv-interactions} Panel C presents estimates
+long-tenor markets. \cref{tab:iv-interactions} Panel C presents estimates
 by tenor bucket. The price impact coefficient $\hat\beta$ is largest for overnight
 and one-week maturities, declines monotonically through three months, and is
 small and statistically indistinguishable from zero for six-month and longer
@@ -395,11 +393,11 @@ Source: synthetic regulatory bilateral FX swap transaction data.
 % ------------------------------------------------------------------------------
 
 The main result is stable across a battery of checks. The pre-trend diagnostic
-in Table~\ref{tab:pretrend-diagnostic} regresses $\Delta\text{PriceUSD}_{m,t}$
+in \cref{tab:pretrend-diagnostic} regresses $\Delta\text{PriceUSD}_{m,t}$
 on leads of the instrument $Z_{m,t-k}^{MMF}$ for $k = 1, 2, 3$ periods prior to
 the funding shock; the coefficients are statistically indistinguishable from zero,
 confirming that the instrument captures genuinely unexpected demand variation
-rather than anticipated changes. Table~\ref{tab:iv-bootstrap} reports wild cluster
+rather than anticipated changes. \cref{tab:iv-bootstrap} reports wild cluster
 bootstrap $p$-values for the main specification; inference is unchanged. We also
 verify robustness to: (i) the alternative monthly instrument (aggregate prime MMF
 losses by bank, rather than the shift-share design), (ii) alternative weight
@@ -451,8 +449,8 @@ sensitivity estimates. Foreign banks are price-inelastic: $\hat\beta_{FB} < 0$
 but small in absolute value, consistent with inelastic payment obligations
 ($\bar{L}_t$ predetermined). Hedge funds display $\hat\beta_{HF} > 0$, consistent
 with basis-trade entry when the spread is wide. The ordering $|\hat\beta_{FB}|
-< \hat\beta_{HF}$ is consistent with the maintained hypothesis in
-\cref{rem:beta-ordering}, though as noted there it is a maintained empirical
+< \hat\beta_{HF}$ is consistent with the maintained hypothesis (\cref{rem:beta-ordering},
+Section~\ref{sec:theory}), though as noted there it is a maintained empirical
 ordering rather than a theoretical prediction.
 
 \begin{table}[htbp]
@@ -480,7 +478,7 @@ Source: synthetic regulatory bilateral FX swap transaction data.
 \end{table}
 
 The row $\mathcal{B} = \sum_s \hat\beta_s$ at the bottom of
-Table~\ref{tab:demand-system} reports the aggregate slope. The estimate is
+\cref{tab:demand-system} reports the aggregate slope. The estimate is
 negative and statistically significant. A negative and significant estimate of
 $\mathcal{B}$ is consistent with the maintained hypothesis in Remark~1 and
 provides a structural interpretation of the IV estimates: the positive price
