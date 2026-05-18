@@ -121,7 +121,7 @@ the average funding premium $\mu_t$ over the sample period. Two features stand
 out. First, the March 2020 COVID episode produces the largest joint spike in
 tightness and the premium, consistent with both channels in \cref{prop:demand,prop:capacity}: foreign bank dollar demand surged as offshore funding markets seized, and dealer capacity contracted under stress conditions. Second, quarter-end spikes recur with clockwork
 regularity, generating short-lived basis widening that dissipates within days.
-The pattern at quarter-end is consistent with Proposition~2: capacity contracts
+The pattern at quarter-end is consistent with \cref{prop:capacity}: capacity contracts
 deterministically as FBO branches reduce their balance sheets for regulatory
 reporting, and the same demand shock produces a larger price response.
 
@@ -147,7 +147,7 @@ dominant banks differ from low-exposure banks on pre-treatment observables:
 gross FX swap volume, tenor composition, and credit default swap spread level.
 \cref{tab:balance-tests} shows that MMF-exposed banks hold a dominant
 position in most currency pair-tenor cells, consistent with the identification
-assumption underlying Proposition~1. The balance tests confirm that
+assumption underlying \cref{prop:demand}. The balance tests confirm that
 dominant-exposure banks do not differ systematically from others on pre-treatment
 pricing behavior, supporting the Goldsmith-Pinkham et al.\ (2020) validity
 condition for the shift-share design.
@@ -246,7 +246,7 @@ brackets. Source: synthetic regulatory bilateral FX swap transaction data.
 \end{threeparttable}
 \end{table}
 
-A diagnostic test separates taker demand from maker demand. Proposition~1
+A diagnostic test separates taker demand from maker demand. \Cref{prop:demand}
 operates through active seekers: banks that are takers in the matching process
 should drive the first-stage relationship, not passive makers. We estimate the
 first stage separately for $Q_{FB,m,t}^{taker}$ and $Q_{FB,m,t}^{maker}$.
@@ -303,10 +303,10 @@ transaction data. * $p < 0.10$, ** $p < 0.05$, *** $p < 0.01$.
 \end{threeparttable}
 \end{table}
 
-The structural interpretation follows from the price-impact decomposition in \cref{rem:price-impact} (Section~\ref{sec:theory}):
+The structural interpretation follows from the price-impact decomposition in \cref{rem:price-impact}:
 $\hat\beta \to -\gamma_{FB}/\mathcal{B}$, the ratio of the foreign-bank demand
 loading to the aggregate demand slope. A positive and significant $\hat\beta$
-is consistent with Proposition~1 ($\partial\mu^*/\partial U > 0$) and confirms
+is consistent with \cref{prop:demand} ($\partial\mu^*/\partial U > 0$) and confirms
 that the aggregate demand slope is negative ($\mathcal{B} < 0$), since
 $\gamma_{FB} > 0$ by the first-stage relevance condition.
 
@@ -316,10 +316,10 @@ $\gamma_{FB} > 0$ by the first-stage relevance condition.
 % ------------------------------------------------------------------------------
 
 We test three state-dependent predictions from the model: capacity amplification
-(Proposition~2), quarter-end amplification (Proposition~4), and term-structure
+(\cref{prop:capacity}), quarter-end amplification (\cref{prop:qe}), and term-structure
 concentration.
 
-\paragraph{Dealer capacity amplification.} Proposition~2 predicts that the price
+\paragraph{Dealer capacity amplification.} \Cref{prop:capacity} predicts that the price
 impact of demand shocks is larger when intermediary capacity is constrained. We
 interact instrumented demand with an indicator for constrained dealer capacity:
 \begin{equation}
@@ -340,7 +340,7 @@ with DealerConstraint $\times$ year fixed effects yields similar estimates.
 
 \Cref{tab:iv-interactions} reports results. The coefficient $\hat\beta_2 > 0$:
 price impact is larger when dealers are constrained. This is consistent with
-Proposition~2, though the interaction identifies effect heterogeneity across
+\cref{prop:capacity}, though the interaction identifies effect heterogeneity across
 capacity regimes rather than the causal effect of $B_t$ directly.
 
 \paragraph{Quarter-end amplification.} Quarter-end dates provide a clean test
@@ -449,8 +449,8 @@ sensitivity estimates. Foreign banks are price-inelastic: $\hat\beta_{FB} < 0$
 but small in absolute value, consistent with inelastic payment obligations
 ($\bar{L}_t$ predetermined). Hedge funds display $\hat\beta_{HF} > 0$, consistent
 with basis-trade entry when the spread is wide. The ordering $|\hat\beta_{FB}|
-< \hat\beta_{HF}$ is consistent with the maintained hypothesis (\cref{rem:beta-ordering},
-Section~\ref{sec:theory}), though as noted there it is a maintained empirical
+< \hat\beta_{HF}$ is consistent with the maintained hypothesis (\cref{rem:beta-ordering}),
+though as noted there it is a maintained empirical
 ordering rather than a theoretical prediction.
 
 \begin{table}[htbp]

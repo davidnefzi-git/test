@@ -11,10 +11,10 @@ inside synthetic dollar liquidity into outside safe dollar liquidity. This secti
 formalizes that claim. We construct an equilibrium model of the FX swap market
 in which the conversion premium between synthetic and safe dollars is determined
 by a matching process between dollar seekers and conversion intermediaries. Three
-results follow: demand pressure raises the equilibrium premium (Proposition~1),
-capacity tightening amplifies the effect (Proposition~2), and the premium
+results follow: demand pressure raises the equilibrium premium (\cref{prop:demand}),
+capacity tightening amplifies the effect (\cref{prop:capacity}), and the premium
 responds convexly to market tightness under plausible conditions on the quality
-function (Proposition~3). The first two propositions map directly to the IV and
+function (\cref{prop:nonlinear}). The first two propositions map directly to the IV and
 interaction specifications in \cref{sec:results}; the third characterizes the
 theoretical shape of price impact and motivates our descriptive evidence on
 crisis episodes.
@@ -251,7 +251,7 @@ market clearing), quality is increasing in matching probability ($\chi' > 0$),
 and matching probability is decreasing in seekers ($\partial p_t / \partial U_t
 < 0$). The product is positive.
 
-\paragraph{Testable prediction.} Proposition~1 is the primary empirical target.
+\paragraph{Testable prediction.} \Cref{prop:demand} is the primary empirical target.
 The shift-share instrument $Z^{MMF}_{m,t} = \text{Exposure}^{MMF}_{m,t-1}
 \times \text{FundingShock}_t$ shifts $U_t$ via the foreign-bank funding channel
 while leaving intermediary capacity unaffected, identifying $\partial \mu_t^* /
@@ -282,14 +282,14 @@ $|\partial p_t / \partial U_t| = \eta(1-\gamma)\theta_t^{-(2-\gamma)} / B_t$ is
 larger when $B_t$ is smaller: the same demand shock produces a larger tightening
 of $\theta_t$ when intermediary capacity is already thin.
 
-\paragraph{Testable prediction.} Proposition~2 maps to the interaction
+\paragraph{Testable prediction.} \Cref{prop:capacity} maps to the interaction
 specifications in \cref{subsec:heterogeneity}. The causal effect of $B_t$ cannot
 be cleanly identified---dealer constraints tighten precisely in high-stress
 states---so the empirical test is stated as effect heterogeneity: the price
 impact of instrumented foreign-bank demand is larger when dealers are constrained
 (DealerConstraint $= 1$) than when they are not. A positive coefficient on the
 $\hat{Q}_{FB,m,t} \times \text{DealerConstraint}_t$ interaction term is
-consistent with Proposition~2 but does not establish the causal capacity
+consistent with \cref{prop:capacity} but does not establish the causal capacity
 channel.
 
 \bigskip
@@ -318,14 +318,14 @@ proportionally to quality deterioration---a condition implied when the market is
 thin (small $|\mathcal{B}|$) and quality deterioration reduces the number of
 active participants.
 
-\emph{Proposition~3 characterizes the theoretical shape of the price impact
+\emph{\Cref{prop:nonlinear} characterizes the theoretical shape of the price impact
 function; testing this result directly would require a threshold specification
 beyond the scope of this paper.} The feasibility assessment grades continuous
 $\hat{\theta}_t$ measurement at C, and the explorer's report confirms the result
 is not testable with the current design. The interaction specifications in
 \cref{subsec:heterogeneity} test monotone heterogeneity in price impact across
 capacity regimes---a necessary but not sufficient condition for a threshold. We
-present Proposition~3 as a theoretical result that motivates our focus on
+present \cref{prop:nonlinear} as a theoretical result that motivates our focus on
 crisis episodes and quarter-end patterns as high-$\theta_t$ regimes.
 
 
@@ -342,7 +342,7 @@ crisis episodes and quarter-end patterns as high-$\theta_t$ regimes.
   $\partial^2 \mu_t^* / \partial U_t \partial Q_t > 0$.
 \end{proposition}
 
-The mechanism is the same as Proposition~2 but the supply-side variation is
+The mechanism is the same as \cref{prop:capacity} but the supply-side variation is
 exogenous to demand: FBO branches reduce their balance sheets at each quarter-end
 for regulatory reporting, compressing $B_t^{FBO}$ and $B_t^{USbank}$ by
 $\omega > 0$ regardless of the concurrent demand state. The deterministic timing
