@@ -268,8 +268,11 @@ writeLines(tex_int, file.path(table_dir, "iv_interactions.tex"))
 est_data_yr <- est_data %>%
   mutate(year_f = factor(year))
 
+# Sensitivity: add year FE to absorb year-level dealer constraint variation.
+# If the amplification coefficient is stable relative to int_dc, the scalar
+# DealerConstraint interaction is a valid summary statistic across years.
 int_dc_yrfe <- feols(
-  mu_t ~ OIS_rate | cell_id + date |
+  mu_t ~ OIS_rate | cell_id + date + year_f |
     U_t + I(U_t * DealerConstraint) ~ Z_MMF + Z_MMF_x_DC,
   data    = est_data_yr,
   cluster = ~cell_id + date
@@ -310,6 +313,7 @@ tex_int_yr <- c(
           nobs(int_dc), nobs(int_dc_yrfe)),
   "  Cell FE & Yes & Yes \\\\",
   "  Date FE & Yes & Yes \\\\",
+  "  Year FE & No & Yes \\\\",
   "  Cluster SE (cell, date) & Yes & Yes \\\\",
   "  \\bottomrule",
   "\\end{tabular}"
@@ -427,7 +431,7 @@ message(sprintf("  AKM SE: %.4f  Two-way cluster SE: %.4f", akm_se, twoway_se))
 # The bootstrap resamples at the cluster (cell_id) level to preserve within-
 # cluster correlation while allowing for arbitrary heteroskedasticity.
 
-set.seed(123)
+# RNG state controlled by set.seed(42) in 00_master.R
 n_boot    <- 999
 clusters  <- unique(est_data$cell_id)
 n_clust   <- length(clusters)

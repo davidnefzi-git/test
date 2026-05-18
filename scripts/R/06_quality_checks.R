@@ -19,6 +19,8 @@ library(scales)
 
 # set.seed() is called once in 00_master.R; removed here to avoid duplicate.
 
+source(here::here("scripts", "R", "functions", "helpers.R"))
+
 # ---------------------------------------------------------------------------
 # 0. Load data
 # ---------------------------------------------------------------------------
@@ -128,14 +130,6 @@ message(sprintf("  Liquidity filter (> %.0f bps): drops %.1f%% of observations",
 # ---------------------------------------------------------------------------
 # 4. LaTeX quality checks table
 # ---------------------------------------------------------------------------
-
-stars_fn <- function(p) {
-  if (is.na(p))  return("")
-  if (p < 0.01) return("^{***}")
-  if (p < 0.05) return("^{**}")
-  if (p < 0.10) return("^{*}")
-  return("")
-}
 
 tex_lines <- c(
   "\\begin{tabular}{lcccc}",

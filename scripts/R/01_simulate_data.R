@@ -18,7 +18,8 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 
-set.seed(42)
+# set.seed() is called once in 00_master.R; removed here per INV-14.
+# Standalone use: call set.seed(42) before sourcing this script.
 
 # ---------------------------------------------------------------------------
 # 0. Dimension definitions
