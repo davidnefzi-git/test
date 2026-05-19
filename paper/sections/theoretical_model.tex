@@ -1,0 +1,637 @@
+% =====================================================================
+% paper/sections/theoretical_model.tex
+% Theoretical Model: Two-Country OLG with Demographics and Public Debt
+% Self-contained section -- to be \input{} from paper/main.tex
+% Preamble (working-paper-format.md) assumed: amsmath, amsthm,
+% amssymb, mathtools, dsfont, biblatex+biber, cleveref, booktabs,
+% tabularray, threeparttable.
+% =====================================================================
+
+\section{Theoretical Model}\label{sec:theory}
+
+\subsection{Overview and Logic of the Model}\label{sec:theory:overview}
+
+We develop a two-country overlapping-generations (OLG) model in the tradition of
+\citet{Samuelson1958} and \citet{Diamond1965}, augmented with stochastic
+demographic structure, social-security transfers, public debt, and
+convex-adjustment-cost investment \citep{Hayashi1982}. The model's purpose is
+not to characterise dynamics or welfare but to deliver \emph{signed
+predictions} for the panel coefficients of a long-run regression linking
+each country's net international investment position (NIIP) to demographic,
+fiscal, and productivity fundamentals. The empirical specification is therefore
+a direct image of a structural object derived below.
+
+The logic proceeds in four steps. First, households of each generation solve a
+CRRA life-cycle problem (\cref{sec:theory:households}); aggregation over young
+and old yields private saving (\cref{sec:theory:agg-saving}). Second, firms
+choose investment subject to convex adjustment costs, yielding a Tobin-$q$
+representation (\cref{sec:theory:firms}). Third, world capital-market clearing
+determines the world real interest rate $r_t^*$, and the implicit-function
+theorem (IFT) signs its dependence on global fundamentals
+(\cref{sec:theory:clearing}). Fourth, the country-level intertemporal budget
+constraint (IBC) for the NIIP is forward-iterated under a no-Ponzi condition;
+along the balanced-growth path (BGP) the IBC collapses to a perpetuity that we
+linearise around country-specific reference points
+(\cref{sec:theory:linearization}). The linearisation produces the regression
+equation, with each coefficient given by a partial derivative of structural
+saving minus investment, scaled by $(r^*-g_i^Y)^{-1}$. The error-correction
+representation (\cref{sec:theory:ecm}) then follows from the Granger
+representation theorem \citep{EngleGranger1987}.
+
+\paragraph{Notation conventions.} \Cref{tab:notation} summarises the symbols
+used throughout. We adopt the conventions: $\rho_i$ for the country-$i$
+error-correction speed (so $\alpha$ is reserved exclusively for the capital
+share); $H$ for the expectation horizon (so $T$ can be reserved for sample
+length in the empirical section); $b_{it}^{LR}$ for the long-run (BGP) NIIP
+(so the asterisk on $r_t^*$ is unambiguous and refers only to the world
+interest rate); $g_i^Y \equiv g_i^A + g_i^L$ for the country-$i$ BGP growth
+rate of output.
+
+\begin{table}[t]
+\centering
+\caption{Notation: Symbols and Conventions}\label{tab:notation}
+\begin{threeparttable}
+\begin{tabular}{ll}
+\toprule
+Symbol & Meaning \\
+\midrule
+$i\in\{H,F\}$ & Country index (home / foreign) \\
+$t$ & Calendar time index \\
+$L_{it}$ & Working-age population, country $i$ at $t$ \\
+$\phi_{it}$ & Old-age dependency ratio, $L_{i,t-1}/L_{it}$ \\
+$\omega_{it}$ & Effective retirement duration (years old / years working) \\
+$A_{it}$, $\tilde a_{it}$ & TFP level and (log) deviation from world mean \\
+$g_{it}^A,\ g_{it}^L$ & Growth rates of TFP and population \\
+$g_i^Y \equiv g_i^A+g_i^L$ & BGP growth rate of output, country $i$ \\
+$\alpha$ & Capital share in Cobb--Douglas production \\
+$\delta$ & Depreciation rate \\
+$\beta,\ \sigma$ & Discount factor; CRRA intertemporal elasticity \\
+$r_t^*$ & World real interest rate (gross: $1+r_t^*$) \\
+$w_{it}$ & Competitive real wage \\
+$s_{it}^*$ & \emph{Individual} saving of a young agent of generation $t$ \\
+$tr_{it}$ & Per-old-agent pension transfer \\
+$\tau_{it}$ & Per-young-agent payroll tax \\
+$d_{it}^g$ & Public debt per efficiency worker \\
+$B_{it}$, $b_{it}$ & NIIP (level); NIIP per efficiency worker \\
+$\iota_{it}$, $s_{it}^Y$ & Investment and national saving per efficiency worker \\
+$ca_{it}^{NR}$ & Non-interest current account, $s_{it}^Y-\iota_{it}$ \\
+$b_{it}^{LR}$ & Long-run (BGP) NIIP, the structural object of interest \\
+$\rho_i$ & Country-$i$ error-correction adjustment speed \\
+$H$ & Forward expectation horizon (for $\phi,\omega$) \\
+$\lambda_t,\mu_i$ & Time and country fixed effects in the panel \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item \textit{Notes.} The capital share $\alpha$ and the ECM adjustment speed
+$\rho_i$ are kept notationally distinct (correcting an overload in earlier
+drafts). The expectation horizon $H$ replaces an earlier use of $T$ to avoid
+collision with sample length. $b_{it}^{LR}$ replaces $b_{it}^*$ to avoid the
+asterisk collision with $r_t^*$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsection{Economic Environment}\label{sec:theory:environment}
+
+We list nine assumptions. Eight describe the primitive environment; the ninth
+is a stability condition on the world capital market that was implicit in
+earlier drafts and that we now name and invoke explicitly in
+\cref{prop:cs-rstar}.
+
+\begin{assumption}[Single Tradable Good]\label{ass:A1}
+There is a single tradable consumption good, freely traded across countries at
+a unit world price. The real exchange rate is therefore indeterminate in the
+model; we control for it empirically.
+\end{assumption}
+
+\begin{assumption}[Two-Period OLG with Demographic Heterogeneity]\label{ass:A2}
+Each country is populated by overlapping generations indexed by birth date.
+Agents live two periods (young, old). The size of generation $t$ in country
+$i$ is $L_{it}$, so the old-age dependency ratio is $\phi_{it}\equiv L_{i,t-1}/L_{it}$.
+Agents form rational expectations $\mathbb{E}_t[\phi_{i,t+H}]$ at horizon $H$.
+\end{assumption}
+
+\begin{assumption}[Effective Retirement Duration]\label{ass:A3}
+Old-age length, normalised by working-life length, equals $\omega_{it}$.
+Agents form rational expectations $\mathbb{E}_t[\omega_{i,t+H}]$ at horizon $H$.
+\end{assumption}
+
+\begin{assumption}[Two-Country World]\label{ass:A4}
+The world consists of two countries $i\in\{H,F\}$ (the analysis extends to $N$
+countries with no change in structure). Asset markets are perfectly integrated:
+all assets earn the world rate $r_t^*$.
+\end{assumption}
+
+\begin{assumption}[Technology]\label{ass:A5}
+Output of country $i$ at $t$ is Cobb--Douglas: $Y_{it}=K_{it}^{\alpha}
+(A_{it}L_{it})^{1-\alpha}$, with $\alpha\in(0,1)$ and depreciation $\delta$.
+Define $g_{it}^A\equiv \Delta \ln A_{it}$, $g_{it}^L\equiv \Delta\ln L_{it}$,
+$g_{it}^Y\equiv g_{it}^A+g_{it}^L$; on the BGP these converge to country-specific
+constants $g_i^A, g_i^L, g_i^Y$.
+\end{assumption}
+
+\begin{assumption}[Preferences]\label{ass:A6}
+Lifetime utility is CRRA:
+$U=u(c_{it}^y)+\omega_{it}\beta\,\mathbb{E}_t u(c_{i,t+1}^o)$ with
+$u(c)=c^{1-1/\sigma}/(1-1/\sigma)$, $\sigma>0,\sigma\ne1$.
+\end{assumption}
+
+\begin{assumption}[No Bequests]\label{ass:A7}
+Agents derive no utility from end-of-life wealth and face no bequest motive.
+Equivalently, the terminal condition on old-age financial wealth is
+$a_{i,t+1}^{o\,\text{end}}=0$. This assumption is invoked explicitly in the
+household derivation (\cref{sec:theory:households}), in the aggregation of
+old-age dissaving (\cref{sec:theory:agg-saving}), and in the partial-Ricardian
+argument (\cref{rem:ricardian}).
+\end{assumption}
+
+\begin{assumption}[Government Budget]\label{ass:A8}
+The government of country $i$ collects payroll taxes $\tau_{it}$ from the
+young, pays pension transfers $tr_{it}$ to the old, and issues debt $D_{it}^g$.
+The flow budget per efficiency worker, defining $n_{it}\equiv\Delta\ln L_{it}$,
+is
+\begin{equation}
+d_{i,t+1}^g(1+g_{it}^Y)=d_{it}^g(1+r_t^*)+\phi_{it}\,tr_{it}-\tau_{it},
+\end{equation}
+where $d_{it}^g\equiv D_{it}^g/(A_{it}L_{it})$.
+\end{assumption}
+
+\begin{assumption}[Stability of the World Capital Market]\label{ass:A9}
+The excess world saving function $ES(r_t^*;\mathbf Z_t)$ (defined in
+\cref{sec:theory:clearing}) satisfies $\partial ES/\partial r_t^*>0$ in a
+neighbourhood of equilibrium. Equivalently, the net supply of world loanable
+funds is locally increasing in the world rate.
+\end{assumption}
+
+\Cref{ass:A9} is the regularity condition that licenses the IFT used in
+\cref{prop:cs-rstar}. It holds when investment is sufficiently elastic in
+$r^*$ relative to the (potentially offsetting income- and
+substitution-effect-driven) response of saving; it is standard in
+OLG comparative-statics arguments \citep{Diamond1965}.
+
+\subsection{Households: Life-Cycle Optimisation}\label{sec:theory:households}
+
+A young agent in country $i$ at $t$ chooses $(c_{it}^y,s_{it})$ to maximise
+\[
+U_{it}=u(c_{it}^y)+\omega_{it}\beta\,\mathbb{E}_t u(c_{i,t+1}^o)
+\]
+subject to the young- and old-age budget constraints
+\begin{align}
+c_{it}^y+s_{it}&=w_{it}-\tau_{it}, \\
+\omega_{it}\,c_{i,t+1}^o&=(1+r_{t+1}^*)\,s_{it}+tr_{i,t+1},
+\end{align}
+and the no-bequest terminal condition (\cref{ass:A7}): all financial wealth
+$(1+r_{t+1}^*)s_{it}+tr_{i,t+1}$ is consumed by end of the old period.
+Without \cref{ass:A7}, the old's consumption could fall short of accumulated
+wealth and a bequest term would appear in the aggregate-saving equation; we
+return to this when aggregating in \cref{sec:theory:agg-saving}.
+
+Substituting the old-age budget into the lifetime constraint:
+\[
+\Omega_{it}\equiv (w_{it}-\tau_{it})+\frac{tr_{i,t+1}}{1+r_{t+1}^*}.
+\]
+The CRRA Euler equation gives the closed form
+\begin{equation}
+c_{it}^{y*}=\mu(r_{t+1}^*,\omega_{it})\,\Omega_{it},\qquad
+\mu\equiv\frac{1}{1+\omega_{it}\beta^{1/\sigma}(1+r_{t+1}^*)^{(1-\sigma)/\sigma}}.
+\label{eq:mu}
+\end{equation}
+Individual saving is then
+\begin{equation}
+s_{it}^*=(w_{it}-\tau_{it})-\mu(r_{t+1}^*,\omega_{it})\,\Omega_{it}.
+\label{eq:savind}
+\end{equation}
+
+\begin{proposition}[Individual Saving: Signed Comparative Statics]\label{prop:indiv-saving}
+At an interior optimum:
+\begin{enumerate}
+\item $\partial s_{it}^*/\partial(w_{it}-\tau_{it})\in(0,1)$;
+\item $\partial s_{it}^*/\partial \omega_{it}>0$;
+\item $\partial s_{it}^*/\partial \,tr_{i,t+1}=-\mu/(1+r_{t+1}^*)<0$,
+holding $(r_{t+1}^*,\omega_{it})$ fixed;
+\item $\partial s_{it}^*/\partial r_{t+1}^*=-(\partial\mu/\partial r_{t+1}^*)\Omega_{it}+\mu\,tr_{i,t+1}/(1+r_{t+1}^*)^2$, with
+\[
+\frac{\partial\mu}{\partial r_{t+1}^*}=-\omega_{it}\beta^{1/\sigma}\frac{1-\sigma}{\sigma}(1+r_{t+1}^*)^{\frac{1-2\sigma}{\sigma}}\Big/[1+\omega_{it}\beta^{1/\sigma}(1+r_{t+1}^*)^{(1-\sigma)/\sigma}]^2,
+\]
+so the sign is unambiguously positive for $\sigma\le 1$ (substitution effect
+dominates) and ambiguous for $\sigma>1$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Parts (1)--(3) follow by direct differentiation of \eqref{eq:savind}.
+Part (4) writes out the derivative explicitly; the sign of $\partial\mu/\partial r^*$ is the sign of $\sigma-1$. The second term is unambiguously positive (the present value of transfers falls in $r^*$, raising desired saving by the young). The first term is non-negative iff $\sigma\le 1$.
+\end{proof}
+
+\subsection{Government Sector and National Saving; Partial Ricardian Offset}
+\label{sec:theory:gov}
+
+National saving decomposes as
+$S_{it}^{nat}=S_{it}^{priv}+S_{it}^g$ where $S_{it}^g\equiv \tau_{it}L_{it}-tr_{it}L_{i,t-1}-r_t^*D_{i,t-1}^g$ is the structural primary balance minus interest service.
+
+\begin{remark}[Partial Ricardian Offset]\label{rem:ricardian}
+Under \crefrange{ass:A2}{ass:A8} (two-period OLG, no bequests), private
+saving rises by \emph{less} than one-for-one in response to public debt:
+$\partial S^{priv}/\partial D^g\in (-1,0)$, hence
+$\partial S^{nat}/\partial D^g=\partial S^{priv}/\partial D^g-1\in(-1,0)$.
+\end{remark}
+
+\begin{proof}[Proof sketch]
+In a Diamond two-period OLG with \cref{ass:A7} (no bequests), the young do
+not internalise the old's intertemporal budget: government bonds issued today
+finance transfers to today's old, who are not the young's heirs. Hence the
+young treat bonds as net wealth and do not increase saving by the full present
+value of future taxes \citep{Diamond1965,Blanchard1985,Buiter1988}. Formally,
+differentiating $s_{it}^*=(w_{it}-\tau_{it})-\mu\Omega_{it}$ with respect to a
+debt-financed cut in $\tau_{it}$ (with a future tax increase falling on the
+young's grandchildren, not on themselves), the young's saving response is
+strictly less than the present value of the future tax burden. Thus
+$\gamma_D\equiv (r^*-g_i^Y)^{-1}\,\partial S^{nat}/\partial d^g\in
+(-(r^*-g_i^Y)^{-1},0)$, so $\gamma_D<0$ but bounded above zero by partial
+offset.
+\end{proof}
+
+\subsection{Aggregate Saving}\label{sec:theory:agg-saving}
+
+We now aggregate over young and old to obtain private saving per young worker.
+Throughout, $s_{it}^*$ denotes the \emph{individual} saving of a single young
+agent of generation $t$ (not a per-worker aggregate). All young agents in
+country $i$ are ex-ante identical, so per-young-worker young saving equals
+$s_{it}^*$.
+
+\paragraph{Young.} There are $L_{it}$ identical young, each saving $s_{it}^*$.
+Per young worker their saving is exactly $s_{it}^*$.
+
+\paragraph{Old.} There are $L_{i,t-1}$ old in period $t$. By \cref{ass:A7},
+each old agent entered period $t$ with financial wealth
+$(1+r_t^*)s_{i,t-1}^*$, also receives transfer $tr_{it}$, and consumes
+$(1+r_t^*)s_{i,t-1}^*+tr_{it}$ entirely. The old's \emph{gross dissaving} of
+\emph{financial} wealth (the only part that contributes to private saving;
+transfers are a redistribution accounted for in $S_{it}^g$) is
+$L_{i,t-1}(1+r_t^*)s_{i,t-1}^*$.
+
+\paragraph{Per young worker.} Aggregate private saving per young worker is the
+young's saving minus the old's gross financial dissaving, scaled by $L_{i,t-1}/L_{it}=\phi_{it}$:
+\begin{equation}
+\frac{S_{it}^{priv}}{L_{it}}=s_{it}^*-\phi_{it}\,(1+r_t^*)\,s_{i,t-1}^*.
+\label{eq:agg-priv-saving}
+\end{equation}
+The transfer term $tr_{it}$ does \emph{not} appear in \eqref{eq:agg-priv-saving}
+because, on the consolidated private--government accounts, transfers are an
+intragenerational redistribution: they reduce $S_{it}^g$ by $\phi_{it}\,tr_{it}$
+and raise old consumption by the same amount, leaving \emph{national} saving
+unaffected. This treatment is gross of transfer receipts by the old; the
+government saving block in \cref{sec:theory:gov} accounts for the same flows
+on the public side. Without \cref{ass:A7}, the old would retain a bequest
+$\xi_{it}>0$, and \eqref{eq:agg-priv-saving} would gain a term
+$\phi_{it}\xi_{it}$.
+
+\paragraph{Reduced-form saving function.} Writing $s_{it}^*$ as a function of
+its determinants from \cref{prop:indiv-saving} and substituting the competitive
+wage, define the structural per-worker saving function
+\begin{equation}
+s_{it}^Y\equiv\mathcal{S}\bigl(y_{it},\phi_{it},\mathbb{E}_t[\phi_{i,t+H}],\mathbb{E}_t[\omega_{i,t+H}],d_{it}^g,r_t^*\bigr),
+\label{eq:S-function}
+\end{equation}
+where $y_{it}\equiv \ln Y_{it}/(A_{it}L_{it})$ is log output per efficiency
+worker (Modigliani--Brumberg life-cycle channel; \citealp{ModiglianiBrumberg1954,Feldstein1980}).
+The signed comparative statics of $\mathcal{S}$ are inherited from
+\cref{prop:indiv-saving} and the aggregation in \eqref{eq:agg-priv-saving}:
+$\partial\mathcal{S}/\partial y>0$, $\partial\mathcal{S}/\partial\phi<0$
+(current retirees dissave), $\partial\mathcal{S}/\partial \mathbb{E}_t[\phi_{i,t+H}]>0$
+(precautionary), $\partial\mathcal{S}/\partial \mathbb{E}_t[\omega_{i,t+H}]>0$
+(retirement-duration), $\partial\mathcal{S}/\partial d^g<0$ (partial Ricardian
+offset, \cref{rem:ricardian}).
+
+\subsection{Production, Wages, Productivity}\label{sec:theory:production}
+
+With Cobb--Douglas technology (\cref{ass:A5}) and competitive factor markets,
+the marginal product of capital equals $r_t^*+\delta$, which yields a
+capital--labour ratio (per efficiency worker) $\hat k(r_t^*)=[\alpha/(r_t^*+\delta)]^{1/(1-\alpha)}$
+and competitive wage
+\begin{equation}
+w_{it}=(1-\alpha)\left(\frac{\alpha}{r_t^*+\delta}\right)^{\alpha/(1-\alpha)} A_{it}.
+\label{eq:wage}
+\end{equation}
+Hence wages depend on the world rate $r_t^*$ (common across countries) and on
+country-specific TFP $A_{it}=\bar A_t\exp(\tilde a_{it})$, where $\tilde a_{it}$
+is the log deviation from the world mean. Output per efficiency worker on the
+BGP is therefore a function of $r^*$ and $\tilde a_i$ alone.
+
+\subsection{Firms and Investment}\label{sec:theory:firms}
+
+Investment is governed by Tobin's $q$ with quadratic adjustment costs
+\citep{Hayashi1982}. Per efficiency worker, the firm chooses $\iota_{it}$ to
+maximise
+\[
+\sum_{s\ge 0}\Bigl[\prod_{j=0}^{s-1}(1+r_{t+j}^*)^{-1}\Bigr]\Bigl[F(k_{i,t+s},1)-\iota_{i,t+s}-\frac{\chi}{2}(\iota_{i,t+s}-\delta\,k_{i,t+s})^2/k_{i,t+s}\Bigr],
+\]
+yielding the Euler condition $q_{it}=1+\chi(\iota_{it}/k_{it}-\delta)$. Along
+the BGP, $\iota_{it}/k_{it}\to \delta+g_i^Y/(1+\alpha\chi)$ and the structural
+per-worker investment function is
+\begin{equation}
+\iota_{it}\equiv\mathcal{I}\bigl(\tilde a_{it},\mathbb{E}_t[\phi_{i,t+H}],\mathbb{E}_t[\omega_{i,t+H}],r_t^*\bigr),
+\label{eq:I-function}
+\end{equation}
+with $\partial\mathcal{I}/\partial r^*<0$, $\partial\mathcal{I}/\partial\tilde a>0$
+(higher MPK raises investment), and $\partial\mathcal{I}/\partial\mathbb{E}_t[\phi_{i,t+H}]<0$
+(anticipated lower future labour input lowers desired capital).
+
+\subsection{Global Capital-Market Clearing}\label{sec:theory:clearing}
+
+World saving must equal world investment plus the world stock of public debt
+financed externally:
+\begin{equation}
+\sum_i \eta_{it}\mathcal{S}(\cdot)=\sum_i \eta_{it}\mathcal{I}(\cdot)+\sum_i \eta_{it}\,d_{it}^g,
+\label{eq:world-clearing}
+\end{equation}
+where $\eta_{it}\equiv A_{it}L_{it}/\sum_j A_{jt}L_{jt}$ are GDP weights. Define
+\[
+ES(r_t^*;\mathbf Z_t)\equiv \sum_i\eta_{it}\mathcal{S}(\cdot)-\sum_i\eta_{it}\mathcal{I}(\cdot)-\sum_i\eta_{it}\,d_{it}^g,
+\]
+where $\mathbf Z_t$ collects all country-time fundamentals other than $r_t^*$.
+Equilibrium $r_t^*$ solves $ES(r_t^*;\mathbf Z_t)=0$.
+
+\begin{proposition}[Comparative Statics of $r_t^*$]\label{prop:cs-rstar}
+Under \cref{ass:A9} ($\partial ES/\partial r^*>0$), the IFT applied to
+$ES(r_t^*;\mathbf Z_t)=0$ yields, for any determinant $z\in\mathbf Z_t$,
+\[
+\frac{\partial r_t^*}{\partial z}=-\frac{\partial ES/\partial z}{\partial ES/\partial r^*}.
+\]
+The denominator is positive by \cref{ass:A9}; signs of the four claims below
+follow from the explicit numerators.
+\begin{enumerate}
+\item[(i)] \emph{Anticipated global ageing} (conditional). With
+$\partial \mathcal{S}/\partial \mathbb{E}_t[\phi^e]>0$ and
+$\partial \mathcal{I}/\partial \mathbb{E}_t[\phi^e]<0$, the numerator is
+$\partial ES/\partial \mathbb{E}_t[\phi^e]>0$ \emph{provided the saving
+response dominates the investment response in magnitude}. Under that
+condition, $\partial r^*/\partial \mathbb{E}_t[\phi^e]<0$.
+\item[(ii)] \emph{Global public debt} (unconditional under OLG). Each unit of
+$d_i^g$ enters $ES$ with coefficient $-1$ directly, and the indirect effect on
+$\mathcal{S}$ is bounded above by zero by partial Ricardian offset
+(\cref{rem:ricardian}). Hence $\partial ES/\partial d^g<0$ \emph{net of
+private-saving response}, so $\partial r^*/\partial d^g>0$.
+\item[(iii)] \emph{Global TFP} (ambiguous). $\partial \mathcal{S}/\partial\tilde a>0$
+(higher wage raises young saving) and $\partial\mathcal{I}/\partial\tilde a>0$
+(higher MPK raises investment); the sign of $\partial ES/\partial \tilde a$ is
+indeterminate.
+\item[(iv)] \emph{Current dependency} (ambiguous). $\partial\mathcal{S}/\partial\phi<0$
+(retiree dissaving) and $\partial\mathcal{I}/\partial\phi$ is itself
+indeterminate; the sign of $\partial r^*/\partial\phi$ is therefore not pinned
+down by theory.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+The denominator is positive by \cref{ass:A9}. For each claim, we compute the
+numerator $\partial ES/\partial z$ by differentiating \eqref{eq:world-clearing}
+and substituting the comparative statics of $\mathcal{S}$
+(\cref{sec:theory:agg-saving}) and $\mathcal{I}$ (\cref{sec:theory:firms}).
+\emph{(i)} $\partial ES/\partial \mathbb{E}_t[\phi^e]=\sum_i\eta_i[\partial\mathcal{S}/\partial \mathbb{E}_t[\phi^e]-\partial\mathcal{I}/\partial \mathbb{E}_t[\phi^e]]$.
+Both bracketed terms are positive; the sum is positive when the saving channel
+dominates investment. \emph{(ii)} $\partial ES/\partial d^g=\sum_i\eta_i[\partial\mathcal{S}/\partial d^g-1]<0$
+because $\partial\mathcal{S}/\partial d^g\in (-1,0)$ by \cref{rem:ricardian}.
+\emph{(iii), (iv)} Both signed components enter with opposite signs in
+$ES$; signs are not pinned down without further restrictions.
+\end{proof}
+
+\begin{corollary}[GE Spillover]\label{cor:ge-spillover}
+A shock to country-$F$ fundamentals affects country-$H$ NIIP only through
+$r_t^*$. Because $r_t^*$ is common across countries at any date, the GE
+spillover is absorbed by time fixed effects in a panel regression. This is
+formalised in \cref{sec:theory:linearization}, Step (d).
+\end{corollary}
+
+\subsection{NIIP Law of Motion}\label{sec:theory:niip-lom}
+
+Let $B_{it}$ denote the level NIIP and $b_{it}\equiv B_{it}/(A_{it}L_{it})$
+the per-efficiency-worker NIIP. The balance-of-payments identity, in
+per-efficiency-worker form, is
+\begin{equation}
+b_{i,t+1}=\frac{1+r_t^*}{1+g_{it}^Y}\,b_{it}+s_{it}^Y-\iota_{it}+\text{residuals},
+\label{eq:niip-lom-discrete}
+\end{equation}
+where residuals collect valuation effects and capital transfers
+\citep{ObstfeldRogoff1995}. Linearising around small rates and writing
+$R_{it}\equiv (1+r_t^*)/(1+g_{it}^Y)\approx 1+r_t^*-g_{it}^Y$:
+\begin{equation}
+\Delta b_{i,t+1}\approx (r_t^*-g_{it}^Y)\,b_{it}+ca_{it}^{NR}+\text{residuals},
+\qquad ca_{it}^{NR}\equiv s_{it}^Y-\iota_{it}.
+\label{eq:niip-lom-cts}
+\end{equation}
+We use \eqref{eq:niip-lom-discrete} in derivations and \eqref{eq:niip-lom-cts}
+for intuition.
+
+\subsection{Intertemporal Solvency}\label{sec:theory:solvency}
+
+Iterating \eqref{eq:niip-lom-discrete} forward and imposing the no-Ponzi
+condition $\lim_{S\to\infty}\bigl[\prod_{j=0}^{S-1}R_{i,t+j}\bigr]^{-1}b_{i,t+S}=0$
+gives the country-$i$ intertemporal budget constraint
+\begin{equation}
+b_{it}=\sum_{s=1}^{\infty}\Bigl[\prod_{j=0}^{s-1}R_{i,t+j}\Bigr]^{-1}\bigl(\iota_{i,t+s}-s_{i,t+s}^Y\bigr).
+\label{eq:ibc}
+\end{equation}
+\Cref{eq:ibc} states that the current NIIP equals the discounted sum of future
+non-interest current-account deficits \citep{Sachs1981,ObstfeldRogoff1995}.
+
+\subsection{From IBC to the Structural Long-Run NIIP Equation}
+\label{sec:theory:linearization}
+
+This subsection contains the central derivation of the paper. It was missing
+from the original draft and is reconstructed here in four steps: (a) the IBC
+collapses on the BGP to a perpetuity; (b) structural saving and investment are
+substituted; (c) a first-order Taylor expansion produces signed coefficients;
+(d) the deviation of $r_t^*$ from its BGP value is shown to be common across
+countries at any date $t$, so time fixed effects $\lambda_t$ absorb the GE
+channel.
+
+\subsubsection*{Step (a): BGP collapse}
+
+On the BGP (\cref{ass:A2,ass:A5}): $r_t^*\to r^*$, $g_{it}^Y\to g_i^Y$, both
+constant; structural saving and investment converge to country-specific
+constants $\bar s_i,\bar\iota_i$. The discount factor becomes
+$\bar R_i\equiv(1+r^*)/(1+g_i^Y)$, constant. The no-Ponzi condition holds
+under dynamic efficiency ($r^*>g_i^Y$, equivalent to $\bar R_i>1$). The IBC
+\eqref{eq:ibc} then collapses to a geometric series:
+\begin{align}
+b_i^{LR}&=\sum_{s=1}^{\infty}\bar R_i^{-s}(\bar s_i-\bar\iota_i)\notag\\
+&=\frac{\bar R_i^{-1}}{1-\bar R_i^{-1}}(\bar s_i-\bar\iota_i)\notag\\
+&=\frac{1}{\bar R_i-1}\,\bar{ca}_i^{NR}\notag\\
+&=\frac{\bar{ca}_i^{NR}}{r^*-g_i^Y},
+\label{eq:bgp-niip}
+\end{align}
+where we have used $\bar R_i-1\approx r^*-g_i^Y$ and defined
+$\bar{ca}_i^{NR}\equiv \bar s_i-\bar\iota_i$. \Cref{eq:bgp-niip} is the
+\emph{perpetuity identity}: the long-run NIIP equals the present value of a
+perpetual stream of non-interest current-account surpluses.
+
+\subsubsection*{Step (b): Structural substitution}
+
+Substituting the reduced-form structural saving and investment functions
+\eqref{eq:S-function}--\eqref{eq:I-function} into \eqref{eq:bgp-niip}:
+\begin{equation}
+b_i^{LR}=\mathcal{B}(r^*,g_i^Y,y_i,\phi_i,\mathbb{E}[\phi_{i+H}],\mathbb{E}[\omega_{i+H}],d_i^g,\tilde a_i),
+\label{eq:structural-niip}
+\end{equation}
+where
+\[
+\mathcal{B}(\cdot)\equiv \frac{\mathcal{S}(\cdot)-\mathcal{I}(\cdot)}{r^*-g_i^Y}.
+\]
+At this stage, $r^*$ is treated as a parameter; in Step (d) we will recognise
+that the world-clearing condition makes $r^*$ a function of all countries'
+fundamentals.
+
+\subsubsection*{Step (c): First-order Taylor expansion around country-specific BGP}
+
+Expand $\mathcal{B}(\cdot)$ around the country-specific BGP reference point
+$\bar{\mathbf x}_i=(\bar y_i,\bar\phi_i,\overline{\mathbb{E}}[\phi_{i+H}],\overline{\mathbb{E}}[\omega_{i+H}],\bar d_i^g,\bar{\tilde a}_i)$
+and the world reference rate $\bar r^*$. Writing $x_{it}^k$ for the $k$th
+country-time fundamental,
+\begin{equation}
+b_{it}^{LR}\approx \mathcal{B}(\bar{\cdot})+\sum_k \gamma_k^i\,(x_{it}^k-\bar x_i^k)+\frac{\partial\mathcal{B}}{\partial r^*}\,(r_t^*-\bar r^*),
+\label{eq:taylor}
+\end{equation}
+where the structural coefficients are
+\begin{equation}
+\gamma_k^i=\frac{1}{r^*-g_i^Y}\left.\frac{\partial(\mathcal{S}-\mathcal{I})}{\partial x_k}\right|_{\bar{\mathbf x}_i}.
+\label{eq:gamma}
+\end{equation}
+The scalar $1/(r^*-g_i^Y)>0$ under dynamic efficiency, so $\gamma_k^i$ inherits
+the sign of $\partial(\mathcal{S}-\mathcal{I})/\partial x_k$ at the BGP.
+Reading off from the comparative statics of $\mathcal{S}$
+(\cref{sec:theory:agg-saving}) and $\mathcal{I}$ (\cref{sec:theory:firms}):
+\Cref{tab:signs} lists the seven structural sign predictions, each derived,
+not asserted.
+
+\begin{table}[t]
+\centering
+\caption{Sign Predictions for Structural Coefficients}\label{tab:signs}
+\begin{threeparttable}
+\begin{tabular}{lll}
+\toprule
+Coefficient & Channel & Predicted sign \\
+\midrule
+$\gamma_y$ on $y_{it}$ & Life-cycle: higher income raises young saving & $>0$ \\
+$\gamma_\phi$ on $\phi_{it}$ & Current retiree dissaving dominates & $<0$ \\
+$\gamma_{\phi^e}$ on $\mathbb{E}_t[\phi_{i,t+H}]$ & Precautionary saving; lower future labour & $>0$ \\
+$\gamma_{\omega^e}$ on $\mathbb{E}_t[\omega_{i,t+H}]$ & Retirement-duration motive & $>0$ \\
+$\gamma_{TFP}$ on $\tilde a_{it}$ & Saving and investment both rise; decomposed in App. & ambiguous \\
+$\gamma_D$ on $d_{it}^g$ & Partial Ricardian offset (\cref{rem:ricardian}) & $\in(-(r^*-g^Y)^{-1},0)$ \\
+$\partial\mathcal{B}/\partial r^*$ on $r_t^*$ & GE channel: absorbed by $\lambda_t$ in Step (d) & $-$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}\footnotesize
+\item \textit{Notes.} Each sign is derived from the explicit form of
+$\mathcal{S}$ and $\mathcal{I}$, not asserted. Ambiguous TFP is decomposed
+into a saving, investment, and GE component in the Technical Appendix
+(\cref{sec:theory:appendix}).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\subsubsection*{Step (d): $r_t^*$ deviation is common at date $t\Rightarrow \lambda_t$ absorbs the GE channel}
+
+From the world-clearing condition \eqref{eq:world-clearing}, applying the IFT
+of \cref{prop:cs-rstar} along the BGP,
+\[
+r_t^*-\bar r^*=\sum_i \eta_i\,\boldsymbol\psi_i^{\prime}\,(\mathbf x_{it}-\bar{\mathbf x}_i),
+\]
+where $\boldsymbol\psi_i$ collects the IFT-derived GE weights. The key
+observation is that the right-hand side depends only on country-time
+fundamentals weighted into a \emph{world} aggregate; once aggregated, the
+result is the \emph{same number for every country $i$ at any given date $t$}.
+That is,
+\[
+r_t^*-\bar r^* \;\text{ is a function of }\, (\mathbf x_{1t},\ldots,\mathbf x_{Nt}) \;\text{ but not of }\, i.
+\]
+Hence the term $(\partial\mathcal{B}/\partial r^*)(r_t^*-\bar r^*)$ in
+\eqref{eq:taylor} is the \emph{same} at any date $t$ across all countries.
+
+In a panel regression with time fixed effects $\lambda_t$, any term that
+varies only across $t$ (and not across $i$) is exactly absorbed by $\lambda_t$.
+Substituting into \eqref{eq:taylor}, taking $\gamma_k^i\approx \gamma_k$ as a
+common slope at the world average BGP (with country-specific deviations
+absorbed in $\mu_i$), we obtain the structural regression equation
+\begin{empheq}[box=\fbox]{equation}
+b_{it}^{LR}=\gamma_y\,y_{it}+\gamma_\phi\,\phi_{it}+\gamma_{\phi^e}\,\mathbb{E}_t[\phi_{i,t+H}]+\gamma_{\omega^e}\,\mathbb{E}_t[\omega_{i,t+H}]+\gamma_{TFP}\,\tilde a_{it}+\gamma_D\,d_{it}^g+\mu_i+\lambda_t+\varepsilon_{it},
+\label{eq:structural-reg}
+\end{empheq}
+where:
+\begin{itemize}[noitemsep]
+\item $\mu_i\equiv \mathcal{B}(\bar{\cdot})-\sum_k \gamma_k\bar x_i^k$ absorbs time-invariant country-specific BGP deviations (including country-specific $g_i^Y$ scaling);
+\item $\lambda_t\equiv (\partial\mathcal{B}/\partial r^*)(r_t^*-\bar r^*)$ absorbs the world interest rate deviation and any other globally common shock;
+\item $\varepsilon_{it}$ captures higher-order linearisation error, country-specific slope deviations from $\gamma_k^i\approx\gamma_k$, and measurement error.
+\end{itemize}
+
+\Cref{eq:structural-reg} is the structural counterpart of the empirical
+specification estimated in \cref{sec:results} (forward reference to the
+empirical section). It is the empirical promise of the model: each
+$\gamma_k$ is interpretable as a partial derivative of $\mathcal{S}-\mathcal{I}$
+scaled by $(r^*-g^Y)^{-1}$, evaluated at the BGP. The within-time
+interpretation of $\hat\gamma_k$ in panel estimation is exactly licensed by
+Step (d).
+
+\subsection{Error-Correction Representation}\label{sec:theory:ecm}
+
+If $b_{it}$ and the regressors $(y_{it},\phi_{it},\ldots)$ are $I(1)$ and
+cointegrate via \eqref{eq:structural-reg}, the Granger representation theorem
+\citep{EngleGranger1987} delivers the error-correction (ECM) form
+\begin{equation}
+\Delta b_{it}=\rho_i\bigl[b_{i,t-1}-(\gamma_y y_{i,t-1}+\cdots+\gamma_D d_{i,t-1}^g+\mu_i+\lambda_t)\bigr]+\boldsymbol\beta_i^{\prime}\Delta\mathbf x_{it}+\zeta_{it},
+\label{eq:ecm}
+\end{equation}
+where:
+\begin{itemize}[noitemsep]
+\item $\rho_i\in(-1,0)$ is the country-$i$ \emph{adjustment speed} (this is
+the parameter previously denoted $\alpha_i$ and renamed to free $\alpha$ for
+the capital share);
+\item $\boldsymbol\beta_i$ collects short-run coefficients on first differences
+of the regressors;
+\item $\zeta_{it}$ is the short-run innovation.
+\end{itemize}
+The ECM additionally permits short-run regressors that are mean-reverting
+($I(0)$) and therefore enter \eqref{eq:ecm} but not the long-run
+\eqref{eq:structural-reg}. We allow two such regressors:
+$pb_{it}^{str}\equiv \tau_{it}-\phi_{it}tr_{it}$, the structural primary
+balance per efficiency worker (which is a flow, not a stock); and
+$\Delta\ln q_{it}$, the change in the real effective exchange rate (which is
+mean-reverting under PPP). Both are absent from \eqref{eq:structural-reg}
+because the long-run NIIP depends on the \emph{stock} of public debt $d^g$
+(not the primary-balance flow) and is invariant to nominal exchange rates.
+
+\subsection{Summary: Seven Structural Predictions}\label{sec:theory:summary}
+
+The model delivers seven testable structural predictions:
+
+\begin{enumerate}[noitemsep]
+\item $\gamma_y>0$: higher income per efficiency worker raises long-run NIIP.
+\item $\gamma_\phi<0$: a higher current dependency ratio lowers long-run NIIP.
+\item $\gamma_{\phi^e}>0$: anticipated future ageing raises long-run NIIP through precautionary saving by the young.
+\item $\gamma_{\omega^e}>0$: anticipated longer retirement durations raise long-run NIIP.
+\item $\gamma_{TFP}$: \emph{a priori} ambiguous; decomposed in \cref{sec:theory:appendix} into saving, investment, and GE channels.
+\item $\gamma_D\in(-(r^*-g^Y)^{-1},0)$: public debt lowers long-run NIIP, but \emph{less than one-for-one} (partial Ricardian offset; \cref{rem:ricardian}).
+\item Time fixed effects $\lambda_t$ absorb the world real interest rate
+$r_t^*$ and all global common shocks (\cref{cor:ge-spillover}, Step (d) of
+\cref{sec:theory:linearization}).
+\end{enumerate}
+
+These seven predictions map one-to-one onto the panel coefficients estimated
+in \cref{sec:results}.
+
+\subsection{Technical Appendix: TFP Decomposition}\label{sec:theory:appendix}
+
+The ambiguous sign of $\gamma_{TFP}$ in \cref{tab:signs} reflects three offsetting channels. Substituting \eqref{eq:S-function}--\eqref{eq:I-function} into the
+expression $\gamma_{TFP}^i=(r^*-g_i^Y)^{-1}\partial(\mathcal{S}-\mathcal{I})/\partial\tilde a$, and recognising that $r^*$ itself responds to global TFP through \cref{prop:cs-rstar}(iii),
+\begin{equation}
+\frac{db_i^{LR}}{d\tilde a_i}=\underbrace{\frac{1}{r^*-g_i^Y}\frac{\partial\mathcal{S}}{\partial\tilde a_i}}_{\text{(+) saving channel}}-\underbrace{\frac{1}{r^*-g_i^Y}\frac{\partial\mathcal{I}}{\partial\tilde a_i}}_{\text{(+) investment channel (\(-\) on \(b^{LR}\))}}+\underbrace{\frac{\partial\mathcal{B}}{\partial r^*}\frac{\partial r^*}{\partial\bar a}\eta_i}_{\text{(?) GE channel}}.
+\label{eq:tfp-decomp}
+\end{equation}
+The first term raises $b^{LR}$ (higher wages, more young saving); the second
+lowers it (higher MPK, more investment demand crowds out NFA); the third is
+the GE feedback through the world rate, weighted by country $i$'s world share
+$\eta_i$ and absorbed by $\lambda_t$ in the panel. Empirically, the second
+channel is expected to dominate in catching-up economies; the first dominates
+in mature, saving-rich economies.
+
+% End of theoretical_model.tex
