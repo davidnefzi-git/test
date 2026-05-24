@@ -292,6 +292,26 @@ cd paper && latexmk main.tex
 
 ## 5. Modifications du pipeline Python à implémenter
 
+**Version v9 (2026-05-24) :** la stratégie empirique v9 requiert cinq tables. Les Sections 5.1–5.6 couvrent les modifications v8 (T1 + T5). Les Sections 5.7–5.10 sont **nouvelles en v9** (T2 = matrice bilatérale, T3 = transactions légères, T4 = positions ouvertes).
+
+### Récapitulatif des cinq tables
+
+| Table | Niveau | Produite par | Taille estimée | Nécessité |
+|-------|--------|-------------|----------------|-----------|
+| **T1 — Agrégat cellule enrichi** | Cellule-jour | Boucle Python (modifiée 5.1–5.6) | ~500K lignes/an | ✅ v8 + VWAP |
+| **T2 — Matrice bilatérale directionnelle** | Secteur×Secteur×cellule-jour | Boucle Python (Section 5.7) | ~2M lignes/an | ✅ v9 critique |
+| **T3 — Transactions légères avec exp_dt** | Transaction individuelle | Boucle Python (Section 5.8) | ~50–200M lignes/an | ✅ CrossQE + TIB |
+| **T4 — Positions ouvertes dealer×date** | Dealer×jour | Job Spark séparé (Section 5.9) | ~10K lignes/an | ✅ UnmatchedLoad |
+| **T5 — Flux par LEI** | Banque×cellule-jour | Boucle Python (Section 5.5) | ~5M lignes/an | ✅ DomShare |
+
+**Réponse directe : faut-il travailler transaction par transaction ?**
+- **Oui pour :** CrossQE (exp_dt exact → T3 obligatoire) ; TIB transactionnel ; UnmatchedLoad (T4, générée depuis T3)
+- **Non pour :** Q^FB, DealerSupply, taker_ratio (T1 suffit) ; Flow_{s→r} (T2 suffit) ; DomShare (T5 suffit)
+
+**Point critique :** stocker T3 en **Parquet partitionné par eff_dt** — avec 50–200M transactions/an, le CSV est ingérable.
+
+---
+
 Voici les modifications concrètes à apporter au script Python existant pour combler les lacunes de données :
 
 ### 5.1 Section 2 — Taxonomie : ajouter le pays
@@ -381,7 +401,9 @@ df_agg_by_lei = (
 # append_csv(df_agg_by_lei.toPandas(), OUT_BY_LEI)
 ```
 
-### 5.6 Colonnes finales de `OUT_FINAL`
+### 5.6 Colonnes finales de `OUT_FINAL` (T1)
+
+
 
 ```python
 pdf_day = pdf_day[[
@@ -394,6 +416,161 @@ pdf_day = pdf_day[[
     "nb_prin", "prin_ratio",   # NOUVEAU
 ]]
 ```
+
+---
+
+### 5.7 Table 2 — Matrice bilatérale directionnelle (NOUVELLE v9)
+
+**Niveau :** `secteur_fournisseur × secteur_demandeur × paire × tenor_bucket × date`  
+**Objet :** `Flow_{s→r,m,t}` pour la décomposition bilatérale (Sections 8.2 et 13.3 du roadmap v9)
+
+Cette table requiert de ne **pas** symétriser la cellule `(cat_A, cat_B)`. Il faut conserver la direction : qui fournit les USD, qui les obtient.
+
+```python
+# Ajouter dans process_day(), après le bloc df_usd_resolved :
+df_bilateral = (
+    df_usd_resolved
+    .withColumn(
+        "sector_provider",
+        F.when(F.col("sign_cp_low_final") < 0, F.col("categorie_1"))
+         .otherwise(F.col("categorie_2"))
+    )
+    .withColumn(
+        "sector_demander",
+        F.when(F.col("sign_cp_low_final") > 0, F.col("categorie_1"))
+         .otherwise(F.col("categorie_2"))
+    )
+    .withColumn(
+        "country_provider",
+        F.when(F.col("sign_cp_low_final") < 0, F.col("country_1"))
+         .otherwise(F.col("country_2"))
+    )
+    .withColumn(
+        "country_demander",
+        F.when(F.col("sign_cp_low_final") > 0, F.col("country_1"))
+         .otherwise(F.col("country_2"))
+    )
+    .groupBy(
+        F.lit(date_str).alias("eff_dt"),
+        "pair_final", "tenor_bucket_final",
+        "sector_provider", "sector_demander",
+        "country_provider", "country_demander"
+    )
+    .agg(
+        F.sum(F.abs("usd_notional_M_final")).alias("flow_M"),
+        F.count("*").alias("nb_transactions"),
+        F.sum(F.col("fx_forward_rate") * F.abs("usd_notional_M_final")).alias("sum_fwd_x_vol"),
+        F.sum(F.when(F.col("sign_cp_low_final") > 0, F.lit(1))
+               .otherwise(F.lit(0))).alias("nb_taker")
+    )
+    .withColumn("vwap_forward", F.col("sum_fwd_x_vol") / F.col("flow_M"))
+    .withColumn("taker_ratio",  F.col("nb_taker") / F.col("nb_transactions"))
+    .drop("sum_fwd_x_vol")
+)
+# OUT_BILATERAL = f"daily_flows_bilateral_{PERIOD_SUFFIX}.csv"
+# append_csv(df_bilateral.toPandas(), OUT_BILATERAL)
+```
+
+**Lecture R :** cette table alimente directement `bilateral_flows.rds` dans `07_bilateral_decomposition.R`.
+
+---
+
+### 5.8 Table 3 — Transactions légères avec dates exactes (NOUVELLE v9)
+
+**Niveau :** transaction individuelle (après déduplication)  
+**Objet :** `CrossQE_ℓ = 1{near_ℓ ≤ QE_q < far_ℓ}` et construction de `Z^{S,QE}`
+
+**Point critique :** `exp_dt` exact est perdu dans l'agrégat journalier. Cette table est **indispensable** pour l'instrument d'offre.
+
+```python
+# Ajouter dans process_day(), extraire depuis df_usd_resolved :
+df_txn_light = (
+    df_usd_resolved
+    .select(
+        F.lit(date_str).alias("eff_dt"),          # date d'initiation
+        F.col("exp_dt").cast("string"),             # date d'expiration EXACTE
+        F.col("tenor_days"),                        # durée exacte en jours
+        F.col("tenor_bucket_final").alias("tenor_bucket"),
+        F.col("pair_final").alias("pair"),
+        F.col("cp_low_final").alias("lei_low"),     # LEI dealer potentiel
+        F.col("cp_high_final").alias("lei_high"),
+        F.col("categorie_1").alias("sector_low"),
+        F.col("categorie_2").alias("sector_high"),
+        F.col("usd_notional_M_final").alias("usd_notional_M"),
+        F.col("sign_cp_low_final").alias("sign_low"),  # +1 = cp_low obtient USD
+        F.col("fx_forward_rate"),
+        F.col("trading_capacity").alias("capacity_type"),  # PRIN/AGNT
+    )
+)
+# STOCKER EN PARQUET, pas CSV :
+# df_txn_light.write.mode("append").partitionBy("eff_dt") \
+#   .parquet(f"transactions_light_{PERIOD_SUFFIX}.parquet")
+```
+
+**Construction de CrossQE en R** (depuis `transactions_light.parquet`) :
+```r
+qe_dates <- as.Date(c("2024-12-31", "2025-03-31", "2025-06-30", ...))
+txn <- arrow::read_parquet("transactions_light.parquet")
+txn <- txn %>%
+  mutate(
+    exp_dt   = as.Date(exp_dt),
+    cross_qe = map2_lgl(as.Date(eff_dt), exp_dt, function(near, far) {
+      any(qe_dates >= near & qe_dates < far)
+    })
+  )
+```
+
+---
+
+### 5.9 Table 4 — Positions ouvertes par dealer × date (NOUVELLE v9)
+
+**Niveau :** dealer (LEI) × date d'observation  
+**Objet :** `UnmatchedLoad_{d,t}`, `NettingEfficiency_{d,t}` (Section 6 du roadmap v9)
+
+**Approche A — Job Spark post-hoc sur Table 3** (recommandée) :
+
+```python
+from pyspark.sql import functions as F
+import pandas as pd
+
+df_txn = spark.read.parquet("transactions_light.parquet")
+
+# Générer les dates d'observation
+all_dates = spark.createDataFrame(
+    [(d,) for d in pd.date_range("2024-10-01", "2026-04-30").strftime("%Y-%m-%d")],
+    ["obs_date"]
+).withColumn("obs_date", F.col("obs_date").cast("date"))
+
+# Cross-join : marquer les transactions actives à chaque date
+df_active = (
+    df_txn
+    .crossJoin(all_dates)
+    .filter(
+        (F.col("eff_dt").cast("date") <= F.col("obs_date")) &
+        (F.col("obs_date") < F.col("exp_dt").cast("date"))
+    )
+)
+
+# Positions ouvertes par dealer (LEI) × date
+df_open = (
+    df_active
+    .groupBy("obs_date", "lei_low")
+    .agg(
+        F.sum(F.when(F.col("sign_low") < 0, F.col("usd_notional_M"))
+               .otherwise(F.lit(0.0))).alias("usd_supplied_M"),
+        F.sum(F.when(F.col("sign_low") > 0, F.col("usd_notional_M"))
+               .otherwise(F.lit(0.0))).alias("usd_obtained_M"),
+    )
+    .withColumn("gross_load_M",      F.col("usd_supplied_M") + F.col("usd_obtained_M"))
+    .withColumn("matched_M",         F.least("usd_supplied_M", "usd_obtained_M"))
+    .withColumn("unmatched_load_M",  F.abs(F.col("usd_supplied_M") - F.col("usd_obtained_M")))
+    .withColumn("netting_efficiency",
+        F.lit(1.0) - F.col("unmatched_load_M") / F.col("gross_load_M"))
+)
+# df_open.write.parquet("dealer_open_positions.parquet")
+```
+
+**Note :** le cross-join est coûteux (~18M transactions × 550 jours = ~10B rows avant filtre). Utiliser des dates de partition et filtrer agressivement sur `exp_dt > eff_dt + 1`.
 
 ---
 
@@ -452,29 +629,49 @@ xelatex, biber, latexmk
 ### Priorité 1 — Données réelles (bloquant tout)
 
 1. **Enrichir `common_taxonomy.xlsx`** avec le pays via GLEIF (bulk download).
-2. **Appliquer les modifications Python** (Section 5) pour extraire `booking_location`, `taker_ratio`, `vwap_fx_forward`, `prin_ratio`, et la table par LEI.
-3. **Construire le TIB** : joindre les taux forward (issus du pipeline) avec les taux spot (Bloomberg/BCE) et les taux OIS pour calculer `PriceUSD_{m,t} = -TIB_{m,t}`.
-4. **Substituer dans `01_simulate_data.R`** : remplacer le bloc de simulation par une lecture des CSV issus du pipeline Python.
+2. **Appliquer les modifications Python v8** (Sections 5.1–5.6) : `booking_location`, `taker_ratio`, `vwap_fx_forward`, `prin_ratio`, table par LEI.
+3. **Appliquer les modifications Python v9** (Sections 5.7–5.9) :
+   - T2 : matrice bilatérale directionnelle (5.7)
+   - T3 : transactions légères avec `exp_dt` en Parquet (5.8)
+   - T4 : positions ouvertes dealer×date en job Spark séparé (5.9)
+4. **Construire le TIB** : joindre les taux forward (pipeline) avec taux spot (Bloomberg/BCE) et OIS.
+5. **Substituer dans `01_simulate_data.R`** : remplacer la simulation par une lecture des vrais fichiers.
 
-### Priorité 2 — Estimation (dès que les données sont disponibles)
+### Priorité 2 — Instrument d'offre (nouvelle — v9)
 
-5. **Calculer `DomShare_{i,m}`** à partir de la table par LEI : part de marché de chaque banque dans chaque cellule sur la période pré-traitement.
-6. **Construire l'instrument** `Z^MMF_{m,t} = Exposure^MMF_{m,t-1} × MMFOutflow_t`.
-7. **Exécuter `02_balance_tests.R`** en premier — c'est un prérequis à toute estimation IV.
-8. **Remplacer l'AKM approximé** par le package `ShiftShareSE` dans `04_iv_estimation.R`.
-9. **Remplacer le demand system OLS** par GMM joint dans `05_demand_system.R`.
+6. **Construire CrossQE** depuis T3 en R : pour chaque transaction, `cross_qe = any(qe_dates >= eff_dt & qe_dates < exp_dt)`.
+7. **Construire `s^pre_{d,m,τ}`** : part de marché prédéterminée des dealers depuis T5 (table par LEI filtrée sur dealers).
+8. **Construire `RegIntensity_d`** : baseline = `SnapshotDealer_d` (binaire juridiction de reporting).
+9. **Construire `Z^{S,QE}_{m,τ,t}`** = `CrossQE × Σ_d s^pre_{d,m,τ} × RegIntensity_d`.
+10. **Construire `UnmatchedLoad^pre_{d,-m}`** depuis T4, leave-one-market-out, normalisé par `GrossLoad`.
 
-### Priorité 3 — Paper
+### Priorité 3 — Estimation v8 (dès que données disponibles)
 
-10. **Mettre à jour les chiffres** dans `empirical_results.tex` et `fx_swap_seminar_talk.tex` (β, F-stat, etc.) avec les vraies estimations.
-11. **Rédiger `sections/introduction.tex`** — la section manquante la plus visible.
-12. **Assembler `paper/main.tex`** : connecter les `\input{}` vers les sections existantes.
-13. **Générer les figures PDF** en exécutant les scripts R sur vraies données.
+11. **Exécuter `02_balance_tests.R`** en premier (prérequis IV).
+12. **Calculer `DomShare_{i,m}`** pour l'instrument MMF depuis T5.
+13. **Construire `Z^D_{m,t}`** = `Exposure^MMF × MMFOutflow_t`.
+14. **Remplacer AKM approximé** par le package `ShiftShareSE`.
+15. **Remplacer demand system OLS** par GMM joint.
 
-### Priorité 4 — Extensions théoriques (valeur académique haute)
+### Priorité 4 — Estimation v9 (après instrument d'offre prêt)
 
-14. **Formaliser les deux équilibres** (annexe 4–6 pages) : montrer qu'un θ* existe tel que le bon équilibre (q_t élevé) et le mauvais équilibre (q_t → 0) coexistent pour les mêmes paramètres. Cela transforme P3 de "résultat théorique" en "résultat structurel calibrable".
-15. **Formaliser le problème de l'intermédiaire** : dealer se maximise sous contrainte de bilan → endogénéiser B_t → renforcer P2 de comptable à comportemental.
+16. **Exécuter la Section 11** de `04_iv_estimation.R` : premier étage offre (Z^S → DealerSupply).
+17. **Vérifier placebos** : Z^S ne doit pas prédire Q^FB (colonne 4 de `iv_supply_first_stage.tex`).
+18. **Exécuter la Section 12** : système simultané (2 instruments × 2 équations).
+19. **Exécuter la Section 13** : interaction θ_3 (hypothèse centrale).
+20. **Exécuter `07_bilateral_decomposition.R`** : spreads sectoriels, matrice bilatérale.
+
+### Priorité 5 — Paper
+
+21. **Mettre à jour les chiffres** dans `empirical_results.tex` et `fx_swap_seminar_talk.tex`.
+22. **Rédiger `sections/introduction.tex`** — section manquante la plus visible.
+23. **Assembler `paper/main.tex`** : connecter les `\input{}`.
+24. **Générer les figures PDF** en exécutant le pipeline sur vraies données.
+
+### Priorité 6 — Extensions théoriques
+
+25. **Formaliser les deux équilibres** (annexe 4–6 pages).
+26. **Formaliser le problème de l'intermédiaire** : dealer sous contrainte de bilan → endogénéiser B_t.
 
 ### Décisions en suspens (nécessitent arbitrage humain)
 

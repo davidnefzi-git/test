@@ -1,21 +1,21 @@
 ## =============================================================================
 ## Title:   00_master.R
 ## Author:  Data Engineer
-## Date:    2026-05-18
+## Date:    2026-05-24
 ## Purpose: Master script for the FX swap microstructure paper. Sources scripts
-##          01–06 in dependency order. This is the single entry point for the
-##          full analysis pipeline.
+##          01–07 in dependency order. Single entry point for full pipeline.
 ##
 ## Execution order and dependencies:
-##   01_simulate_data.R   — generate synthetic panel data (no dependencies)
-##   02_balance_tests.R   — balance tests (requires 01)
-##   03_descriptives.R    — summary statistics and figures (requires 01)
-##   04_iv_estimation.R   — IV estimation and robustness (requires 01)
-##   05_demand_system.R   — demand system estimation (requires 01)
-##   06_quality_checks.R  — data quality validation (requires 01)
+##   01_simulate_data.R          — synthetic panel data (no dependencies)
+##   02_balance_tests.R          — balance tests (requires 01)
+##   03_descriptives.R           — summary statistics and figures (requires 01)
+##   04_iv_estimation.R          — demand + supply IV, simultaneous system (req 01)
+##   05_demand_system.R          — demand system estimation (requires 01)
+##   06_quality_checks.R         — data quality validation (requires 01)
+##   07_bilateral_decomposition.R — bilateral flows, sector spreads (NEW v9, req 01)
 ##
 ## Inputs:  None (01_simulate_data.R generates all raw data)
-## Outputs: All outputs from scripts 01–06 (see individual script headers)
+## Outputs: All outputs from scripts 01–07 (see individual script headers)
 ## =============================================================================
 
 library(here)
@@ -50,6 +50,9 @@ source(here::here("scripts", "R", "05_demand_system.R"))
 
 message("\n--- Step 6: Quality checks ---")
 source(here::here("scripts", "R", "06_quality_checks.R"))
+
+message("\n--- Step 7: Bilateral decomposition (v9) ---")
+source(here::here("scripts", "R", "07_bilateral_decomposition.R"))
 
 message("\n=== Pipeline complete ===")
 message(sprintf("  Timestamp: %s", Sys.time()))

@@ -1,22 +1,27 @@
 ## =============================================================================
 ## Title:   04_iv_estimation.R
 ## Author:  Data Engineer
-## Date:    2026-05-18
-## Purpose: IV estimation for Parts 2–3 of the paper (Task 3).
-##          First stage, second stage, and interaction heterogeneity.
-##          Robustness: pre-trend diagnostic, AKM SEs, wild cluster bootstrap,
-##          DealerConstraint × year FE sensitivity (strategy memo Fix B3a/B3b).
+## Date:    2026-05-24
+## Purpose: IV estimation for Parts 2–5 of the paper.
+##          v8: demand IV (Z_MMF → Q_FB → mu_t), interactions, robustness.
+##          v9 additions: supply IV (Z_S_QE → DealerSupply → mu_t),
+##          simultaneous demand-supply system, interaction demand × scarcity,
+##          sectoral price spread analysis.
 ##          Sign convention: SignedUSDFlow > 0 = entity obtains USD.
 ##          Naming convention: B_cap = dealer capacity; B_agg = aggregate
 ##          demand slope (Sigma beta_s). Never use bare B.
 ## Inputs:  Output/fx_swap/panel_main.rds
 ##          Output/fx_swap/mmf_instrument.rds
+##          Output/fx_swap/supply_instrument.rds  (NEW v9)
 ##          Output/fx_swap/macro_ts.rds
 ## Outputs: paper/tables/iv_first_stage.tex
 ##          paper/tables/iv_second_stage.tex
 ##          paper/tables/iv_interactions.tex
 ##          paper/tables/pretrend_diagnostic.tex
 ##          paper/tables/iv_bootstrap.tex
+##          paper/tables/iv_supply_first_stage.tex   (NEW v9)
+##          paper/tables/iv_simultaneous_system.tex  (NEW v9)
+##          paper/tables/iv_demand_capacity_interaction.tex (NEW v9)
 ##          Output/fx_swap/iv_results.rds
 ## =============================================================================
 ## NOTE: set.seed() is called once in 00_master.R before this script is sourced.
@@ -39,12 +44,16 @@ dir.create(table_dir, recursive = TRUE, showWarnings = FALSE)
 
 panel   <- readRDS(file.path(out_dir, "panel_main.rds"))
 instr   <- readRDS(file.path(out_dir, "mmf_instrument.rds"))
+sinstr  <- readRDS(file.path(out_dir, "supply_instrument.rds"))
 macro   <- readRDS(file.path(out_dir, "macro_ts.rds"))
 
-# Merge instrument into panel
+# Merge instruments into panel
 est_data <- panel %>%
   left_join(instr %>% select(cell_id, date, Z_MMF, EPFR_shock,
                               DomShare_mmf, HHI, top3_share),
+            by = c("cell_id", "date")) %>%
+  left_join(sinstr %>% select(cell_id, date, Z_S_QE, Z_S_QE_gsib,
+                               DealerRegIntensity),
             by = c("cell_id", "date")) %>%
   left_join(macro %>% select(date, OIS_rate), by = "date") %>%
   arrange(cell_id, date) %>%
@@ -64,9 +73,15 @@ est_data <- panel %>%
     U_taker = taker_ratio * U_t,
     U_maker = (1 - taker_ratio) * U_t,
     # Interaction instruments (one per interaction endogenous regressor)
-    Z_MMF_x_DC = Z_MMF * DealerConstraint,
-    Z_MMF_x_QE = Z_MMF * QuarterEnd,
-    Z_MMF_x_3M = Z_MMF * (tenor == "3M")
+    Z_MMF_x_DC  = Z_MMF * DealerConstraint,
+    Z_MMF_x_QE  = Z_MMF * QuarterEnd,
+    Z_MMF_x_3M  = Z_MMF * (tenor == "3M"),
+    # Supply instrument interactions (v9)
+    Z_S_QE_na0  = replace(Z_S_QE, is.na(Z_S_QE), 0),
+    # Demand × supply product instrument for interaction θ_3 test
+    Z_D_x_S     = Z_MMF * replace(Z_S_QE, is.na(Z_S_QE), 0),
+    # Dealer scarcity = -DealerSupply (sign convention: scarcity > 0 when supply low)
+    Scarcity    = -DealerSupply
   ) %>%
   # Lagged instruments for pre-trend diagnostic (B3b)
   group_by(cell_id) %>%
@@ -498,7 +513,176 @@ writeLines(tex_boot, file.path(table_dir, "iv_bootstrap.tex"))
 message(sprintf("  Wild cluster bootstrap p-value: %.3f", p_boot))
 
 # ---------------------------------------------------------------------------
-# 11. Save results
+# 11. Supply instrument: first stage (NEW v9)
+# ---------------------------------------------------------------------------
+# Z^{S,QE} = CrossQE × DealerRegIntensity → DealerSupply
+# Prediction: π_S < 0 (supply-side instrument contracts dealer supply)
+
+supply_data <- est_data %>% filter(!is.na(Z_S_QE))
+
+# First stage: supply instrument → DealerSupply
+fs_supply <- feols(
+  DealerSupply ~ Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+# First stage: supply instrument → DealerShare (alternative outcome)
+fs_dealer_share <- feols(
+  DealerShare ~ Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+# First stage: supply instrument → InterdealerShare
+fs_id_share <- feols(
+  InterdealerShare ~ Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+# Cross-validation: supply instrument should NOT predict FB demand strongly
+fs_supply_on_demand <- feols(
+  U_t ~ Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+tex_fs_supply <- c(
+  "\\begin{tabular}{lcccc}",
+  "  \\toprule",
+  "  & \\textbf{(1)} & \\textbf{(2)} & \\textbf{(3)} & \\textbf{(4)} \\\\",
+  "  & \\textbf{DealerSupply} & \\textbf{DealerShare} & \\textbf{IDShare} & \\textbf{$Q^{FB}$ (placebo)} \\\\",
+  "  \\midrule",
+  coef_se_rows(list(fs_supply, fs_dealer_share, fs_id_share, fs_supply_on_demand),
+               "Z_S_QE_na0", "$Z^{S,QE}$"),
+  coef_se_rows(list(fs_supply, fs_dealer_share, fs_id_share, fs_supply_on_demand),
+               "OIS_rate", "OIS rate"),
+  "  \\midrule",
+  sprintf("  Observations & %d & %d & %d & %d \\\\",
+          nobs(fs_supply), nobs(fs_dealer_share), nobs(fs_id_share),
+          nobs(fs_supply_on_demand)),
+  "  Cell FE & Yes & Yes & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes & Yes & Yes \\\\",
+  "  \\multicolumn{5}{l}{\\textit{Notes: Column (4) is a placebo test: $Z^{S,QE}$ should not predict FB demand.}} \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tex_fs_supply, file.path(table_dir, "iv_supply_first_stage.tex"))
+message("  Supply instrument first stage saved.")
+
+# ---------------------------------------------------------------------------
+# 12. Simultaneous demand-supply system (NEW v9)
+# ---------------------------------------------------------------------------
+# Reduced form: two equations × two instruments
+# Eq 1: Q^FB_{m,t} ~ α_m + δ_t + π_D Z^D + π_S Z^S + Γ X
+# Eq 2: DealerSupply_{m,t} ~ α_m + δ_t + ρ_D Z^D + ρ_S Z^S + Γ X
+# Test: π_D > 0, ρ_S < 0 (instruments affect correct side of market)
+
+rf_demand_eq <- feols(
+  U_t ~ Z_MMF + Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+rf_supply_eq <- feols(
+  DealerSupply ~ Z_MMF + Z_S_QE_na0 + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+# Structural second stage: mu_t ~ α + β_D Q̂_FB + β_S Scarcityhat + controls
+# Two endogenous: U_t and Scarcity; two instruments: Z_MMF and Z_S_QE
+ss_system <- feols(
+  mu_t ~ OIS_rate | cell_id + date |
+    U_t + Scarcity ~ Z_MMF + Z_S_QE_na0,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+tex_sim <- c(
+  "\\begin{tabular}{lccc}",
+  "  \\toprule",
+  "  & \\textbf{(1)} & \\textbf{(2)} & \\textbf{(3)} \\\\",
+  "  & \\textbf{$Q^{FB}$ (RF)} & \\textbf{DealerSupply (RF)} & \\textbf{$\\mu_t$ (Structural)} \\\\",
+  "  \\midrule",
+  "  \\multicolumn{4}{l}{\\textit{Panel A: Instruments}} \\\\[2pt]",
+  coef_se_rows(list(rf_demand_eq, rf_supply_eq, NULL), "Z_MMF$", "$Z^D$ (MMF)"),
+  coef_se_rows(list(rf_demand_eq, rf_supply_eq, NULL), "Z_S_QE_na0", "$Z^S$ (QE $\\times$ dealer)"),
+  "  \\midrule",
+  "  \\multicolumn{4}{l}{\\textit{Panel B: Structural second stage}} \\\\[2pt]",
+  coef_se_rows(list(NULL, NULL, ss_system), "fit_U_t$", "$\\hat{Q}^{FB}$ (IV demand)"),
+  coef_se_rows(list(NULL, NULL, ss_system), "fit_Scarcity", "$\\hat{\\text{Scarcity}}$ (IV supply)"),
+  "  \\midrule",
+  sprintf("  Observations & %d & %d & %d \\\\",
+          nobs(rf_demand_eq), nobs(rf_supply_eq), nobs(ss_system)),
+  "  Cell FE & Yes & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes & Yes \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tex_sim, file.path(table_dir, "iv_simultaneous_system.tex"))
+message("  Simultaneous demand-supply system saved.")
+
+# ---------------------------------------------------------------------------
+# 13. Interaction demand × capacity scarcity (NEW v9, hypothesis θ_3 > 0)
+# ---------------------------------------------------------------------------
+# Structural form: mu_t ~ β_D Q̂_FB + β_C (Q̂_FB × Scarcity) + controls
+# Reduced form: mu_t ~ θ_1 Z^D + θ_2 Z^S + θ_3 (Z^D × Z^S) + controls
+# Central prediction: θ_3 > 0 (demand shock has larger price impact when
+#   dealer capacity is scarce)
+
+# Reduced-form interaction test (cleaner identification)
+rf_interaction <- feols(
+  mu_t ~ Z_MMF + Z_S_QE_na0 + Z_D_x_S + OIS_rate | cell_id + date,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+# Structural interaction: Q̂_FB × Scarcity (using predicted values from system)
+# First, get fitted demand from the first stage
+demand_hat  <- fitted(feols(U_t ~ Z_MMF + Z_S_QE_na0 + OIS_rate | cell_id + date,
+                             data = supply_data))
+supply_data2 <- supply_data[seq_along(demand_hat), ] %>%
+  mutate(U_hat = demand_hat,
+         U_hat_x_Scarcity = U_hat * Scarcity)
+
+ss_interaction <- feols(
+  mu_t ~ OIS_rate | cell_id + date |
+    U_t + I(U_t * Scarcity) ~ Z_MMF + Z_D_x_S,
+  data    = supply_data,
+  cluster = ~cell_id + date
+)
+
+tex_int_cap <- c(
+  "\\begin{tabular}{lcc}",
+  "  \\toprule",
+  "  & \\textbf{(1) Reduced form} & \\textbf{(2) Structural} \\\\",
+  "  & \\textbf{$\\mu_t$} & \\textbf{$\\mu_t$} \\\\",
+  "  \\midrule",
+  "  \\multicolumn{3}{l}{\\textit{Panel A: Demand and supply terms}} \\\\[2pt]",
+  coef_se_rows(list(rf_interaction, ss_interaction), "Z_MMF$|fit_U_t$",
+               "$Z^D$ / $\\hat{Q}^{FB}$"),
+  coef_se_rows(list(rf_interaction, ss_interaction), "Z_S_QE_na0|fit_Scarcity",
+               "$Z^S$ / $\\hat{\\text{Scarcity}}$"),
+  "  \\midrule",
+  "  \\multicolumn{3}{l}{\\textit{Panel B: Interaction term ($\\theta_3 > 0$ predicted)}} \\\\[2pt]",
+  coef_se_rows(list(rf_interaction, ss_interaction), "Z_D_x_S|Scarcity",
+               "$Z^D \\times Z^S$ / $\\hat{Q}^{FB} \\times$ Scarcity"),
+  "  \\midrule",
+  sprintf("  Observations & %d & %d \\\\",
+          nobs(rf_interaction), nobs(ss_interaction)),
+  "  Cell FE & Yes & Yes \\\\",
+  "  Date FE & Yes & Yes \\\\",
+  "  \\multicolumn{3}{l}{\\textit{Notes: Column (2) instruments $Q^{FB} \\times$ Scarcity with $Z^D \\times Z^S$.}} \\\\",
+  "  \\bottomrule",
+  "\\end{tabular}"
+)
+writeLines(tex_int_cap, file.path(table_dir, "iv_demand_capacity_interaction.tex"))
+message("  Demand × capacity interaction saved.")
+
+# ---------------------------------------------------------------------------
+# 14. Save results
 # ---------------------------------------------------------------------------
 
 iv_results <- list(
@@ -508,6 +692,18 @@ iv_results <- list(
                          quarter_end       = int_qe,
                          tenor             = int_tenor,
                          dc_yrfe_sensitivity = int_dc_yrfe),
+  # NEW v9
+  supply_iv      = list(
+    first_stage_supply     = fs_supply,
+    first_stage_share      = fs_dealer_share,
+    first_stage_id_share   = fs_id_share,
+    placebo_demand         = fs_supply_on_demand,
+    reduced_form_demand    = rf_demand_eq,
+    reduced_form_supply    = rf_supply_eq,
+    structural_system      = ss_system,
+    interaction_rf         = rf_interaction,
+    interaction_structural = ss_interaction
+  ),
   robustness     = list(
     pretrend     = list(lag1 = pt1, lag2 = pt2, lag3 = pt3, joint = pt_joint),
     akm_se       = akm_se,
