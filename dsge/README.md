@@ -1,0 +1,122 @@
+# DSGE composition-layer prototype
+
+A working test of a composition design for a structural-model library. It assembles the basic New Keynesian model of
+Galí (2015, ch. 3) from a classical core plus two blocks, rather than writing it as one
+file, and verifies the result against closed-form solutions.
+
+Written from the textbook equations. No third-party replication file is reproduced, so
+nothing here carries another project's licence.
+
+## Why this model
+
+The simplest canonical case. Its solution for a monetary policy shock is known in closed
+form, so the assembler can be checked exactly instead of to a transcribed decimal; and it
+nests the classical model, so the nesting test has a known target. If the design fails
+here, nothing larger is worth attempting.
+
+## Result
+
+```
+$ python -m modellib golden nk-gali-2015-ch3
+  [pass] nk-monetary-impact-output-gap                 analytic  expected -1.036340316   got -1.036340316
+  [pass] nk-monetary-impact-inflation                  analytic  expected -0.3522873023  got -0.3522873023
+  [pass] nk-monetary-impact-output-gap-alt-calibration analytic  expected -0.2476190476  got -0.2476190476
+  [pass] classical-monetary-impact-inflation           analytic  expected -1             got -1
+  [pass] classical-monetary-neutrality                 analytic  expected 0              got 0
+  [pass] calvo-prices-nesting                          nesting   expected -0.2525        got -0.2525462687
+
+$ python -m pytest -q
+16 passed
+```
+
+The composed model reproduces the closed form to twelve significant figures, at the
+default calibration and at a second one chosen to rule out coincidence.
+
+## What each file contains, and what it is for
+
+| File | Contents | Use |
+|---|---|---|
+| `schema/component.schema.json` | JSON Schema for a component (friction block) manifest: `provides`, `requires`, `replaces`, `depends_on`, `incompatible_with`, `nesting_target`, `minimum_perturbation_order`, and per-parameter `prior`. | The proposed new artefact type. A block has no equilibrium, no welfare and no verification tier, so `manifest.schema.json` cannot describe it honestly. |
+| `taxonomy/variables.yaml` | The canonical variable namespace: symbol, definition, units, and `timing`. | Composition presupposes that blocks written by different hands connect. `timing` is the decisive field: a block that disagrees on whether a stock is predetermined assembles without error and produces wrong dynamics. |
+| `components/core-nk-classical/` | The core: Euler equation, natural rate, two exogenous processes, and the flexible-price pricing condition. Five equations for six variables. | Deliberately not closed on its own. The sixth equation is whatever policy block closes the nominal side, which is why `Composition("core-nk-classical")` raises. |
+| `components/calvo-prices/` | Calvo (1983) price setting. Introduces no variable; replaces the core's pricing equation by the Phillips curve. Carries priors and a `nesting_target`. | The worked example of the `provides` / `requires` / `replaces` pattern. |
+| `components/rotemberg-prices/` | Rotemberg (1982) pricing, declared `incompatible_with: [calvo-prices]`. | Present only to exercise the incompatibility check. Equivalent to Calvo at first order, not beyond, hence a mutually exclusive variant and never an alias. |
+| `components/taylor-rule/` | Interest rate rule, with priors on `phi_pi` and `phi_x`. | The policy block that closes the core. |
+| `modellib/compose.py` | The assembler: loads components, runs the four composition checks, resolves derived parameters in dependency order, and builds the coefficient matrices from the declarative equations. | The core of the design. Its job is to refuse to assemble a model that is not well posed. |
+| `modellib/lre.py` | First-order solution of `A2 E y(+1) + A0 y + A1 y(-1) + B eps = 0` by iteration on the policy function, with explicit failure on non-convergence or instability. | Deliberately small. A silently wrong solution is the worst outcome for a library whose purpose is verified numbers. |
+| `modellib/golden.py` | Golden-target runner for two new target kinds: `analytic` (expected value as a closed form in the model's parameters) and `nesting`. | Both kinds are absent from the current repository format and both are required. |
+| `models/nk-gali-2015-ch3/manifest.yaml` | The model entry. Replaces `model.py` by a `composition` block, and carries `common_variable_map`, structured `solver` settings, a declared `shocks` list, and `verification.tier: composed`. | Shows the five model-manifest changes in use rather than in prose. |
+| `models/nk-gali-2015-ch3/golden/targets.yaml` | Six targets: five analytic, one nesting. | What verification looks like for a model you assembled, which has no paper of its own. |
+| `tests/test_composition.py` | Ten tests, most of them negative controls. | The checks that must fail: unclosed composition, missing policy block, two pricing blocks, a friction block used as a core, an unknown parameter, a violated Taylor principle. |
+| `tests/test_golden.py` | One test per golden target. | Mirrors the existing repository's `tests/test_golden.py`. |
+
+## The four composition checks
+
+A composition that is not closed, or that is doubly determined, otherwise solves without
+complaint and yields dynamics that mean nothing. That silent failure is the whole reason
+the interface fields exist. The assembler refuses when:
+
+1. a required variable is provided by no included component;
+2. two components provide the same variable;
+3. two components replace the same equation;
+4. the number of equations differs from the number of endogenous variables.
+
+Each refusal names what is wrong:
+
+```
+Composition("core-nk-classical", ["calvo-prices"])
+  -> composition is not closed: 5 equations for 6 endogenous variables (a, i, pi, rn, v, x)
+
+Composition("core-nk-classical", ["calvo-prices", "rotemberg-prices", "taylor-rule"])
+  -> components 'calvo-prices' and 'rotemberg-prices' are declared incompatible
+```
+
+## The nesting test
+
+A model you assembled has no article, so `reproduces_paper` is unavailable. The honest
+substitute: drive the friction parameter to its limit and require the composed model to
+return to the core's own solution.
+
+`calvo-prices` declares `theta_p -> 0`. Two things are checked, not one. That the output
+gap response converges to the classical value of zero, and that it does so at the rate
+implied analytically,
+
+```
+lim (x / theta_p) = -(1 - beta*rho_v) / (Theta * (sigma + (varphi+alpha)/(1-alpha)) * (phi_pi - rho_v))
+```
+
+which the prototype matches to four significant figures at `theta_p = 1e-4`
+(`-0.2525463` against `-0.2525`). Convergence alone would let a sign error or a
+mis-stated timing convention through; the rate check will not.
+
+## What this prototype does not do
+
+Stated plainly, because the gap between it and a usable library is the real question.
+
+- **Log-linear equations only.** Blocks carry already-linearised equations. A real
+  library needs the nonlinear equations plus a steady-state solver, otherwise second
+  order, welfare and `minimum_perturbation_order` are unreachable. This is the largest
+  remaining decision, and it is where Dynare or a symbolic steady state must be chosen.
+- **No estimation.** The `prior` fields are declared and validated but nothing samples
+  from them. The data contract (observables, transformations, sample, hashes) is not
+  implemented.
+- **One core, three blocks.** The checks generalise; the equation representation will
+  need more work for blocks that introduce variables and equations together, such as
+  the financial accelerator.
+- **A toy solver.** Iteration on the policy function is adequate for six equations and
+  is validated against the closed form here. It is not a substitute for a QZ-based
+  solver on a medium-scale model.
+
+## Running it
+
+```bash
+pip install -e ".[dev]"
+python -m pytest -q
+python -m modellib golden nk-gali-2015-ch3
+python -m modellib describe core-nk-classical calvo-prices taylor-rule
+python -m modellib describe core-nk-classical taylor-rule          # the classical limit
+python -m modellib irf core-nk-classical calvo-prices taylor-rule
+```
+
+Dependencies: `numpy`, `sympy`, `pyyaml`, and `pytest` for the tests. No MATLAB, no
+Dynare, no network access.

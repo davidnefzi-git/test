@@ -1,0 +1,30 @@
+# Canonical variable namespace for the monetary-dsge family.
+# Composition requires that blocks written by different hands connect. The decisive
+# field is `timing`: a block that disagrees with another on whether a stock is
+# predetermined will assemble without error and produce wrong dynamics.
+# All variables are log-deviations from the non-stochastic steady state unless stated.
+
+x:
+  description: Output gap
+  units: log deviation from the natural (flexible-price) level
+  timing: contemporaneous
+pi:
+  description: Inflation, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+i:
+  description: Nominal policy rate, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+rn:
+  description: Natural rate of interest
+  units: log deviation
+  timing: contemporaneous
+a:
+  description: Total factor productivity
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+v:
+  description: Monetary policy shock process
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)

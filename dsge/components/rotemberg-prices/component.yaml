@@ -1,0 +1,53 @@
+id: rotemberg-prices
+kind: friction
+friction: Quadratic cost of changing prices
+citation:
+  authors: [Rotemberg]
+  year: 1982
+  title: "Sticky Prices in the United States"
+  journal: "Journal of Political Economy 90(6), 1187-1211"
+  doi: 10.1086/261117
+
+# Present only to exercise the incompatibility check. Equivalent to Calvo at first
+# order, not beyond (Born and Pfeifer): hence a mutually exclusive variant, never an alias.
+variables:
+  provides: []
+  requires: [x, pi]
+
+parameters:
+  - name: phi_p
+    description: Price adjustment cost parameter
+    default: 58.25
+    range: [0.0, 500.0]
+    method: calibrated
+    source: "Chosen to match the Calvo slope at first order"
+  - name: epsilon_r
+    description: Elasticity of substitution across goods (declared by this block, not borrowed)
+    default: 9.0
+    range: [2.0, 20.0]
+    method: calibrated
+    source: "Matches the Calvo calibration for comparability"
+  - name: kappa_r
+    description: Slope of the Phillips curve under Rotemberg pricing
+    default: null
+    method: derived
+    source: "Rotemberg (1982); see Born and Pfeifer for the mapping"
+    formula: "(epsilon_r - 1) / phi_p"
+
+equations:
+  - id: nkpc-rotemberg
+    expr: "pi - beta*pi(+1) - kappa_r*x"
+    description: Phillips curve under a quadratic price adjustment cost
+
+
+replaces: [core-nk-classical.flex-price-output]
+incompatible_with: [calvo-prices]
+compatible_cores: [core-nk-classical]
+minimum_perturbation_order: 1
+nesting_target:
+  parameter: phi_p
+  limit: infinity
+  recovers: "core-nk-classical + taylor-rule"
+  statement: "An infinite adjustment cost is not the frictionless limit; phi_p tending to zero is. Recorded here to show that the limit must be stated per block, not assumed."
+  tolerance: 1.0e-6
+  pathological: false

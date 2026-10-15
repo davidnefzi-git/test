@@ -1,0 +1,88 @@
+id: nk-gali-2015-ch3
+name: Basic New Keynesian model (Gali 2015, chapter 3)
+family: monetary-dsge
+summary: >
+  The three-equation New Keynesian model, assembled from a classical core, a Calvo
+  price-setting block and an interest rate rule rather than written as one file. Present
+  in this prototype to test the composition machinery on the simplest canonical case:
+  if the assembler cannot reproduce this model's closed-form solution, nothing larger
+  is worth attempting.
+
+citation:
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., ch. 3"
+  journal: "Princeton University Press"
+  doi: null
+
+# What replaces model.py: the model is a composition, not a file.
+composition:
+  core: core-nk-classical
+  blocks: [calvo-prices, taylor-rule]
+
+economics:
+  question: How does a monetary policy shock move output and inflation under staggered price setting?
+  time: dynamic-stochastic
+  uncertainty: aggregate
+  open_economy: false
+  agents: [representative household, monopolistically competitive firms, central bank]
+  equilibrium: symmetric monopolistically competitive equilibrium, log-linearised about the zero-inflation steady state
+  frictions: [staggered price setting]
+  mechanisms: [nominal-rigidity]
+  policy_instruments: [nominal interest rate]
+  calibration_region: null
+
+common_variable_map:
+  # The Macroeconomic Model Data Base convention: the model keeps its own names and
+  # declares the mapping, rather than being rewritten into a common namespace.
+  outputgap: x
+  inflationq: pi
+  interest: i
+
+interface:
+  tiers: [solve, irf]
+  common_variables: [output_gap, inflation, policy_rate]
+
+solver:
+  algorithm: iteration on the linear policy function
+  perturbation_order: 1
+  pruning: false
+  steady_state_method: analytic (zero inflation, written directly in log deviations)
+  tolerances: {policy_function: 1.0e-14}
+  implementation: python-native
+  original_language: null
+  runtime_seconds: 0.4
+
+shocks:
+  - id: eps_v
+    description: Monetary policy shock
+    normalisation: one unit, positive is contractionary
+  - id: eps_a
+    description: Technology shock
+    normalisation: one unit
+
+verification:
+  tier: composed
+  reviewed_by: null
+  notes: >
+    Verified against closed-form solutions rather than against transcribed table cells.
+    The two analytic targets are the impact responses of the output gap and of inflation
+    to a monetary policy shock, which hold at every calibration, and a third target
+    checks the classical composition's inflation response. The nesting target drives
+    theta_p towards zero and requires the composed model to return to the classical
+    solution at the analytically implied rate.
+  open_questions:
+    - "Figure-based targets from the book's IRF charts are not transcribed here: the closed forms are stronger and the figures add nothing."
+    - "Second-order solution not implemented, so welfare comparisons are out of scope for this prototype."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the textbook equations"
+  redistributable: true
+  permission_note: >
+    No third-party file is reproduced. The equations are standard textbook results and
+    are implemented here from the published statements, not copied from any replication
+    package. Nothing in this entry carries another project's licence.
+  ingested_by: Claude
+  ingested_on: "2026-10-15"
