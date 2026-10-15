@@ -1,0 +1,78 @@
+id: calvo-prices
+kind: friction
+friction: Staggered price setting with a constant reset probability
+citation:
+  authors: [Calvo]
+  year: 1983
+  title: "Staggered Prices in a Utility-Maximizing Framework"
+  journal: "Journal of Monetary Economics 12(3), 383-398"
+  doi: 10.1016/0304-3932(83)90060-0
+
+variables:
+  # This block introduces no new variable: it replaces the core's pricing equation by
+  # the Phillips curve, determining the same variables through a different mechanism.
+  provides: []
+  requires: [x, pi]
+
+parameters:
+  - name: theta_p
+    symbol: "θ"
+    description: Probability that a price is NOT reset in a given quarter
+    default: 0.75
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.75 (average price duration of one year)"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.1]
+      bounds: [0.0, 0.95]
+      fixed: false
+  - name: epsilon_p
+    symbol: "ε"
+    description: Elasticity of substitution across goods
+    default: 9.0
+    range: [2.0, 20.0]
+    method: calibrated
+    source: "Gali (2015) ch. 3 (implies a steady-state markup of 1.125)"
+  - name: Theta
+    description: Decreasing-returns correction in the slope of the Phillips curve
+    default: null
+    method: derived
+    source: "Gali (2015) ch. 3, definition of Theta"
+    formula: "(1 - alpha) / (1 - alpha + alpha*epsilon_p)"
+  - name: lambda_p
+    description: Calvo reset term in the slope of the Phillips curve
+    default: null
+    method: derived
+    source: "Gali (2015) ch. 3, definition of lambda"
+    formula: "((1 - theta_p)*(1 - beta*theta_p)/theta_p) * Theta"
+  - name: kappa
+    symbol: "κ"
+    description: Slope of the New Keynesian Phillips curve
+    default: null
+    method: derived
+    source: "Gali (2015) ch. 3, definition of kappa"
+    formula: "lambda_p * (sigma + (varphi + alpha)/(1 - alpha))"
+
+equations:
+  - id: nkpc
+    expr: "pi - beta*pi(+1) - kappa*x"
+    description: New Keynesian Phillips curve
+    source: "Gali (2015) ch. 3, inflation dynamics"
+
+replaces: [core-nk-classical.flex-price-output]
+incompatible_with: [rotemberg-prices]
+compatible_cores: [core-nk-classical]
+minimum_perturbation_order: 1
+solution_requirement: "First order suffices for dynamics; second order is needed for welfare."
+nesting_target:
+  parameter: theta_p
+  limit: 0
+  recovers: "core-nk-classical + taylor-rule"
+  statement: >
+    As theta_p tends to zero the Phillips curve becomes vertical, the output gap
+    returns to zero at every date, and the composed model must reproduce the
+    classical model's response to a monetary shock: real neutrality, with inflation
+    still determined by the policy rule. The convergence is of order theta_p.
+  tolerance: 1.0e-6
+  pathological: false

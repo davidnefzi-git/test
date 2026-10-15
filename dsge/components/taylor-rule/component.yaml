@@ -1,0 +1,46 @@
+id: taylor-rule
+kind: policy
+friction: null
+citation:
+  authors: [Taylor]
+  year: 1993
+  title: "Discretion versus Policy Rules in Practice"
+  journal: "Carnegie-Rochester Conference Series on Public Policy 39, 195-214"
+  doi: 10.1016/0167-2231(93)90009-L
+
+variables:
+  provides: []
+  requires: [i, pi, x, v]
+
+parameters:
+  - name: phi_pi
+    description: Response of the policy rate to inflation
+    default: 1.5
+    range: [1.001, 3.0]
+    method: estimated
+    source: "Taylor (1993); Gali (2015) ch. 3 uses 1.5"
+    prior:
+      family: normal
+      hyperparameters: [1.5, 0.25]
+      bounds: [1.001, null]
+      fixed: false
+  - name: phi_x
+    description: Response of the policy rate to the output gap, quarterly
+    default: 0.125
+    range: [0.0, 1.0]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.5/4 = 0.125"
+    prior:
+      family: normal
+      hyperparameters: [0.125, 0.05]
+      bounds: [0.0, null]
+      fixed: false
+
+equations:
+  - id: policy-rule
+    expr: "i - phi_pi*pi - phi_x*x - v"
+    description: Interest rate rule with no smoothing
+    source: "Gali (2015) ch. 3, eq. for the interest rate rule"
+
+compatible_cores: [core-nk-classical]
+incompatible_with: []

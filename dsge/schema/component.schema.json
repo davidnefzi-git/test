@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dsge-composition/component.schema.json",
+  "title": "Component (friction block) manifest",
+  "description": "A component is NOT a model: it has no equilibrium, no welfare and no verification tier of its own, so manifest.schema.json cannot describe it honestly. The fields that make composition checkable are provides, requires and replaces.",
+  "type": "object",
+  "required": ["id", "kind", "citation", "variables", "parameters", "equations"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
+    "kind": {
+      "enum": ["core", "friction", "assumption", "policy", "measurement"],
+      "description": "assumption = a maintained assumption that friction blocks replace (it has no friction parameter); core = the skeleton other blocks mount on"
+    },
+    "friction": {"type": "string", "description": "One line: the friction introduced. Omitted for kind=core and kind=assumption."},
+    "citation": {
+      "type": "object",
+      "required": ["authors", "year", "title"],
+      "properties": {
+        "authors": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "year": {"type": "integer"},
+        "title": {"type": "string"},
+        "journal": {"type": ["string", "null"]},
+        "doi": {"type": ["string", "null"]}
+      }
+    },
+    "variables": {
+      "type": "object",
+      "required": ["provides", "requires"],
+      "properties": {
+        "provides": {"type": "array", "items": {"type": "string"},
+          "description": "Endogenous variables this component introduces. Names must exist in taxonomy/variables.yaml."},
+        "requires": {"type": "array", "items": {"type": "string"},
+          "description": "Variables used but introduced elsewhere. Composition fails if no included component provides one."}
+      }
+    },
+    "shocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "normalisation"],
+        "properties": {
+          "id": {"type": "string"},
+          "description": {"type": "string"},
+          "normalisation": {"type": "string", "description": "e.g. 'one unit', 'one standard deviation', '25 basis points annualised'"}
+        }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "default", "method", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string"},
+          "symbol": {"type": "string"},
+          "description": {"type": "string"},
+          "default": {},
+          "range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
+          "method": {"enum": ["calibrated", "estimated", "normalisation", "data", "assumed", "derived"]},
+          "source": {"type": "string"},
+          "prior": {
+            "type": "object",
+            "description": "Required when method = estimated. The largest omission of the current model manifest.",
+            "required": ["family", "hyperparameters"],
+            "properties": {
+              "family": {"enum": ["beta", "gamma", "inv_gamma", "normal", "uniform", "fixed"]},
+              "hyperparameters": {"type": "array", "items": {"type": "number"}},
+              "bounds": {"type": "array", "items": {"type": ["number", "null"]}, "minItems": 2, "maxItems": 2},
+              "fixed": {"type": "boolean"}
+            }
+          },
+          "formula": {"type": "string", "description": "Required when method = derived: how the parameter is built from others."}
+        }
+      }
+    },
+    "equations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "expr", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "description": "Unique within the component. Referenced as <component-id>.<equation-id> by `replaces`."},
+          "expr": {"type": "string", "description": "Linear expression equal to zero. x(+1) is a lead, x(-1) a lag, x the current value."},
+          "description": {"type": "string"},
+          "source": {"type": "string", "description": "Equation number in the cited article."}
+        }
+      }
+    },
+    "replaces": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Fully qualified equation ids this component removes, e.g. core-nk-classical.flex-price-output. Two included components replacing the same equation is a composition error."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Component ids that must also be included (indexation blocks modify another block rather than standing alone)."
+    },
+    "incompatible_with": {"type": "array", "items": {"type": "string"}},
+    "compatible_cores": {"type": "array", "items": {"type": "string"}},
+    "minimum_perturbation_order": {
+      "type": "integer", "minimum": 1,
+      "description": "Recursive preferences and stochastic volatility have no effect at first order. A block solved below its required order runs and means nothing."
+    },
+    "solution_requirement": {"type": "string"},
+    "nesting_target": {
+      "type": "object",
+      "description": "The verification analogue of reproduces_paper for a block that has no paper of its own: at this parameter limit the block must vanish and the composed model must reproduce the core's own numbers.",
+      "required": ["parameter", "limit", "recovers", "tolerance"],
+      "properties": {
+        "parameter": {"type": "string"},
+        "limit": {"type": ["number", "string"]},
+        "recovers": {"type": "string", "description": "The composition (without this block) whose solution must be recovered."},
+        "statement": {"type": "string"},
+        "tolerance": {"type": "number"},
+        "pathological": {"type": "boolean", "description": "True when the limit is a degenerate case rather than a valid nesting test (e.g. soe-closure, whose limit reintroduces a unit root)."}
+      }
+    }
+  }
+}

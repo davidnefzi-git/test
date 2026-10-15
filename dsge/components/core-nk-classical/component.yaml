@@ -1,0 +1,111 @@
+id: core-nk-classical
+kind: core
+citation:
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., ch. 3"
+  journal: MIT Press
+  doi: null
+
+# The skeleton: household Euler equation, the natural rate, the exogenous processes,
+# and the flexible-price pricing condition. The last of these is the equation a
+# price-setting friction replaces; that is what makes this a core rather than a model.
+variables:
+  # `provides` lists the endogenous variables this component introduces. The core owns
+  # all of them. It is deliberately NOT closed on its own: five equations for six
+  # variables, the sixth equation being whatever policy block closes the nominal side.
+  provides: [x, pi, i, rn, a, v]
+  requires: []
+
+shocks:
+  - id: eps_a
+    description: Technology shock
+    normalisation: one unit
+  - id: eps_v
+    description: Monetary policy shock
+    normalisation: one unit (a positive value is contractionary)
+
+parameters:
+  - name: sigma
+    symbol: "σ"
+    description: Inverse elasticity of intertemporal substitution
+    default: 1.0
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Gali (2015) ch. 3, standard calibration"
+  - name: beta
+    symbol: "β"
+    description: Discount factor, quarterly
+    default: 0.99
+    range: [0.95, 0.999]
+    method: calibrated
+    source: "Gali (2015) ch. 3"
+  - name: varphi
+    symbol: "φ"
+    description: Inverse Frisch elasticity of labour supply
+    default: 5.0
+    range: [0.0, 10.0]
+    method: calibrated
+    source: "Gali (2015) ch. 3"
+  - name: alpha
+    symbol: "α"
+    description: One minus the labour share in production
+    default: 0.25
+    range: [0.0, 0.5]
+    method: calibrated
+    source: "Gali (2015) ch. 3"
+  - name: rho_a
+    description: Persistence of the technology process
+    default: 0.9
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.9"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+  - name: rho_v
+    description: Persistence of the monetary policy shock
+    default: 0.5
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.5"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+  - name: psi_ya
+    description: Elasticity of natural output to technology
+    default: null
+    method: derived
+    source: "Gali (2015) ch. 3, definition of psi_ya"
+    formula: "(1 + varphi) / (sigma * (1 - alpha) + varphi + alpha)"
+
+equations:
+  - id: euler
+    expr: "x - x(+1) + (1/sigma)*(i - pi(+1) - rn)"
+    description: Dynamic IS curve from the household Euler equation
+    source: "Gali (2015) eq. (3.?) — dynamic IS"
+  - id: natural-rate
+    expr: "rn - sigma*psi_ya*(1 - rho_a)*a"
+    description: Natural rate of interest implied by the technology process
+    source: "Gali (2015) ch. 3, natural rate definition"
+  - id: technology
+    expr: "a - rho_a*a(-1) - eps_a"
+    description: AR(1) technology process
+  - id: monetary-shock
+    expr: "v - rho_v*v(-1) - eps_v"
+    description: AR(1) monetary policy shock process
+  - id: flex-price-output
+    expr: "x"
+    description: >
+      Flexible-price pricing: price equals marginal cost, so output equals its natural
+      level and the output gap is zero. This is the equation that any price-setting
+      friction replaces. Keeping it in the core, rather than leaving the core
+      under-determined, is what makes the nesting test meaningful: remove the friction
+      block and this equation comes back.
+    source: "Gali (2015) ch. 3, classical monetary model"
+
+compatible_cores: []
