@@ -1,39 +1,43 @@
 # Golden targets for nk-gali-2015-ch3.
 #
-# Every target is a closed form in the model's own parameters, so it holds at any
-# calibration instead of only at the one the book happens to print. Sources are given
-# as the standard textbook results.
+# Every target is a closed form in the model's own resolved parameters, so each holds at
+# any calibration rather than only at the one the book prints.
+#
+# The technology-shock targets exist because two defects were invisible without them:
+# the sign of the natural rate, and a policy rule written in the output gap where the
+# article writes it in output. Both are identically masked under a monetary shock, which
+# every original target used. An equation is only as verified as the shocks that fire.
 targets:
 
-- id: nk-monetary-impact-output-gap
+- id: monetary-impact-output-gap
   kind: analytic
   description: Impact response of the output gap to a one-unit monetary policy shock
-  source: "Gali (2015) ch. 3, closed-form solution for the monetary policy shock"
+  source: "Gali (2015) ch. 3, closed-form solution under a monetary policy shock"
   composition: [core-nk-classical, calvo-prices, taylor-rule]
   shock: eps_v
   variable: x
   period: 0
   expected: "-(1 - beta*rho_v)*Lambda_v"
   where:
-    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_x) + kappa*(phi_pi - rho_v))"
+    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_y) + kappa*(phi_pi - rho_v))"
   rtol: 1.0e-10
 
-- id: nk-monetary-impact-inflation
+- id: monetary-impact-inflation
   kind: analytic
   description: Impact response of inflation to a one-unit monetary policy shock
-  source: "Gali (2015) ch. 3, closed-form solution for the monetary policy shock"
+  source: "Gali (2015) ch. 3, closed-form solution under a monetary policy shock"
   composition: [core-nk-classical, calvo-prices, taylor-rule]
   shock: eps_v
   variable: pi
   period: 0
   expected: "-kappa*Lambda_v"
   where:
-    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_x) + kappa*(phi_pi - rho_v))"
+    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_y) + kappa*(phi_pi - rho_v))"
   rtol: 1.0e-10
 
-- id: nk-monetary-impact-output-gap-alt-calibration
+- id: monetary-impact-output-gap-second-calibration
   kind: analytic
-  description: The same target at a different calibration, to check that the closed form is matched and not a coincidence of the default values
+  description: The same closed form at a second calibration, so that agreement at the defaults cannot be a coincidence of rounding
   source: "Gali (2015) ch. 3, same closed form"
   composition: [core-nk-classical, calvo-prices, taylor-rule]
   params: {theta_p: 0.6, phi_pi: 2.0, rho_v: 0.8, sigma: 2.0}
@@ -42,15 +46,41 @@ targets:
   period: 0
   expected: "-(1 - beta*rho_v)*Lambda_v"
   where:
-    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_x) + kappa*(phi_pi - rho_v))"
+    Lambda_v: "1/((1 - beta*rho_v)*(sigma*(1 - rho_v) + phi_y) + kappa*(phi_pi - rho_v))"
+  rtol: 1.0e-10
+
+- id: technology-impact-output-gap
+  kind: analytic
+  description: >
+    Impact response of the output gap to a one-unit technology shock. The factor
+    (phi_y + sigma*(1 - rho_a)) is where the rule's specification enters: a rule in the
+    output gap would give sigma*(1 - rho_a) alone, and the two agree only at phi_y = 0.
+  source: "Gali (2015) ch. 3, closed-form solution under a technology shock"
+  composition: [core-nk-classical, calvo-prices, taylor-rule]
+  shock: eps_a
+  variable: x
+  period: 0
+  expected: "-(1 - beta*rho_a)*psi_ya*(phi_y + sigma*(1 - rho_a))*Lambda_a"
+  where:
+    Lambda_a: "1/((1 - beta*rho_a)*(sigma*(1 - rho_a) + phi_y) + kappa*(phi_pi - rho_a))"
+  rtol: 1.0e-10
+
+- id: technology-impact-inflation
+  kind: analytic
+  description: Impact response of inflation to a one-unit technology shock
+  source: "Gali (2015) ch. 3, closed-form solution under a technology shock"
+  composition: [core-nk-classical, calvo-prices, taylor-rule]
+  shock: eps_a
+  variable: pi
+  period: 0
+  expected: "-kappa*psi_ya*(phi_y + sigma*(1 - rho_a))*Lambda_a"
+  where:
+    Lambda_a: "1/((1 - beta*rho_a)*(sigma*(1 - rho_a) + phi_y) + kappa*(phi_pi - rho_a))"
   rtol: 1.0e-10
 
 - id: classical-monetary-impact-inflation
   kind: analytic
-  description: >
-    In the classical composition the output gap is zero and inflation is pinned by the
-    policy rule alone, giving -1/(phi_pi - rho_v). This target verifies the composition
-    that the nesting test must recover.
+  description: In the classical composition the output gap is zero and inflation is pinned by the rule alone
   source: "Gali (2015) ch. 3, classical monetary model"
   composition: [core-nk-classical, taylor-rule]
   shock: eps_v
@@ -72,10 +102,7 @@ targets:
 
 - id: calvo-prices-nesting
   kind: nesting
-  description: >
-    As the Calvo non-reset probability goes to zero the block must vanish: the output
-    gap response returns to the classical value of zero, at a rate linear in theta_p
-    with the analytically implied constant.
+  description: As the Calvo non-reset probability goes to zero the block must vanish and the output gap return to the classical value, at the analytically implied rate
   source: "Nesting target declared in components/calvo-prices/component.yaml"
   composition: [core-nk-classical, calvo-prices, taylor-rule]
   recovers: [core-nk-classical, taylor-rule]

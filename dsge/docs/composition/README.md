@@ -272,10 +272,17 @@ Not implemented, in the order the gaps bite:
   design and which covers heterogeneous agents as well.
 - **Estimation.** The `prior` and `data` fields are declared and validated, and nothing
   yet samples from them. The `estimate` tier remains unimplemented for every entry.
-- **Components that add variables and equations together.** The checks generalise, the
-  equation representation needs more work: a financial accelerator introduces its own
-  variables alongside the equations that determine them, where the pricing components
-  tested here only substitute one equation for another.
+- ~~**Components that add variables and equations together.**~~ Closed by
+  `calvo-wages`, which introduces wage inflation and the real wage gap together with
+  their laws of motion and a new definition of marginal cost. Two lessons came out of
+  it. First, a reduced-form coefficient blocks composition: `calvo-prices` originally
+  wrote its curve in the output gap with the flexible-wage substitution folded into
+  `kappa`, which silently assumed flexible wages, and the fix was to expose `mc` as a
+  variable of the core so the pricing block never changes. Second, a component that
+  introduces an endogenous STATE — `omega_tilde` enters its own law of motion with a
+  lag — must say so in `taxonomy/variables.yaml`, because a contributor who treats it
+  as forward-looking gets a model that assembles cleanly and has no wage dynamics at
+  all.
 - **A production solver.** Iteration on the policy function is adequate for six
   equations and is validated here against a closed form. It is not a substitute for a
   QZ-based solver on a medium-scale model.

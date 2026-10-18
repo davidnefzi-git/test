@@ -1,53 +1,101 @@
 id: rotemberg-prices
 kind: friction
 friction: Quadratic cost of changing prices
+summary: >
+  Rotemberg pricing, the alternative to Calvo. Equivalent to Calvo at first order and
+  not beyond, which is why the two are declared mutually incompatible rather than
+  treated as aliases. Carried here for two reasons: it exercises the incompatibility
+  check, and it gives the nesting machinery a second component with a different limit.
+
 citation:
   authors: [Rotemberg]
   year: 1982
   title: "Sticky Prices in the United States"
   journal: "Journal of Political Economy 90(6), 1187-1211"
   doi: 10.1086/261117
+  url: null
 
-# Present only to exercise the incompatibility check. Equivalent to Calvo at first
-# order, not beyond (Born and Pfeifer): hence a mutually exclusive variant, never an alias.
 variables:
   provides: []
-  requires: [x, pi]
+  requires: [pi, mc]
 
 parameters:
   - name: phi_p
     description: Price adjustment cost parameter
-    default: 58.25
+    default: 372.79
+    units: null
+    frequency: none
     range: [0.0, 500.0]
     method: calibrated
-    source: "Chosen to match the Calvo slope at first order"
+    source: "Chosen so that the coefficient on marginal cost matches the Calvo calibration at theta_p = 0.75, epsilon_p = 9: phi_p = (epsilon_r - 1)/lambda_p, rounded"
   - name: epsilon_r
-    description: Elasticity of substitution across goods (declared by this block, not borrowed)
+    description: Elasticity of substitution across goods, declared by this component rather than borrowed
     default: 9.0
+    units: null
+    frequency: none
     range: [2.0, 20.0]
     method: calibrated
     source: "Matches the Calvo calibration for comparability"
-  - name: kappa_r
-    description: Slope of the Phillips curve under Rotemberg pricing
+  - name: lambda_pr
+    description: >
+      Coefficient on real marginal cost in the Phillips curve under a quadratic
+      adjustment cost. The analogue of lambda_p, not of kappa: the Rotemberg curve is
+      stated in marginal cost, so calling this a slope in the output gap — as an
+      earlier version of this file did — confuses the two and makes the comparison
+      with Calvo wrong by the factor (sigma + (varphi + alpha)/(1 - alpha)).
     default: null
+    units: null
+    frequency: none
     method: derived
-    source: "Rotemberg (1982); see Born and Pfeifer for the mapping"
+    source: "Rotemberg (1982); the first-order mapping to the Calvo coefficient is the subject of Born and Pfeifer on Calvo versus Rotemberg"
     formula: "(epsilon_r - 1) / phi_p"
 
 equations:
   - id: nkpc-rotemberg
-    expr: "pi - beta*pi(+1) - kappa_r*x"
-    description: Phillips curve under a quadratic price adjustment cost
-
+    expr: "pi - beta*pi(+1) - lambda_pr*mc"
+    description: Phillips curve implied by a quadratic cost of changing prices, to first order, in real marginal cost
+    source: null
 
 replaces: [core-nk-classical.flex-price-output]
+depends_on: [core-nk-classical]
 incompatible_with: [calvo-prices]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
+solution_requirement: "First order reproduces Calvo. The difference between the two appears only at second order and above, so that comparison is out of reach until the non-linear equations are carried."
+
 nesting_target:
   parameter: phi_p
-  limit: infinity
-  recovers: "core-nk-classical + taylor-rule"
-  statement: "An infinite adjustment cost is not the frictionless limit; phi_p tending to zero is. Recorded here to show that the limit must be stated per block, not assumed."
-  tolerance: 1.0e-6
+  limit: 0
+  recovers: [core-nk-classical, taylor-rule]
+  statement: >
+    A zero adjustment cost, not an infinite one, is the frictionless limit: as phi_p
+    goes to zero the Phillips curve becomes vertical and the output gap returns to zero.
+    Recorded explicitly because the direction of the limit differs from Calvo's and
+    cannot be inferred from the fact that a component is a price friction.
+  tolerance: 1.0e-4
+  rate: "-(1 - beta*rho_v)/((epsilon_r - 1)*(sigma + (varphi + alpha)/(1 - alpha))*(phi_pi - rho_v))"
   pathological: false
+  probe:
+    shock: eps_v
+    variable: x
+    period: 0
+    sequence: [1.0, 0.1, 0.01, 1.0e-3]
+
+verification:
+  reviewed_by: null
+  notes: >
+    First-order equivalence with calvo-prices is asserted by the literature and is not
+    tested here, because testing it requires matching phi_p to the Calvo slope exactly
+    and the default given is rounded. Treat the default as indicative.
+  open_questions:
+    - "Set phi_p from the Calvo parameters by formula rather than by a rounded default, then add an equivalence target comparing the two compositions at first order."
+    - "The non-equivalence beyond first order is the whole point of the comparison and needs the non-linear equations."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude (composition prototype)"
+  ingested_on: "2026-10-15"

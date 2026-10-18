@@ -1,48 +1,130 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "dsge-composition/component.schema.json",
-  "title": "Component (friction block) manifest",
-  "description": "A component is NOT a model: it has no equilibrium, no welfare and no verification tier of its own, so manifest.schema.json cannot describe it honestly. The fields that make composition checkable are provides, requires and replaces.",
+  "$id": "econ-model-library/component.schema.json",
+  "title": "Component manifest",
+  "description": "A component is a reusable piece of a model: a core, a friction, a maintained assumption, a policy rule, or a measurement block. It is NOT a model, and schema/manifest.schema.json cannot describe it honestly: a component has no equilibrium, no welfare, no verification tier and nothing to run. The fields that make a composition checkable rather than merely plausible are `variables.provides`, `variables.requires` and `replaces`.",
   "type": "object",
-  "required": ["id", "kind", "citation", "variables", "parameters", "equations"],
+  "required": [
+    "id",
+    "kind",
+    "citation",
+    "variables",
+    "equations"
+  ],
   "additionalProperties": false,
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"},
-    "kind": {
-      "enum": ["core", "friction", "assumption", "policy", "measurement"],
-      "description": "assumption = a maintained assumption that friction blocks replace (it has no friction parameter); core = the skeleton other blocks mount on"
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Must match the folder name under components/."
     },
-    "friction": {"type": "string", "description": "One line: the friction introduced. Omitted for kind=core and kind=assumption."},
+    "kind": {
+      "enum": [
+        "core",
+        "friction",
+        "assumption",
+        "policy",
+        "measurement"
+      ],
+      "description": "core: the skeleton other components mount on; it owns the endogenous variables and is deliberately not closed on its own. friction: introduces a friction, normally by replacing an equation of the core. assumption: a maintained assumption that friction components replace, and which therefore has no friction parameter (complete markets, for instance). policy: supplies the equation that closes the nominal or fiscal side. measurement: maps model variables to observed series; not an economic friction, but the component without which no estimation replicates."
+    },
+    "friction": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "One line naming the friction. Null for kind core, assumption, policy and measurement."
+    },
+    "summary": {
+      "type": "string"
+    },
     "citation": {
       "type": "object",
-      "required": ["authors", "year", "title"],
+      "required": [
+        "authors",
+        "year",
+        "title"
+      ],
       "properties": {
-        "authors": {"type": "array", "items": {"type": "string"}, "minItems": 1},
-        "year": {"type": "integer"},
-        "title": {"type": "string"},
-        "journal": {"type": ["string", "null"]},
-        "doi": {"type": ["string", "null"]}
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "year": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "journal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "doi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "variables": {
       "type": "object",
-      "required": ["provides", "requires"],
+      "required": [
+        "provides",
+        "requires"
+      ],
+      "additionalProperties": false,
       "properties": {
-        "provides": {"type": "array", "items": {"type": "string"},
-          "description": "Endogenous variables this component introduces. Names must exist in taxonomy/variables.yaml."},
-        "requires": {"type": "array", "items": {"type": "string"},
-          "description": "Variables used but introduced elsewhere. Composition fails if no included component provides one."}
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Endogenous variables this component INTRODUCES. Every name must be declared in taxonomy/variables.yaml. A component that replaces an equation introduces no variable and provides nothing: it supplies a different equation for a slot the core already owns. Two components providing the same variable is a composition error."
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variables used but introduced elsewhere. A composition in which no included component provides one of these is refused."
+        }
       }
     },
     "shocks": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "normalisation"],
+        "required": [
+          "id",
+          "normalisation"
+        ],
+        "additionalProperties": false,
         "properties": {
-          "id": {"type": "string"},
-          "description": {"type": "string"},
-          "normalisation": {"type": "string", "description": "e.g. 'one unit', 'one standard deviation', '25 basis points annualised'"}
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "normalisation": {
+            "type": "string"
+          },
+          "sign_convention": {
+            "type": "string"
+          }
         }
       }
     },
@@ -50,28 +132,110 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "description", "default", "method", "source"],
+        "required": [
+          "name",
+          "description",
+          "default",
+          "method",
+          "source"
+        ],
         "additionalProperties": false,
         "properties": {
-          "name": {"type": "string"},
-          "symbol": {"type": "string"},
-          "description": {"type": "string"},
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "default": {},
-          "range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
-          "method": {"enum": ["calibrated", "estimated", "normalisation", "data", "assumed", "derived"]},
-          "source": {"type": "string"},
+          "units": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "frequency": {
+            "enum": [
+              "annual",
+              "quarterly",
+              "monthly",
+              "none",
+              null
+            ]
+          },
+          "range": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "method": {
+            "enum": [
+              "calibrated",
+              "estimated",
+              "normalisation",
+              "data",
+              "assumed",
+              "derived"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Where the number actually came from. No unsourced numbers, per CLAUDE.md."
+          },
+          "formula": {
+            "type": "string",
+            "description": "Required when method is 'derived'."
+          },
           "prior": {
             "type": "object",
-            "description": "Required when method = estimated. The largest omission of the current model manifest.",
-            "required": ["family", "hyperparameters"],
+            "required": [
+              "family",
+              "hyperparameters"
+            ],
+            "additionalProperties": false,
             "properties": {
-              "family": {"enum": ["beta", "gamma", "inv_gamma", "normal", "uniform", "fixed"]},
-              "hyperparameters": {"type": "array", "items": {"type": "number"}},
-              "bounds": {"type": "array", "items": {"type": ["number", "null"]}, "minItems": 2, "maxItems": 2},
-              "fixed": {"type": "boolean"}
+              "family": {
+                "enum": [
+                  "beta",
+                  "gamma",
+                  "inv_gamma",
+                  "normal",
+                  "uniform",
+                  "fixed"
+                ]
+              },
+              "hyperparameters": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1
+              },
+              "bounds": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "fixed": {
+                "type": "boolean"
+              },
+              "note": {
+                "type": "string"
+              }
             }
-          },
-          "formula": {"type": "string", "description": "Required when method = derived: how the parameter is built from others."}
+          }
         }
       }
     },
@@ -80,44 +244,220 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "expr", "description"],
+        "required": [
+          "id",
+          "expr",
+          "description"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": {"type": "string", "description": "Unique within the component. Referenced as <component-id>.<equation-id> by `replaces`."},
-          "expr": {"type": "string", "description": "Linear expression equal to zero. x(+1) is a lead, x(-1) a lag, x the current value."},
-          "description": {"type": "string"},
-          "source": {"type": "string", "description": "Equation number in the cited article."}
+          "id": {
+            "type": "string",
+            "description": "Unique within the component. Referenced from elsewhere as <component-id>.<equation-id>."
+          },
+          "expr": {
+            "type": "string",
+            "description": "An expression equal to zero. x(+1) is a lead, x(-1) a lag, x the current value. Linear at present: see docs/composition/README.md on what this rules out."
+          },
+          "description": {
+            "type": "string"
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Equation number in the cited work, or null if it cannot be determined; do not guess, per CLAUDE.md."
+          }
         }
       }
     },
     "replaces": {
       "type": "array",
-      "items": {"type": "string"},
-      "description": "Fully qualified equation ids this component removes, e.g. core-nk-classical.flex-price-output. Two included components replacing the same equation is a composition error."
+      "items": {
+        "type": "string"
+      },
+      "description": "Fully qualified equation ids this component removes, e.g. core-nk-classical.flex-price-output. Two included components replacing the same equation is a composition error, and is how two alternative specifications of the same mechanism are detected even when neither declares the other incompatible."
     },
     "depends_on": {
       "type": "array",
-      "items": {"type": "string"},
-      "description": "Component ids that must also be included (indexation blocks modify another block rather than standing alone)."
+      "items": {
+        "type": "string"
+      },
+      "description": "Component ids that must also be included. Indexation blocks modify another component's equation rather than standing alone."
     },
-    "incompatible_with": {"type": "array", "items": {"type": "string"}},
-    "compatible_cores": {"type": "array", "items": {"type": "string"}},
+    "incompatible_with": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "compatible_cores": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "minimum_perturbation_order": {
-      "type": "integer", "minimum": 1,
-      "description": "Recursive preferences and stochastic volatility have no effect at first order. A block solved below its required order runs and means nothing."
+      "type": "integer",
+      "minimum": 1,
+      "description": "Recursive preferences and stochastic volatility have no effect at first order. A component solved below its required order runs, produces numbers, and means nothing; declaring the order is the only way to make that failure detectable."
     },
-    "solution_requirement": {"type": "string"},
+    "solution_requirement": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "nesting_target": {
       "type": "object",
-      "description": "The verification analogue of reproduces_paper for a block that has no paper of its own: at this parameter limit the block must vanish and the composed model must reproduce the core's own numbers.",
-      "required": ["parameter", "limit", "recovers", "tolerance"],
+      "description": "The verification analogue of reproduces_paper for a component, which has no paper table of its own to reproduce. At the stated limit the component must vanish and the composed model must reproduce the solution of the composition without it.",
+      "required": [
+        "parameter",
+        "limit",
+        "recovers",
+        "tolerance",
+        "probe"
+      ],
+      "additionalProperties": false,
       "properties": {
-        "parameter": {"type": "string"},
-        "limit": {"type": ["number", "string"]},
-        "recovers": {"type": "string", "description": "The composition (without this block) whose solution must be recovered."},
-        "statement": {"type": "string"},
-        "tolerance": {"type": "number"},
-        "pathological": {"type": "boolean", "description": "True when the limit is a degenerate case rather than a valid nesting test (e.g. soe-closure, whose limit reintroduces a unit root)."}
+        "parameter": {
+          "type": "string"
+        },
+        "limit": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "A number, or 'infinity'."
+        },
+        "recovers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The component ids of the composition whose solution must be recovered, core first."
+        },
+        "statement": {
+          "type": "string",
+          "description": "What the limit means economically, in one or two sentences."
+        },
+        "tolerance": {
+          "type": "number"
+        },
+        "rate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Closed-form expression for the limit of (response - limit)/parameter, when one exists. Convergence alone lets a sign error or a mis-stated timing convention through; the rate does not."
+        },
+        "pathological": {
+          "type": "boolean",
+          "description": "True when the limit is a degenerate case rather than a valid nesting test. soe-closure is the example: removing it reintroduces a unit root, so its limit is a failure case and must be documented as such instead of being tested."
+        },
+        "probe": {
+          "type": "object",
+          "description": "Which response the nesting test measures. Making this part of the manifest, rather than of a hand-written test, is what lets tests/test_components.py run every component's nesting target automatically instead of relying on each contributor to remember.",
+          "required": [
+            "shock",
+            "variable",
+            "sequence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "shock": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string",
+              "description": "Must be declared in taxonomy/variables.yaml."
+            },
+            "period": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Horizon of the response, 0 for impact. Defaults to 0."
+            },
+            "sequence": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "description": "Decreasing (or increasing) values of `parameter` approaching `limit`. The response must move monotonically towards the limiting value along this sequence."
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewed_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "license",
+        "redistributable"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": "string"
+        },
+        "redistributable": {
+          "type": "boolean"
+        },
+        "permission_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ingested_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ingested_on": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     }
   }

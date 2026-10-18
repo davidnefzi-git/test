@@ -1,30 +1,140 @@
-# Canonical variable namespace for the monetary-dsge family.
-# Composition requires that blocks written by different hands connect. The decisive
-# field is `timing`: a block that disagrees with another on whether a stock is
-# predetermined will assemble without error and produce wrong dynamics.
-# All variables are log-deviations from the non-stochastic steady state unless stated.
+# Canonical variable namespace.
+#
+# WHY THIS FILE EXISTS, AND WHY IT IS NOT taxonomy/families.yaml
+#
+# A family's `common_variables` are outputs declared for cross-model comparison. This
+# file is different: it is the namespace that a MODEL'S OWN EQUATIONS are written in,
+# and it exists because components (taxonomy/../schema/component.schema.json) are
+# written by different people at different times and must still connect.
+#
+# The decisive field is `timing`. Two components can each be internally correct, agree
+# on every variable name, and still produce a model whose dynamics are wrong, because
+# one treats the capital stock as chosen last period and the other as chosen this
+# period. Nothing in a closure check catches that; only a stated convention does.
+#
+# A component may only use variables declared here. `modellib.compose` enforces it, so
+# adding a variable requires a taxonomy/ PR — which is the intent: the namespace is a
+# shared commitment, not a convenience.
+#
+# Convention for the whole file unless a variable says otherwise: log deviation from
+# the non-stochastic steady state; rates are quarterly and NOT annualised.
 
+# --- monetary-dsge core -----------------------------------------------------------
 x:
-  description: Output gap
-  units: log deviation from the natural (flexible-price) level
+  description: Output gap, output less its natural (flexible-price) level
+  units: log deviation
   timing: contemporaneous
+  common_variable: output_gap
+y:
+  description: Output
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: output
+y_nat:
+  description: Natural level of output, the level that would obtain under flexible prices and wages
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: null
 pi:
   description: Inflation, quarterly, not annualised
   units: log deviation
   timing: contemporaneous
+  common_variable: inflation
 i:
   description: Nominal policy rate, quarterly, not annualised
   units: log deviation
   timing: contemporaneous
+  common_variable: policy_rate
 rn:
   description: Natural rate of interest
   units: log deviation
   timing: contemporaneous
+  common_variable: null
+c:
+  description: Consumption
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: consumption
+n:
+  description: Hours worked
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: hours
+w:
+  description: Real wage
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: real_wage
+mc:
+  description: Real marginal cost
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+pi_w:
+  description: Nominal wage inflation, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+omega_tilde:
+  description: Real wage gap, the real wage less its natural (flexible-price, flexible-wage) level
+  units: log deviation
+  timing: >
+    contemporaneous, but an endogenous STATE: it enters its own law of motion with a
+    lag, because the real wage is a ratio of two sticky nominal levels and therefore
+    carries history even when both inflation rates are forward-looking. A component
+    that treats it as purely forward-looking will assemble without error and produce
+    a model with no wage dynamics at all.
+  common_variable: null
+
+# --- capital and investment -------------------------------------------------------
+k:
+  description: Capital stock, END of period t (so k appearing with no lag is chosen at t)
+  units: log deviation from steady state
+  timing: >
+    predetermined. k is the stock carried INTO t+1. A component that needs the stock
+    available for production in period t must therefore write k(-1), never k. This is
+    the convention most often violated when porting a model file, and the reason this
+    field is mandatory.
+  common_variable: null
+ks:
+  description: Capital services, utilisation times the capital stock available in t
+  units: log deviation from steady state
+  timing: contemporaneous (defined from k(-1) and the utilisation rate)
+  common_variable: null
+inv:
+  description: Gross investment
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: investment
+q:
+  description: Shadow value of installed capital (Tobin's q)
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+u:
+  description: Capital utilisation rate
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: null
+rk:
+  description: Real rental rate of capital services
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+
+# --- exogenous processes ----------------------------------------------------------
 a:
   description: Total factor productivity
   units: log deviation
   timing: predetermined (AR(1) in its own lag)
+  common_variable: null
 v:
   description: Monetary policy shock process
   units: log deviation
   timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+g:
+  description: Government purchases
+  units: log deviation from steady state
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null

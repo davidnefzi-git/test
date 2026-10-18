@@ -1,21 +1,28 @@
 id: taylor-rule
 kind: policy
 friction: null
+summary: >
+  Interest rate rule without smoothing. Supplies the equation that closes the nominal
+  side of the core, which is why the core alone is not a model.
+
 citation:
   authors: [Taylor]
   year: 1993
   title: "Discretion versus Policy Rules in Practice"
   journal: "Carnegie-Rochester Conference Series on Public Policy 39, 195-214"
   doi: 10.1016/0167-2231(93)90009-L
+  url: null
 
 variables:
   provides: []
-  requires: [i, pi, x, v]
+  requires: [i, pi, y, v]
 
 parameters:
   - name: phi_pi
     description: Response of the policy rate to inflation
     default: 1.5
+    units: null
+    frequency: none
     range: [1.001, 3.0]
     method: estimated
     source: "Taylor (1993); Gali (2015) ch. 3 uses 1.5"
@@ -24,23 +31,59 @@ parameters:
       hyperparameters: [1.5, 0.25]
       bounds: [1.001, null]
       fixed: false
-  - name: phi_x
-    description: Response of the policy rate to the output gap, quarterly
+      note: "hyperparameters are mean and standard deviation; the lower bound enforces the Taylor principle, without which the model is indeterminate"
+  - name: phi_y
+    description: >
+      Response of the policy rate to OUTPUT, as a deviation from steady state, quarterly.
+      Not to the output gap: the two coincide only when natural output is unchanged,
+      which under a technology shock it is not. The parameter was named phi_x and
+      multiplied the gap until the specification was checked against the article.
     default: 0.125
+    units: null
+    frequency: quarterly
     range: [0.0, 1.0]
     method: estimated
-    source: "Gali (2015) ch. 3 uses 0.5/4 = 0.125"
+    source: "Gali (2015) ch. 3 eq. (26) uses 0.5/4 = 0.125 (the annualised 0.5 of Taylor (1993), expressed quarterly)"
     prior:
       family: normal
       hyperparameters: [0.125, 0.05]
       bounds: [0.0, null]
       fixed: false
+      note: "hyperparameters are mean and standard deviation"
 
 equations:
   - id: policy-rule
-    expr: "i - phi_pi*pi - phi_x*x - v"
-    description: Interest rate rule with no smoothing
-    source: "Gali (2015) ch. 3, eq. for the interest rate rule"
+    expr: "i - phi_pi*pi - phi_y*y - v"
+    description: >
+      Interest rate rule, responding to inflation and to output, with the monetary shock
+      entering additively. The output term is y, output as a deviation from steady
+      state, not the output gap x. Under a monetary shock natural output does not move,
+      so the two specifications give identical answers — which is exactly why writing
+      the rule in the gap went unnoticed through two commits and every passing target.
+    source: "Gali (2015) ch. 3 eq. (26)"
 
-compatible_cores: [core-nk-classical]
+depends_on: [core-nk-classical]
 incompatible_with: []
+compatible_cores: [core-nk-classical]
+minimum_perturbation_order: 1
+solution_requirement: null
+
+verification:
+  reviewed_by: null
+  notes: >
+    Verified in composition. A violation of the Taylor principle is reported by the
+    solver as a failure to find a stable solution rather than returning a plausible
+    wrong answer; tests/test_composition.py checks that.
+  open_questions:
+    - "A gap-based rule (responding to x rather than y) is a legitimate alternative specification and should exist as a separate component, taylor-rule-gap, rather than being confused with this one. It was this confusion that the cross-check caught."
+    - "An inertial variant (rho_r on the lagged rate) and an exchange-rate-based variant belong as separate components, not as parameters of this one."
+    - "Adopting the Macroeconomic Model Data Base common rule, written in common variables and swappable across models, is the natural next step for this component."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude (composition prototype)"
+  ingested_on: "2026-10-15"

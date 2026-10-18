@@ -47,8 +47,14 @@ def load_targets(model_dir: str | Path) -> dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
-def _evaluate(expr: str, params: dict[str, float], where: dict[str, str] | None) -> float:
-    """Evaluate a closed form in the model's parameters, with named intermediates."""
+def evaluate_expression(expr: str, params: dict[str, float],
+                        where: dict[str, str] | None = None) -> float:
+    """Evaluate a closed form in the model's parameters, with named intermediates.
+
+    Explicit symbols are built for every name because sympify would otherwise read
+    ``beta`` as the Beta function and ``pi`` as the circle constant, substitute neither,
+    and fail with a misleading message.
+    """
     names = set(params) | set(where or {})
     syms = {n: sp.Symbol(n) for n in names}
     values = {syms[k]: v for k, v in params.items()}
@@ -77,7 +83,7 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
                 comp = Composition(t["composition"][0], t["composition"][1:])
                 actual, params = _response(comp, t.get("params"), t["shock"],
                                            t["variable"], t.get("period", 0))
-                expected = _evaluate(t["expected"], params, t.get("where"))
+                expected = evaluate_expression(t["expected"], params, t.get("where"))
                 rtol = float(t.get("rtol", 1e-10))
                 ok = bool(np.isclose(actual, expected, rtol=rtol, atol=0.0))
                 msg = "" if ok else f"expected {expected!r}, got {actual!r} (rtol={rtol})"
@@ -109,7 +115,7 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
                     msg = (f"did not reach the limit: |{responses[-1]} - {limit_value}| "
                            f"= {converged:.3e} > {tol:.3e}")
                 if ok and t.get("rate"):
-                    expected_rate = _evaluate(t["rate"], _response(
+                    expected_rate = evaluate_expression(t["rate"], _response(
                         with_block, {t["parameter"]: seq[-1]}, t["shock"],
                         t["variable"], t.get("period", 0))[1], t.get("where"))
                     rate_tol = float(t.get("rate_rtol", 1e-3))

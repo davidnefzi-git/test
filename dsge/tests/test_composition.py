@@ -8,15 +8,18 @@ from modellib import Composition, CompositionError
 
 
 def test_nk_composition_is_closed():
+    # Nine: real marginal cost, output and natural output are variables of their own.
+    # mc so that a wage friction can replace the equation defining it; y and y_nat
+    # because the canonical policy rule responds to output, not to the output gap.
     nk = Composition("core-nk-classical", ["calvo-prices", "taylor-rule"])
-    assert len(nk.equations) == len(nk.variables) == 6
+    assert len(nk.equations) == len(nk.variables) == 9
     assert "core-nk-classical.flex-price-output" in nk.replaced
     assert nk.replaced["core-nk-classical.flex-price-output"] == "calvo-prices"
 
 
 def test_classical_composition_is_closed_and_keeps_the_replaced_equation():
     cl = Composition("core-nk-classical", ["taylor-rule"])
-    assert len(cl.equations) == len(cl.variables) == 6
+    assert len(cl.equations) == len(cl.variables) == 9
     assert cl.replaced == {}
     assert any(eid == "core-nk-classical.flex-price-output" for eid, _ in cl.equations)
 
@@ -63,4 +66,21 @@ def test_taylor_principle_violation_is_reported_not_silently_solved():
     nk = Composition("core-nk-classical", ["calvo-prices", "taylor-rule"])
     from modellib import SolutionError
     with pytest.raises((SolutionError, CompositionError)):
-        nk.solve({"phi_pi": 0.5, "phi_x": 0.0})
+        nk.solve({"phi_pi": 0.5, "phi_y": 0.0})
+
+
+def test_two_friction_composition_is_closed():
+    ehl = Composition("core-nk-classical", ["calvo-prices", "calvo-wages", "taylor-rule"])
+    assert len(ehl.equations) == len(ehl.variables) == 11
+    assert ehl.replaced == {
+        "core-nk-classical.flex-price-output": "calvo-prices",
+        "core-nk-classical.flex-wage-mc": "calvo-wages",
+    }
+
+
+def test_the_wage_block_introduces_variables_as_well_as_equations():
+    # The general shape of a friction block, and the case the pricing blocks do not
+    # exercise: calvo-wages brings wage inflation and the real wage gap with it.
+    from modellib.compose import load_component
+    assert load_component("calvo-wages")["variables"]["provides"] == ["pi_w", "omega_tilde"]
+    assert load_component("calvo-prices")["variables"]["provides"] == []

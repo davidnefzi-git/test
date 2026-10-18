@@ -19,17 +19,46 @@ import re
 from pathlib import Path
 from typing import Any
 
+import json
+from dataclasses import dataclass
+from functools import lru_cache
+
 import numpy as np
 import sympy as sp
 import yaml
+from jsonschema import Draft202012Validator
 
-ROOT = Path(__file__).resolve().parent.parent
-COMPONENTS_DIR = ROOT / "components"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+TAXONOMY_DIR = REPO_ROOT / "taxonomy"
+
+COMPONENTS_DIR = REPO_ROOT / "components"
+COMPONENT_SCHEMA_PATH = REPO_ROOT / "schema" / "component.schema.json"
 LEAD, LAG, NOW = "_tp1", "_tm1", "_t"
 
 
 class CompositionError(ValueError):
     pass
+
+
+@lru_cache
+def _component_validator() -> Draft202012Validator:
+    with open(COMPONENT_SCHEMA_PATH) as f:
+        return Draft202012Validator(json.load(f))
+
+
+@lru_cache
+def variable_namespace() -> dict[str, dict]:
+    """taxonomy/variables.yaml: the namespace component equations are written in."""
+    with open(TAXONOMY_DIR / "variables.yaml") as f:
+        return yaml.safe_load(f) or {}
+
+
+def component_dirs():
+    if not COMPONENTS_DIR.exists():
+        return
+    for d in sorted(COMPONENTS_DIR.iterdir()):
+        if d.is_dir() and not d.name.startswith(("_", ".")) and (d / "component.yaml").exists():
+            yield d
 
 
 def load_component(component_id: str) -> dict[str, Any]:
@@ -38,6 +67,74 @@ def load_component(component_id: str) -> dict[str, Any]:
         raise CompositionError(f"no component '{component_id}' under components/")
     with open(path) as f:
         return yaml.safe_load(f)
+
+
+def validate_component(component: dict[str, Any], folder_name: str | None = None) -> list[str]:
+    """Return a list of human-readable problems (empty list = valid).
+
+    Mirrors manifest.validate_manifest: schema first, then the checks a schema cannot
+    express — that every variable is declared in the namespace, and that `replaces`
+    names an equation of a component that actually defines it.
+    """
+    errors = [
+        f"{'/'.join(map(str, e.path)) or '(root)'}: {e.message}"
+        for e in sorted(_component_validator().iter_errors(component), key=lambda e: list(e.path))
+    ]
+    if errors:
+        return errors
+
+    if folder_name and component["id"] != folder_name:
+        errors.append(f"id '{component['id']}' does not match folder name '{folder_name}'")
+
+    ns = variable_namespace()
+    for key in ("provides", "requires"):
+        for v in component["variables"][key]:
+            if v not in ns:
+                errors.append(
+                    f"variables/{key}: '{v}' is not declared in taxonomy/variables.yaml "
+                    f"(add it in a taxonomy/ PR first)"
+                )
+
+    for target in component.get("replaces") or []:
+        if "." not in target:
+            errors.append(f"replaces: '{target}' is not of the form <component-id>.<equation-id>")
+            continue
+        owner, eq_id = target.split(".", 1)
+        try:
+            owner_component = load_component(owner)
+        except CompositionError as exc:
+            errors.append(f"replaces: {exc}")
+            continue
+        if eq_id not in {e["id"] for e in owner_component["equations"]}:
+            errors.append(f"replaces: component '{owner}' defines no equation '{eq_id}'")
+
+    nt = component.get("nesting_target")
+    if nt and not nt.get("pathological"):
+        if nt["probe"]["variable"] not in ns:
+            errors.append(
+                f"nesting_target/probe/variable: '{nt['probe']['variable']}' is not "
+                f"declared in taxonomy/variables.yaml"
+            )
+        if nt["parameter"] not in {p["name"] for p in component.get("parameters") or []}:
+            errors.append(
+                f"nesting_target/parameter: '{nt['parameter']}' is not a parameter of "
+                f"this component"
+            )
+
+    names = [p["name"] for p in component.get("parameters") or []]
+    dupes = {n for n in names if names.count(n) > 1}
+    if dupes:
+        errors.append(f"duplicate parameter names: {sorted(dupes)}")
+
+    for p in component.get("parameters") or []:
+        if p["method"] == "derived" and not p.get("formula"):
+            errors.append(f"parameter '{p['name']}': method 'derived' requires a formula")
+        if p["method"] == "estimated" and not p.get("prior"):
+            errors.append(
+                f"parameter '{p['name']}': method 'estimated' requires a prior "
+                f"(an estimation cannot be replicated without one)"
+            )
+    return errors
 
 
 def _subst(expr: str, variables: list[str], shocks: list[str]) -> str:
@@ -86,6 +183,16 @@ class Composition:
                         f"components '{cid}' and '{other}' are declared incompatible "
                         f"and cannot be composed"
                     )
+
+        ns = variable_namespace()
+        for cid, c in comps.items():
+            for key in ("provides", "requires"):
+                for v in c["variables"][key]:
+                    if v not in ns:
+                        raise CompositionError(
+                            f"component '{cid}' uses variable '{v}', which is not declared "
+                            f"in taxonomy/variables.yaml"
+                        )
 
         provider: dict[str, str] = {}
         for cid, c in comps.items():
@@ -238,3 +345,79 @@ class Composition:
             lines += [f"    {t} removed by {by}" for t, by in self.replaced.items()]
         lines.append(f"  shocks: {', '.join(self.shocks)}")
         return "\n".join(lines)
+
+
+# --------------------------------------------------------------------- nesting --
+@dataclass
+class NestingResult:
+    component_id: str
+    passed: bool
+    limit_value: float | None = None
+    responses: list[float] | None = None
+    expected_rate: float | None = None
+    observed_rate: float | None = None
+    message: str = ""
+
+
+def run_nesting(component_id: str) -> NestingResult:
+    """Drive a component's friction parameter to its declared limit.
+
+    Two things are checked, not one: that the response converges to the value produced
+    by the composition WITHOUT the component, and that it converges at the rate implied
+    analytically where the component states one. Convergence alone is satisfied by a
+    block with a sign error whose effect happens to vanish in the limit; the rate is not.
+    """
+    from .golden import evaluate_expression
+    from .lre import irf
+
+    component = load_component(component_id)
+    nt = component.get("nesting_target")
+    if nt is None:
+        return NestingResult(component_id, False, message="no nesting_target declared")
+    if nt.get("pathological"):
+        return NestingResult(component_id, True,
+                             message="pathological limit, documented rather than tested")
+
+    probe = nt["probe"]
+    period = probe.get("period", 0)
+    recovers = list(nt["recovers"])
+    without = Composition(recovers[0], recovers[1:])
+
+    # The composition WITH the component: the recovering composition plus this one.
+    with_block = Composition(recovers[0], recovers[1:] + [component_id])
+
+    def response(comp, overrides):
+        P, Q, params = comp.solve(overrides)
+        path = irf(P, Q, comp.shock_index(probe["shock"]), period + 1)
+        return float(path[period, comp.index(probe["variable"])]), params
+
+    limit_value, _ = response(without, None)
+    responses, ratios, params_last = [], [], None
+    for value in probe["sequence"]:
+        r, params_last = response(with_block, {nt["parameter"]: float(value)})
+        responses.append(r)
+        ratios.append((r - limit_value) / float(value))
+
+    monotone = all(
+        abs(responses[k + 1] - limit_value) < abs(responses[k] - limit_value)
+        for k in range(len(responses) - 1)
+    )
+    reached = abs(responses[-1] - limit_value)
+    tol = float(nt["tolerance"])
+    if not monotone:
+        return NestingResult(component_id, False, limit_value, responses,
+                             message=f"convergence towards the limit is not monotone: {responses}")
+    if reached >= tol:
+        return NestingResult(component_id, False, limit_value, responses,
+                             message=(f"did not reach the limit: |{responses[-1]:.6g} - "
+                                      f"{limit_value:.6g}| = {reached:.3e} >= {tol:.3e}"))
+    if not nt.get("rate"):
+        return NestingResult(component_id, True, limit_value, responses,
+                             message="converged; no analytic rate declared")
+    expected = evaluate_expression(nt["rate"], params_last)
+    observed = ratios[-1]
+    if not np.isclose(observed, expected, rtol=1e-3, atol=0.0):
+        return NestingResult(component_id, False, limit_value, responses, expected, observed,
+                             message=(f"converges, but at the wrong rate: observed "
+                                      f"{observed:.6f}, expected {expected:.6f}"))
+    return NestingResult(component_id, True, limit_value, responses, expected, observed)

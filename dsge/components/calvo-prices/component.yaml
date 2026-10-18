@@ -1,16 +1,21 @@
 id: calvo-prices
 kind: friction
 friction: Staggered price setting with a constant reset probability
+summary: >
+  Calvo pricing. Introduces no new variable: it replaces the core's flexible-price
+  condition by the New Keynesian Phillips curve, determining the same variables through
+  a different mechanism. The worked example of the provides / requires / replaces
+  pattern.
+
 citation:
   authors: [Calvo]
   year: 1983
   title: "Staggered Prices in a Utility-Maximizing Framework"
   journal: "Journal of Monetary Economics 12(3), 383-398"
   doi: 10.1016/0304-3932(83)90060-0
+  url: null
 
 variables:
-  # This block introduces no new variable: it replaces the core's pricing equation by
-  # the Phillips curve, determining the same variables through a different mechanism.
   provides: []
   requires: [x, pi]
 
@@ -19,60 +24,110 @@ parameters:
     symbol: "θ"
     description: Probability that a price is NOT reset in a given quarter
     default: 0.75
+    units: null
+    frequency: quarterly
     range: [0.0, 0.95]
     method: estimated
-    source: "Gali (2015) ch. 3 uses 0.75 (average price duration of one year)"
+    source: "Gali (2015) ch. 3 uses 0.75, an average price duration of one year; prior from the Smets-Wouters (2007) convention for Calvo probabilities"
     prior:
       family: beta
       hyperparameters: [0.5, 0.1]
       bounds: [0.0, 0.95]
       fixed: false
+      note: "hyperparameters are mean and standard deviation"
   - name: epsilon_p
     symbol: "ε"
     description: Elasticity of substitution across goods
     default: 9.0
+    units: null
+    frequency: none
     range: [2.0, 20.0]
     method: calibrated
-    source: "Gali (2015) ch. 3 (implies a steady-state markup of 1.125)"
+    source: "Gali (2015) ch. 3, implying a steady-state gross markup of 1.125"
   - name: Theta
-    description: Decreasing-returns correction in the slope of the Phillips curve
+    description: Decreasing-returns correction entering the slope of the Phillips curve
     default: null
+    units: null
+    frequency: none
     method: derived
     source: "Gali (2015) ch. 3, definition of Theta"
     formula: "(1 - alpha) / (1 - alpha + alpha*epsilon_p)"
   - name: lambda_p
-    description: Calvo reset term in the slope of the Phillips curve
+    description: Calvo reset term entering the slope of the Phillips curve
     default: null
+    units: null
+    frequency: none
     method: derived
     source: "Gali (2015) ch. 3, definition of lambda"
     formula: "((1 - theta_p)*(1 - beta*theta_p)/theta_p) * Theta"
   - name: kappa
     symbol: "κ"
-    description: Slope of the New Keynesian Phillips curve
+    description: >
+      Slope of the Phillips curve in the output gap, under flexible wages. No longer
+      used by the equation below, which is written in marginal cost, but retained
+      because the nesting rate and the entry's closed-form targets are stated in terms
+      of it, and because it is the quantity a reader of the textbook expects to find.
     default: null
+    units: null
+    frequency: none
     method: derived
     source: "Gali (2015) ch. 3, definition of kappa"
     formula: "lambda_p * (sigma + (varphi + alpha)/(1 - alpha))"
 
 equations:
   - id: nkpc
-    expr: "pi - beta*pi(+1) - kappa*x"
-    description: New Keynesian Phillips curve
-    source: "Gali (2015) ch. 3, inflation dynamics"
+    expr: "pi - beta*pi(+1) - lambda_p*mc"
+    description: >
+      New Keynesian Phillips curve, in real marginal cost. Composed with the core's
+      flexible-wage marginal-cost equation this is the familiar form with slope
+      kappa = lambda_p*(sigma + (varphi + alpha)/(1 - alpha)); composed with
+      calvo-wages instead, the same equation delivers the two-friction model without
+      being touched.
+    source: "Gali (2015) ch. 3, inflation dynamics, eq. (22) per the annotation of a third-party Dynare replication; the marginal-cost form is ch. 6 eq. (18)"
 
 replaces: [core-nk-classical.flex-price-output]
+depends_on: [core-nk-classical]
 incompatible_with: [rotemberg-prices]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
-solution_requirement: "First order suffices for dynamics; second order is needed for welfare."
+solution_requirement: "First order for dynamics. Second order is required for any welfare statement, and is not available while the equations are supplied log-linearised."
+
 nesting_target:
   parameter: theta_p
   limit: 0
-  recovers: "core-nk-classical + taylor-rule"
+  recovers: [core-nk-classical, taylor-rule]
   statement: >
-    As theta_p tends to zero the Phillips curve becomes vertical, the output gap
-    returns to zero at every date, and the composed model must reproduce the
-    classical model's response to a monetary shock: real neutrality, with inflation
-    still determined by the policy rule. The convergence is of order theta_p.
-  tolerance: 1.0e-6
+    As theta_p goes to zero every price is reset each quarter, the Phillips curve
+    becomes vertical, and the output gap returns to zero at every date. The composed
+    model must then reproduce the classical model's response to a monetary shock: real
+    neutrality, with inflation still determined by the policy rule. The convergence is
+    linear in theta_p, and the constant is implied analytically, which is what the rate
+    field below checks.
+  tolerance: 1.0e-4
+  rate: "-(1 - beta*rho_v)/(Theta*(sigma + (varphi + alpha)/(1 - alpha))*(phi_pi - rho_v))"
   pathological: false
+  probe:
+    shock: eps_v
+    variable: x
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-3, 1.0e-4]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Written from the textbook statement of the Phillips curve. The nesting target passes
+    on both counts: the impact output-gap response converges monotonically to the
+    classical value of zero, and the ratio of the response to theta_p converges to the
+    analytically implied constant.
+  open_questions:
+    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
+    - "Indexation to past inflation is a separate component (not yet written) that will depend_on this one."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article and textbook statements"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude (composition prototype)"
+  ingested_on: "2026-10-15"

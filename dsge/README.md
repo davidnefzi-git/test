@@ -17,20 +17,43 @@ here, nothing larger is worth attempting.
 ## Result
 
 ```
-$ python -m modellib golden nk-gali-2015-ch3
-  [pass] nk-monetary-impact-output-gap                 analytic  expected -1.036340316   got -1.036340316
-  [pass] nk-monetary-impact-inflation                  analytic  expected -0.3522873023  got -0.3522873023
-  [pass] nk-monetary-impact-output-gap-alt-calibration analytic  expected -0.2476190476  got -0.2476190476
-  [pass] classical-monetary-impact-inflation           analytic  expected -1             got -1
-  [pass] classical-monetary-neutrality                 analytic  expected 0              got 0
-  [pass] calvo-prices-nesting                          nesting   expected -0.2525        got -0.2525462687
-
 $ python -m pytest -q
-16 passed
+20 passed
+
+$ python -m modellib golden nk-gali-2015-ch3      # 8 targets, all passing
+$ python -m modellib golden ehl-2000              # 5 targets, all passing
+$ python -m modellib nesting                      # every declared limit holds
 ```
 
-The composed model reproduces the closed form to twelve significant figures, at the
-default calibration and at a second one chosen to rule out coincidence.
+Two models, five components. The one-friction model reproduces the textbook closed
+forms under both shocks to twelve significant figures, at two calibrations. The
+two-friction model has no closed form at a general calibration and is verified at both
+of its limits instead.
+
+Cross-checked, finally, against an independent transcription of the same chapters' full
+equation lists, solved separately: agreement is 3.3e-16 and 1.4e-16 for chapter 3 under
+the two shocks, 4.4e-16 and 3.3e-16 for chapter 6.
+
+## Two defects the closed forms did not catch
+
+Worth stating prominently, because it is the most useful thing this prototype has
+produced.
+
+Both were in the core, both survived every passing target, and both were found only by
+comparing against an independent implementation:
+
+- **the sign of the natural rate.** A positive persistent technology shock lowers the
+  natural rate; the file had it rising. The model therefore answered that such a shock
+  opens a *positive* output gap, +0.0855 where the truth is -0.0855. Right magnitude,
+  wrong direction.
+- **the policy rule.** It responded to the output gap where the article writes it in
+  output. The two coincide exactly when natural output does not move.
+
+What they have in common: both are identically masked under a monetary shock, and every
+target then in the library used one. Hence the rule now recorded in the design document
+— every shock a component declares must be exercised by at least one golden target —
+and the stronger one it implies: closed forms verify that a model solves what it says,
+and only an independent implementation verifies that it says what the article says.
 
 ## What each file contains, and what it is for
 
