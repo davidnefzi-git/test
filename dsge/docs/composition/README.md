@@ -159,6 +159,41 @@ composition layer is an addition to the harness, not a parallel one.
 A model entry may be implemented either way: as a port with a hand-written `model.py`
 (`eaton-kortum-2002`), or as a composition (`nk-gali-2015-ch3`). Both are first-class.
 
+### 2.2b Establishing that an equation is verified
+
+Inspection is not enough, and this is the most useful thing the project has learned.
+Four equations passed review while nothing in the suite verified them, and the cause was
+the same every time: a term that is alive under only one shock, or at only one
+calibration.
+
+| Equation | Hidden because |
+|---|---|
+| the natural rate's sign | every target used the monetary shock, under which technology is zero |
+| the policy rule's argument | output and the output gap coincide when natural output does not move |
+| `psi_wa` in the real wage gap | it multiplies the change in technology, and the entry's targets were all monetary |
+| the open economy's foreign terms | `Theta_gm` is exactly zero at the article's own baseline |
+
+The remedy is mutation testing, and it is cheap: perturb each equation — add a small
+multiple of a variable it does not contain, or scale one of its parameters — and require
+at least one test to fail. An equation whose mutation survives is an equation nothing
+verifies, whatever the review said. Running it over this library found half the published
+prototype's equations unverified, including every equation of the open-economy core,
+because two entries lacked a manifest and the golden runner silently skipped them.
+
+Three rules follow, and `tests/test_coverage.py` enforces them:
+
+1. an entry carrying targets must carry a manifest, or it is never collected;
+2. every shock an entry declares must be fired by that entry's own targets or tests;
+3. the response fired must be non-degenerate at the calibration used — which is why the
+   foreign-shock targets of `gali-monacelli-2005` sit at a calibration where the foreign
+   terms are not identically zero, and why its identity tests are parametrised over both
+   shocks.
+
+A convenient corollary for review: an identity is best checked as the residual of its own
+equation, period by period, rather than through a quantity it influences. The ordering of
+output gaps across policy regimes is a true statement about the model and a weak check on
+any coefficient; `i = phi_pi*pi` at every horizon is exact.
+
 ### 2.3 Definition of done for a component
 
 Mirrors the model checklist in `CLAUDE.md`, and is additional to it.

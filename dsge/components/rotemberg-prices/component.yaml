@@ -88,7 +88,7 @@ verification:
     tested here, because testing it requires matching phi_p to the Calvo slope exactly
     and the default given is rounded. Treat the default as indicative.
   open_questions:
-    - "Set phi_p from the Calvo parameters by formula rather than by a rounded default, then add an equivalence target comparing the two compositions at first order."
+    - "RESOLVED: the first-order equivalence with calvo-prices is now tested, with phi_p set from the Calvo slope rather than from the rounded default below. The default is kept as an indicative value and the test does not rely on it. A mutation test had shown that the nesting limit alone does not pin this coefficient, since the limit sends it to infinity."
     - "The non-equivalence beyond first order is the whole point of the comparison and needs the non-linear equations."
 
 provenance:

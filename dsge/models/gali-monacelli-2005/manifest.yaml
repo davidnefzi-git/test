@@ -1,0 +1,15 @@
+id: gali-monacelli-2005
+name: Monetary policy and exchange rate volatility in a small open economy (Gali and Monacelli 2005)
+family: open-economy-dsge
+summary: >
+  The canonical small open economy New Keynesian model, with the article's four policy
+  regimes as mutually incompatible components.
+composition:
+  core: core-soe-gm
+  blocks: [calvo-prices-domestic, rule-domestic-inflation]
+verification:
+  tier: composed
+  notes: >
+    Verified by closed forms at two calibrations. This manifest exists so that
+    tests/test_golden.py collects the entry: it filters on the presence of a manifest,
+    and without one every equation of core-soe-gm was unverified by the suite.

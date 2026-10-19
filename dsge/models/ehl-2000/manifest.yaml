@@ -1,0 +1,17 @@
+id: ehl-2000
+name: Staggered price and wage contracts (Erceg, Henderson and Levin 2000)
+family: monetary-dsge
+summary: >
+  The New Keynesian model with both sticky prices and sticky wages, assembled by adding
+  calvo-wages to the composition that produces nk-gali-2015-ch3.
+composition:
+  core: core-nk-classical
+  blocks: [calvo-prices, calvo-wages, taylor-rule]
+verification:
+  tier: composed
+  notes: >
+    Verified at its two limits, no closed form existing at a general calibration.
+    This manifest exists so that tests/test_golden.py collects the entry at all: it
+    filters on the presence of a manifest, and without one the entry's targets ran only
+    when invoked by hand. A mutation test found every equation of calvo-wages
+    unverified as a result.

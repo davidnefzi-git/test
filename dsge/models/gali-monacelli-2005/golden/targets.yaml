@@ -75,3 +75,38 @@ targets:
   variable: x
   period: 0
   tolerance: 1.0e-4
+
+# Foreign-output shock, added after a coverage guard found that nothing fired eps_star,
+# which core-soe-gm declares. The calibration is not incidental: at the article's own
+# baseline Theta_gm is exactly zero, so every foreign term multiplies zero and a target
+# placed there would be satisfied by any wrong coefficient on them. Third time in this
+# library that a coefficient vanishing at a canonical calibration hid an untested
+# equation.
+
+- id: foreign-output-impact-output-gap
+  kind: analytic
+  description: Impact response of the output gap to a one-unit foreign output shock, where the foreign terms are not zero
+  source: "Gali and Monacelli (2005), eqs. (35)-(37) under the DITR regime, foreign shock"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  params: {eta: 2.0, gamma: 1.5, alpha_open: 0.3, sigma: 2.0}
+  shock: eps_star
+  variable: x
+  period: 0
+  expected: "-alpha_open*sigma_a*(Theta_gm + Psi_gm)*(1 - rho_y_star)*(1 - beta*rho_y_star)*Lambda_star"
+  where:
+    Lambda_star: "1/((1 - beta*rho_y_star)*sigma_a*(1 - rho_y_star) + kappa_a*(phi_pi - rho_y_star))"
+  rtol: 1.0e-10
+
+- id: foreign-output-impact-domestic-inflation
+  kind: analytic
+  description: Impact response of domestic inflation to the same shock
+  source: "Gali and Monacelli (2005), eqs. (35)-(37) under the DITR regime, foreign shock"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  params: {eta: 2.0, gamma: 1.5, alpha_open: 0.3, sigma: 2.0}
+  shock: eps_star
+  variable: pi_h
+  period: 0
+  expected: "-alpha_open*sigma_a*(Theta_gm + Psi_gm)*(1 - rho_y_star)*kappa_a*Lambda_star"
+  where:
+    Lambda_star: "1/((1 - beta*rho_y_star)*sigma_a*(1 - rho_y_star) + kappa_a*(phi_pi - rho_y_star))"
+  rtol: 1.0e-10

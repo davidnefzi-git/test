@@ -72,6 +72,46 @@ def test_investment_is_more_volatile_than_consumption_in_percent(rbc):
     assert lvl["y"] > lvl["inv"] > lvl["c"], lvl
 
 
+def test_the_technology_process_decays_at_its_own_persistence(rbc):
+    """gamma_a, which a mutation test found unverified.
+
+    Nothing pinned the persistence of productivity: the steady state does not involve
+    it, and the impact responses are proportional to the shock whatever it is. The
+    process itself has to be checked.
+    """
+    P, Q, p = rbc.solve()
+    a = irf(P, Q, rbc.shock_index("eps_a"), 6)[:, rbc.index("a")]
+    for h in range(4):
+        assert a[h + 1] / a[h] == pytest.approx(p["gamma_a"], rel=1e-10), h
+    # And at a different persistence, so the default cannot be what passes.
+    P2, Q2, p2 = rbc.solve({"gamma_a": 0.5})
+    a2 = irf(P2, Q2, rbc.shock_index("eps_a"), 4)[:, rbc.index("a")]
+    assert a2[1] / a2[0] == pytest.approx(0.5, rel=1e-10)
+
+
+def test_calvo_and_rotemberg_coincide_at_first_order():
+    """Pins the Rotemberg coefficient, which the nesting limit alone does not.
+
+    Driving phi_p to zero sends lambda_pr to infinity, so scaling lambda_pr leaves the
+    limit unchanged and the nesting target passes either way. The first-order
+    equivalence the literature asserts is the check that bites: set phi_p from the Calvo
+    parameters rather than from a rounded default, and the two compositions must agree
+    exactly. This also settles the open question recorded in the component.
+    """
+    calvo = Composition("core-nk-classical", ["calvo-prices", "taylor-rule"])
+    rot = Composition("core-nk-classical", ["rotemberg-prices", "taylor-rule"])
+    Pc, Qc, pc = calvo.solve()
+    phi_p = (9.0 - 1.0) / pc["lambda_p"]          # epsilon_r - 1 over the Calvo slope
+    Pr, Qr, pr = rot.solve({"phi_p": phi_p})
+    assert pr["lambda_pr"] == pytest.approx(pc["lambda_p"], rel=1e-12)
+    for shock in ("eps_v", "eps_a"):
+        c = irf(Pc, Qc, calvo.shock_index(shock), 6)
+        r = irf(Pr, Qr, rot.shock_index(shock), 6)
+        for v in ("x", "pi", "i", "mc"):
+            assert np.allclose(c[:, calvo.index(v)], r[:, rot.index(v)],
+                               rtol=1e-10, atol=1e-14), (shock, v)
+
+
 def test_the_saddle_path_root_is_selected(rbc):
     """What the QZ decomposition is for.
 

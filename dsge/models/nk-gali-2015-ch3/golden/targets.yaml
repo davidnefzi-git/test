@@ -114,3 +114,22 @@ targets:
   tolerance: 1.0e-4
   rate: "-(1 - beta*rho_v)/(Theta*(sigma + (varphi + alpha)/(1 - alpha))*(phi_pi - rho_v))"
   rate_rtol: 1.0e-3
+
+- id: rotemberg-prices-nesting
+  kind: nesting
+  description: >
+    The Rotemberg block's own limit, with its analytic rate. The limit runs the other
+    way from Calvo's — a zero adjustment cost, not an infinite one, is the frictionless
+    case — and the rate is what pins the coefficient: the limit alone is insensitive to
+    scaling it, as a mutation test showed.
+  source: "Nesting target declared in components/rotemberg-prices/component.yaml"
+  composition: [core-nk-classical, rotemberg-prices, taylor-rule]
+  recovers: [core-nk-classical, taylor-rule]
+  parameter: phi_p
+  sequence: [1.0, 0.1, 0.01, 1.0e-3]
+  shock: eps_v
+  variable: x
+  period: 0
+  tolerance: 1.0e-4
+  rate: "-(1 - beta*rho_v)/((epsilon_r - 1)*(sigma + (varphi + alpha)/(1 - alpha))*(phi_pi - rho_v))"
+  rate_rtol: 1.0e-3
