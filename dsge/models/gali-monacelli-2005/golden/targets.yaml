@@ -1,0 +1,77 @@
+# Golden targets for gali-monacelli-2005, the small open economy model.
+#
+# Lambda_gm is the open-economy composite coefficient: built from sigma_a and kappa_a,
+# so openness enters twice, through the IS curve and through the slope of the Phillips
+# curve.
+targets:
+
+- id: technology-impact-output-gap
+  kind: analytic
+  description: Impact response of the output gap to a one-unit domestic technology shock, under the domestic-inflation rule
+  source: "Gali and Monacelli (2005), eqs. (36) and (37) under the DITR regime"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  shock: eps_a
+  variable: x
+  period: 0
+  expected: "-sigma_a*Gamma_gm*(1 - rho_a)*(1 - beta*rho_a)*Lambda_gm"
+  where:
+    Lambda_gm: "1/((1 - beta*rho_a)*sigma_a*(1 - rho_a) + kappa_a*(phi_pi - rho_a))"
+  rtol: 1.0e-10
+
+- id: technology-impact-domestic-inflation
+  kind: analytic
+  description: Impact response of domestic inflation to the same shock
+  source: "Gali and Monacelli (2005), eqs. (36) and (37) under the DITR regime"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  shock: eps_a
+  variable: pi_h
+  period: 0
+  expected: "-sigma_a*Gamma_gm*(1 - rho_a)*kappa_a*Lambda_gm"
+  where:
+    Lambda_gm: "1/((1 - beta*rho_a)*sigma_a*(1 - rho_a) + kappa_a*(phi_pi - rho_a))"
+  rtol: 1.0e-10
+
+- id: technology-impact-output-gap-open-calibration
+  kind: analytic
+  description: >
+    The same closed form where openness bites. At the article's baseline the three
+    substitution elasticities are all one, so sigma_a equals sigma and the open-economy
+    structure leaves no trace in any coefficient; verifying only there would have tested
+    none of it.
+  source: "Gali and Monacelli (2005), same closed form at eta = 2, gamma = 1.5, alpha_open = 0.3, sigma = 2"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  params: {eta: 2.0, gamma: 1.5, alpha_open: 0.3, sigma: 2.0}
+  shock: eps_a
+  variable: x
+  period: 0
+  expected: "-sigma_a*Gamma_gm*(1 - rho_a)*(1 - beta*rho_a)*Lambda_gm"
+  where:
+    Lambda_gm: "1/((1 - beta*rho_a)*sigma_a*(1 - rho_a) + kappa_a*(phi_pi - rho_a))"
+  rtol: 1.0e-10
+
+- id: optimal-policy-closes-the-output-gap
+  kind: analytic
+  description: >
+    Holding domestic inflation at zero makes the Phillips curve read 0 = kappa_a*x, so
+    the gap is zero at every date. Exact, and the cleanest check that the pricing block
+    and the core are wired together correctly.
+  source: "Gali and Monacelli (2005), optimal policy, p. 725"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-optimal-domestic-price-stability]
+  shock: eps_a
+  variable: x
+  period: 0
+  expected: "0*beta"
+  rtol: 1.0e-12
+
+- id: calvo-prices-domestic-nesting
+  kind: nesting
+  description: As the Calvo probability goes to zero the block must vanish, leaving the flexible-price small open economy
+  source: "Nesting target declared in components/calvo-prices-domestic/component.yaml"
+  composition: [core-soe-gm, calvo-prices-domestic, rule-domestic-inflation]
+  recovers: [core-soe-gm, rule-domestic-inflation]
+  parameter: theta_p
+  sequence: [0.1, 0.01, 1.0e-3, 1.0e-4]
+  shock: eps_a
+  variable: x
+  period: 0
+  tolerance: 1.0e-4

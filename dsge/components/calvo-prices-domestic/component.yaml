@@ -1,0 +1,106 @@
+id: calvo-prices-domestic
+kind: friction
+friction: Staggered setting of domestic goods prices with a constant reset probability
+summary: >
+  Calvo pricing applied to domestically produced goods. The same mechanism as
+  calvo-prices, on a different price index: the Phillips curve is in domestic inflation,
+  not CPI inflation, which in an open economy are distinct variables.
+
+citation:
+  authors: [Calvo]
+  year: 1983
+  title: "Staggered Prices in a Utility-Maximizing Framework"
+  journal: "Journal of Monetary Economics 12(3), 383-398"
+  doi: 10.1016/0304-3932(83)90060-0
+  url: null
+
+variables:
+  provides: []
+  requires: [pi_h, x]
+
+parameters:
+  - name: theta_p
+    symbol: "θ"
+    description: Probability that a domestic price is NOT reset in a given quarter
+    default: 0.75
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Gali and Monacelli (2005), baseline calibration: an average price duration of one year"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.1]
+      bounds: [0.0, 0.95]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: lambda_gm
+    description: Calvo reset term in the slope of the open-economy Phillips curve
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (32)"
+    formula: "(1 - beta*theta_p)*(1 - theta_p)/theta_p"
+  - name: kappa_a
+    symbol: "κ_a"
+    description: >
+      Slope of the open-economy Phillips curve. Note that it depends on sigma_a rather
+      than sigma, so openness enters the slope of the Phillips curve and not only the
+      IS curve.
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (36)"
+    formula: "lambda_gm*(sigma_a + varphi)"
+
+equations:
+  - id: nkpc-domestic
+    expr: "pi_h - beta*pi_h(+1) - kappa_a*x"
+    description: Phillips curve in domestic inflation
+    source: "Gali and Monacelli (2005), eq. (36)"
+
+replaces: [core-soe-gm.flex-price-output]
+depends_on: [core-soe-gm]
+incompatible_with: []
+compatible_cores: [core-soe-gm]
+minimum_perturbation_order: 1
+solution_requirement: "First order for dynamics; second order for the welfare comparison the article makes across rules."
+
+nesting_target:
+  parameter: theta_p
+  limit: 0
+  recovers: [core-soe-gm, rule-domestic-inflation]
+  statement: >
+    As theta_p goes to zero the Phillips curve becomes vertical and the output gap
+    returns to zero at every date, leaving the flexible-price small open economy. The
+    composition without this block is exactly that economy, so the limit is well
+    defined and the approach is linear in theta_p.
+  tolerance: 1.0e-4
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: x
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-3, 1.0e-4]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Written from the article's eq. (36) and the definitions below eqs. (32) and (36).
+    Verified by the closed-form targets and the nesting target of
+    models/gali-monacelli-2005.
+  open_questions:
+    - "This component and calvo-prices implement the same mechanism on different price indices, and differ only in which inflation variable they write. Merging them requires the pricing block to be parameterised by the index it sets, which the current schema cannot express. Until it can, two components is the honest arrangement: claiming reuse would be false."
+    - "The open-economy slope is written in the output gap rather than in marginal cost, because the article states it that way. The marginal-cost form would be needed before a wage friction could be added to this core."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-19"

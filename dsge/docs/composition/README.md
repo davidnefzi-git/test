@@ -40,6 +40,8 @@ Three declarations make it answerable:
 
 With these, four failures are caught before any number is produced:
 
+0. components written in different equation forms, checked first because a mixed
+   composition's other symptoms point the author in the wrong direction;
 1. a required variable that no included component provides;
 2. two components providing the same variable;
 3. two components replacing the same equation;
@@ -260,16 +262,35 @@ Implemented:
 
 Not implemented, in the order the gaps bite:
 
-- **Non-linear equations and a steady state.** Components carry equations that are
-  already log-linearised. This is the one substantial decision left: without the
-  non-linear equations and a steady-state solver, second order, welfare and
-  `minimum_perturbation_order` are all out of reach, which rules out the recursive-preference
-  and stochastic-volatility components the catalogue calls for. The two serious options are
-  a Dynare `.mod` back end — the canonical literature is already written in it and
-  Bayesian estimation is solved there, at the cost of a MATLAB or Octave dependency that
-  the current `solver.implementation` enumeration does not admit — and a sequence-space
-  Jacobian back end, whose block abstraction is the closest existing precedent to this
-  design and which covers heterogeneous agents as well.
+- ~~**Non-linear equations and a steady state.**~~ Implemented, and the correction is
+  worth recording because the obstacle was misdiagnosed for several days. A component
+  now declares `equation_form: levels`, carries the model's own non-linear equations and
+  a steady state, and the assembler solves that steady state, verifies it against every
+  equation, and evaluates the Jacobians there. A composition may not mix forms, which is
+  the fifth composition check.
+
+  What made this look like a large architectural decision — a Dynare back end against a
+  sequence-space one — was a confusion between the *representation* and the *solver*.
+  Writing non-linear equations was never the difficulty: the assembler already
+  differentiated symbolically, so evaluating those derivatives at a steady state rather
+  than treating them as constants was a modest change. The real obstacle appeared only
+  when the first such model was run. A model with endogenous capital is a saddle-path
+  problem, and selecting the stable root is not something root-finding by iteration
+  does reliably: Newton's method returned a root with spectral radius 1.07 for
+  Hansen (1985) and called it a solution. That required a generalized Schur
+  decomposition, which is thirty lines and also makes the Blanchard-Kahn condition
+  checkable, reporting its two failures — no bounded solution, and indeterminacy —
+  separately.
+
+  The lesson generalises past this repository: the question "why can we not do X" is
+  worth re-asking against the code rather than answered from the shape of the problem.
+
+- **Second order, and everything that needs it.** Still out of reach, and now the only
+  thing the representation does not already permit: welfare comparisons, recursive
+  preferences and stochastic volatility all have no first-order effect. The equations are
+  in levels, so what is missing is the second-order perturbation itself — the
+  Schmitt-Grohe-Uribe recursion — and not a different way of writing models. That is a
+  bounded piece of work on a known algorithm, not an architectural choice.
 - **Estimation.** The `prior` and `data` fields are declared and validated, and nothing
   yet samples from them. The `estimate` tier remains unimplemented for every entry.
 - ~~**Components that add variables and equations together.**~~ Closed by

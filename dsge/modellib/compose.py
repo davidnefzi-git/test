@@ -169,6 +169,21 @@ class Composition:
     def check(self) -> None:
         comps = self.components
 
+        # First of all, because it is the most basic coherence condition: every
+        # component must write its equations in the same form. A mixed composition's
+        # other symptoms would send the author looking in the wrong place.
+        forms = {cid: c.get("equation_form", "log-linear-deviations")
+                 for cid, c in comps.items()}
+        distinct = set(forms.values())
+        if len(distinct) > 1:
+            detail = "; ".join(f"'{cid}' is {f}" for cid, f in sorted(forms.items()))
+            raise CompositionError(
+                "a composition cannot mix equation forms: a variable would mean a "
+                f"deviation in one equation and a level in another ({detail}). No "
+                "equation count would catch it, which is why it is refused here."
+            )
+        self.equation_form = distinct.pop()
+
         for cid, c in comps.items():
             for dep in c.get("depends_on") or []:
                 if dep not in comps:
@@ -242,6 +257,7 @@ class Composition:
             {s["id"] for c in comps.values() for s in (c.get("shocks") or [])}
         )
 
+
         if len(self.equations) != len(self.variables):
             raise CompositionError(
                 f"composition is not closed: {len(self.equations)} equations for "
@@ -294,9 +310,115 @@ class Composition:
                 )
         return values
 
+    # ------------------------------------------------------------ steady state --
+    def steady_state(self, overrides: dict[str, float] | None = None) -> dict[str, float]:
+        """The point about which the model is linearised.
+
+        Zero for log-linear components, by construction. For components written in
+        levels, built from the analytic expressions they declare and, for anything they
+        leave out, by a numerical solve of the composition's own residual at
+        y(+1) = y = y(-1) and zero shocks. Either way the result is verified against
+        every equation before it is used: a steady state that does not satisfy the model
+        is reported, never differentiated around.
+        """
+        params = self.parameters(overrides)
+        if self.equation_form == "log-linear-deviations":
+            return {v: 0.0 for v in self.variables}
+
+        analytic: dict[str, str] = {}
+        guess: dict[str, float] = {}
+        tol = 1e-10
+        for c in self.components.values():
+            ss = c.get("steady_state") or {}
+            analytic.update(ss.get("analytic") or {})
+            guess.update(ss.get("guess") or {})
+            if ss.get("tolerance"):
+                tol = float(ss["tolerance"])
+
+        unknown = set(analytic) | set(guess) - set(self.variables)
+        unknown = (set(analytic) | set(guess)) - set(self.variables)
+        if unknown:
+            raise CompositionError(
+                f"steady_state names variables the composition does not have: "
+                f"{', '.join(sorted(unknown))}"
+            )
+
+        psyms = {n: sp.Symbol(n) for n in params}
+        vsyms = {v: sp.Symbol(v) for v in self.variables}
+        table = dict(psyms); table.update(vsyms)
+        values: dict[str, float] = {}
+        pending = dict(analytic)
+        while pending:
+            progressed = False
+            for name, formula in list(pending.items()):
+                e = sp.sympify(formula.replace("^", "**"), locals=table)
+                e = e.subs({psyms[k]: v for k, v in params.items()})
+                e = e.subs({vsyms[k]: v for k, v in values.items()})
+                if e.free_symbols:
+                    continue
+                values[name] = float(e.evalf())
+                pending.pop(name)
+                progressed = True
+            if not progressed:
+                raise CompositionError(
+                    f"cannot resolve the analytic steady state for: "
+                    f"{', '.join(sorted(pending))}"
+                )
+
+        missing = [v for v in self.variables if v not in values]
+        if missing:
+            from scipy.optimize import root
+            resid = self._residual_function(params)
+            x0 = np.array([guess.get(v, 1.0) for v in missing])
+            fixed = dict(values)
+
+            def f(z):
+                point = dict(fixed)
+                point.update(dict(zip(missing, z)))
+                return resid([point[v] for v in self.variables])
+
+            sol = root(f, x0, method="hybr")
+            if not sol.success:
+                raise CompositionError(
+                    f"the numerical steady state did not converge for "
+                    f"{', '.join(missing)}: {sol.message}"
+                )
+            values.update(dict(zip(missing, sol.x)))
+
+        resid = self._residual_function(params)
+        r = np.max(np.abs(resid([values[v] for v in self.variables])))
+        if r > tol:
+            raise CompositionError(
+                f"the declared steady state does not satisfy the model: worst residual "
+                f"{r:.3e} exceeds {tol:.3e}. The dynamics would be linearised about a "
+                f"point that is not an equilibrium."
+            )
+        return values
+
+    def _residual_function(self, params: dict[str, float]):
+        """F(y, y, y, 0) as a callable, for the steady-state solve and its check."""
+        v, sh = self.variables, self.shocks
+        psyms = {n: sp.Symbol(n) for n in params}
+        vsyms = {x: sp.Symbol(x) for x in v}
+        table = dict(psyms); table.update(vsyms)
+        exprs = []
+        for eq_id, expr in self.equations:
+            text = _subst(expr.replace("^", "**"), v, sh)
+            for x in v:
+                for suf in (LEAD, LAG, NOW):
+                    text = text.replace(x + suf, x)
+            for s_ in sh:
+                text = text.replace(s_ + "_shock", "0")
+            e = sp.sympify(text, locals=table).subs({psyms[k]: val for k, val in params.items()})
+            exprs.append(e)
+        f = sp.lambdify([[vsyms[x] for x in v]], exprs, "numpy")
+        return lambda point: np.array(f(list(point)), dtype=float)
+
     # --------------------------------------------------------------- matrices --
     def matrices(self, overrides: dict[str, float] | None = None):
         params = self.parameters(overrides)
+        levels = self.equation_form == "levels"
+        ss = self.steady_state(overrides)
         v, s = self.variables, self.shocks
         n, k = len(v), len(s)
         syms = {name: sp.Symbol(name) for name in
@@ -307,19 +429,29 @@ class Composition:
         table.update(psyms)
         A2 = np.zeros((n, n)); A0 = np.zeros((n, n)); A1 = np.zeros((n, n)); B = np.zeros((n, k))
         for r, (eq_id, expr) in enumerate(self.equations):
-            e = sp.sympify(_subst(expr, v, s), locals=table)
+            e = sp.sympify(_subst(expr.replace("^", "**"), v, s), locals=table)
             e = e.subs({psyms[k]: val for k, val in params.items()})
             free = {str(x) for x in e.free_symbols} - set(syms)
             if free:
                 raise CompositionError(
                     f"equation '{eq_id}' contains unresolved names: {', '.join(sorted(free))}"
                 )
+            # Evaluate the Jacobians AT the steady state. A log-linear component's
+            # derivatives are already constants, so the substitution is skipped there:
+            # that is what keeps every earlier component working, and fast.
+            if levels:
+                at_ss = {syms[name + suf]: ss[name]
+                         for name in v for suf in (LEAD, NOW, LAG)}
+                at_ss.update({syms[name + "_shock"]: 0.0 for name in s})
+                take = lambda d: float(d.subs(at_ss))
+            else:
+                take = float
             for j, name in enumerate(v):
-                A2[r, j] = float(sp.diff(e, syms[name + LEAD]))
-                A0[r, j] = float(sp.diff(e, syms[name + NOW]))
-                A1[r, j] = float(sp.diff(e, syms[name + LAG]))
+                A2[r, j] = take(sp.diff(e, syms[name + LEAD]))
+                A0[r, j] = take(sp.diff(e, syms[name + NOW]))
+                A1[r, j] = take(sp.diff(e, syms[name + LAG]))
             for j, name in enumerate(s):
-                B[r, j] = float(sp.diff(e, syms[name + "_shock"]))
+                B[r, j] = take(sp.diff(e, syms[name + "_shock"]))
         return A2, A0, A1, B, params
 
     # ------------------------------------------------------------------ solve --
@@ -344,6 +476,7 @@ class Composition:
             lines.append("  replaced equations:")
             lines += [f"    {t} removed by {by}" for t, by in self.replaced.items()]
         lines.append(f"  shocks: {', '.join(self.shocks)}")
+        lines.append(f"  equation form: {self.equation_form}")
         return "\n".join(lines)
 
 

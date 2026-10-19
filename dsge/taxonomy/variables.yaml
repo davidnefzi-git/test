@@ -18,6 +18,13 @@
 #
 # Convention for the whole file unless a variable says otherwise: log deviation from
 # the non-stochastic steady state; rates are quarterly and NOT annualised.
+#
+# UNITS DEPEND ON THE COMPONENT'S equation_form, and the `units` field below states the
+# log-linear case. A component written in `levels` uses the same names for the same
+# economic objects, but each variable is then the level itself and its steady state is
+# whatever the model implies rather than zero. A composition may not mix the two forms,
+# and the assembler refuses it, so within any one model a variable means one thing. What
+# never changes with the form is `timing`: that is the point of the field.
 
 # --- monetary-dsge core -----------------------------------------------------------
 x:
@@ -137,4 +144,50 @@ g:
   description: Government purchases
   units: log deviation from steady state
   timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+
+# --- open economy -----------------------------------------------------------------
+pi_h:
+  description: Domestic goods price inflation, quarterly, not annualised
+  units: log deviation
+  timing: >
+    contemporaneous. Distinct from `pi`, which is CPI inflation: in an open economy the
+    two differ by the change in the terms of trade, and a component that sets domestic
+    prices must write pi_h. Conflating them is the open-economy counterpart of
+    conflating output with the output gap.
+  common_variable: null
+s:
+  description: Terms of trade, the price of imports relative to domestically produced goods
+  units: log deviation
+  timing: >
+    contemporaneous, but an endogenous STATE: it enters its own law of motion with a
+    lag, since it accumulates the difference between nominal depreciation and domestic
+    inflation.
+  common_variable: terms_of_trade
+e:
+  description: Nominal exchange rate, domestic currency per unit of foreign currency
+  units: log deviation; a rise is a depreciation
+  timing: contemporaneous, entering the terms-of-trade law of motion with a lag
+  common_variable: nominal_exchange_rate
+q:
+  description: Real exchange rate
+  units: log deviation; a rise is a depreciation
+  timing: contemporaneous
+  common_variable: real_exchange_rate
+y_star:
+  description: Foreign (world) output
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+nx:
+  description: Net exports, as a share of steady-state output
+  units: share of steady-state output
+  timing: contemporaneous
+  common_variable: null
+
+# --- levels-form additions ---------------------------------------------------------
+prod:
+  description: Labour productivity, output per hour
+  units: level (log deviation in a log-linear component)
+  timing: contemporaneous
   common_variable: null

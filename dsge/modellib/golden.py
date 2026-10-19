@@ -83,7 +83,12 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
                 comp = Composition(t["composition"][0], t["composition"][1:])
                 actual, params = _response(comp, t.get("params"), t["shock"],
                                            t["variable"], t.get("period", 0))
-                expected = evaluate_expression(t["expected"], params, t.get("where"))
+                names = dict(params)
+                # A closed form for a model written in levels naturally involves
+                # steady-state values, offered here under an ss_ prefix.
+                names.update({f"ss_{k}": v
+                              for k, v in comp.steady_state(t.get("params")).items()})
+                expected = evaluate_expression(t["expected"], names, t.get("where"))
                 rtol = float(t.get("rtol", 1e-10))
                 ok = bool(np.isclose(actual, expected, rtol=rtol, atol=0.0))
                 msg = "" if ok else f"expected {expected!r}, got {actual!r} (rtol={rtol})"

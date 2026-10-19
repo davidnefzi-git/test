@@ -1,0 +1,110 @@
+# Model families and their common variables.
+# Every model in a family reports these (where meaningful) so models can be compared
+# on the same experiment. Edit only via a taxonomy/ PR approved by both owners.
+#
+# A family's common variables are OUTPUTS for comparison. They are not the namespace a
+# model's equations are written in: that is taxonomy/variables.yaml, and the two must
+# not be confused. A model declares the correspondence between the two in its
+# manifest's `common_variable_map`.
+
+quantitative-trade:
+  description: Static or dynamic GE trade models (Armington, Eaton-Kortum, Melitz-Chaney, multi-sector, multinational production)
+  common_variables:
+    welfare_change:      {units: "gross change in real income (1.0 = no change)", per: country}
+    real_wage_change:    {units: "gross change", per: country}
+    nominal_wage_change: {units: "gross change, world GDP numeraire", per: country}
+    price_index_change:  {units: "gross change", per: country}
+    trade_shares:        {units: "share of importer expenditure, matrix [exporter, importer]", per: country-pair}
+    domestic_share:      {units: "share of own expenditure on own goods", per: country}
+
+rbc:
+  description: Real business cycle models, with no nominal side (Kydland-Prescott, Hansen, King-Plosser-Rebelo)
+  # Levels-form entries report deviations from their own steady state; the units below
+  # are what a log-linear entry reports. Second moments, which this family's articles
+  # mostly report, need a simulation and a filter the harness does not have.
+  common_variables:
+    output:      {units: "deviation from steady state", per: period}
+    consumption: {units: "deviation from steady state", per: period}
+    investment:  {units: "deviation from steady state", per: period}
+    hours:       {units: "deviation from steady state", per: period}
+    real_wage:   {units: "deviation from steady state", per: period}
+    capital:     {units: "deviation from steady state", per: period}
+
+monetary-dsge:
+  description: New Keynesian and related DSGE models used for monetary/fiscal policy analysis
+  # Convention for this family, binding on every entry: quantities are percent
+  # deviations from the model's own steady state or balanced-growth path; rates and
+  # inflation are quarterly and NOT annualised. An entry whose source reports
+  # annualised rates converts them and says so in verification.notes. Four variables
+  # were too few to compare medium-scale models, hence the five additions below.
+  common_variables:
+    output_gap:     {units: "percent deviation from flexible-price output", per: period}
+    inflation:      {units: "percent, quarterly, not annualised", per: period}
+    policy_rate:    {units: "percent, quarterly, not annualised", per: period}
+    output:         {units: "percent deviation from steady state", per: period}
+    consumption:    {units: "percent deviation from steady state", per: period}
+    investment:     {units: "percent deviation from steady state", per: period}
+    hours:          {units: "percent deviation from steady state", per: period}
+    real_wage:      {units: "percent deviation from steady state", per: period}
+    credit_spread:  {units: "percentage points, quarterly, not annualised", per: period}
+
+open-economy-dsge:
+  description: Small open economy and two-country New Keynesian models (Gali-Monacelli, RAMSES lineage, pass-through models)
+  # Adds the external block to monetary-dsge. An entry in this family reports the
+  # monetary-dsge variables it can, plus these.
+  common_variables:
+    output_gap:            {units: "percent deviation from flexible-price output", per: period}
+    inflation:             {units: "percent, quarterly, not annualised", per: period}
+    policy_rate:           {units: "percent, quarterly, not annualised", per: period}
+    real_exchange_rate:    {units: "percent deviation, a rise is a depreciation", per: period}
+    nominal_exchange_rate: {units: "percent deviation, a rise is a depreciation", per: period}
+    terms_of_trade:        {units: "percent deviation", per: period}
+    net_foreign_assets:    {units: "percent of steady-state annual GDP", per: period}
+    current_account:       {units: "percent of steady-state annual GDP", per: period}
+    import_price_passthrough: {units: "elasticity of import prices to the nominal exchange rate", per: period}
+
+international-rbc:
+  description: Two-country and small open economy real business cycle models (Backus-Kehoe-Kydland, Aguiar-Gopinath, Garcia-Cicco et al.)
+  common_variables:
+    output:                {units: "percent deviation from trend", per: period}
+    consumption:           {units: "percent deviation from trend", per: period}
+    investment:            {units: "percent deviation from trend", per: period}
+    trade_balance_ratio:   {units: "percent of output", per: period}
+    real_exchange_rate:    {units: "percent deviation, a rise is a depreciation", per: period}
+    current_account:       {units: "percent of steady-state annual GDP", per: period}
+
+macro-finance:
+  description: Models whose mechanism is a financial friction (Bernanke-Gertler-Gilchrist, Kiyotaki-Moore, Gertler-Karadi, Jermann-Quadrini)
+  common_variables:
+    output:         {units: "percent deviation from steady state", per: period}
+    investment:     {units: "percent deviation from steady state", per: period}
+    credit_spread:  {units: "percentage points, quarterly, not annualised", per: period}
+    leverage:       {units: "ratio of assets to net worth", per: period}
+    net_worth:      {units: "percent deviation from steady state", per: period}
+    asset_price:    {units: "percent deviation from steady state", per: period}
+
+asset-pricing-macro:
+  description: Production economies used to price risk (Jermann, Rudebusch-Swanson, long-run risk in DSGE)
+  common_variables:
+    equity_premium:      {units: "percent per year", per: steady-state}
+    term_premium:        {units: "percentage points per year", per: steady-state}
+    risk_free_rate:      {units: "percent per year", per: steady-state}
+    sharpe_ratio:        {units: "ratio, annualised", per: steady-state}
+    consumption_growth_volatility: {units: "percent per year", per: steady-state}
+
+heterogeneous-agent-macro:
+  description: Bewley/Aiyagari/HANK models with idiosyncratic risk
+  common_variables:
+    output:           {units: "percent deviation from steady state", per: period}
+    consumption:      {units: "percent deviation from steady state", per: period}
+    mpc_average:      {units: "fraction", per: steady-state}
+    wealth_gini:      {units: "index 0-1", per: steady-state}
+
+climate-macro:
+  description: Growth and business cycle models with an energy, emissions and damage block (Golosov et al. and successors)
+  common_variables:
+    output:                {units: "percent deviation from the no-damage path", per: period}
+    emissions:             {units: "gigatonnes of carbon per year", per: period}
+    carbon_stock:          {units: "gigatonnes of carbon", per: period}
+    social_cost_of_carbon: {units: "constant dollars per tonne of carbon", per: period}
+    optimal_carbon_tax:    {units: "constant dollars per tonne of carbon", per: period}

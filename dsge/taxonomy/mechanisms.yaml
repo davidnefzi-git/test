@@ -1,0 +1,19 @@
+# Controlled vocabulary of economic mechanisms. Search quality depends on this list,
+# so add tags deliberately (taxonomy/ PR, both owners approve). Keep definitions to one line.
+
+comparative-advantage: Specialisation driven by cross-country productivity differences
+home-market-effect: Larger markets attract disproportionate production under increasing returns
+terms-of-trade: Changes in relative export/import prices shift real income
+trade-diversion: Preferential barriers reroute trade toward less efficient partners
+selection-into-exporting: Heterogeneous firms sort into export markets by productivity
+input-output-linkages: Shocks propagate through intermediate input use across sectors/countries
+multinational-production: Firms produce abroad via affiliates (FDI) rather than export
+intertemporal-saving: Current account driven by intertemporal consumption smoothing
+nominal-rigidity: Sticky prices or wages make monetary policy non-neutral
+zero-lower-bound: Policy rate constrained at or near zero
+financial-accelerator: Balance-sheet constraints amplify shocks
+precautionary-saving: Saving motivated by uninsurable idiosyncratic risk
+labour-search: Unemployment from search and matching frictions
+agglomeration: Productivity rises with local density of economic activity
+labour-supply-extensive-margin: Employment adjusts through the number of people working rather than hours per worker
+capital-accumulation: Investment and the capital stock propagate shocks over time

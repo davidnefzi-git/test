@@ -459,6 +459,42 @@
           ]
         }
       }
+    },
+    "equation_form": {
+      "enum": [
+        "log-linear-deviations",
+        "levels"
+      ],
+      "default": "log-linear-deviations",
+      "description": "How this component's equations are written. 'log-linear-deviations' (the default, and what every component written before this field existed uses): equations are already linearised about the steady state, every variable is a deviation, and the steady state is zero. 'levels': equations are the model's own non-linear equations, and a steady state must be supplied or solvable, because the coefficients of the first-order solution are the Jacobians evaluated there. A composition may not mix the two: the variables would mean different things in different equations, which no equation count would catch. The assembler refuses it."
+    },
+    "steady_state": {
+      "type": "object",
+      "description": "Required when equation_form is 'levels'. Give `analytic` where the steady state is known in closed form, which is both exact and reviewable; give `guess` for the variables left to a numerical solve. The assembler verifies that the resulting point satisfies every equation of the composition before differentiating, so a wrong steady state is reported rather than silently producing wrong dynamics.",
+      "additionalProperties": false,
+      "properties": {
+        "analytic": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Variable name -> expression in the parameters and in previously listed variables. Resolved in dependency order, like derived parameters."
+        },
+        "guess": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Starting values for variables solved numerically."
+        },
+        "tolerance": {
+          "type": "number",
+          "description": "Residual accepted at the steady state. Default 1e-10."
+        },
+        "note": {
+          "type": "string"
+        }
+      }
     }
   }
 }

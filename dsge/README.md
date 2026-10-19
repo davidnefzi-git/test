@@ -18,21 +18,38 @@ here, nothing larger is worth attempting.
 
 ```
 $ python -m pytest -q
-20 passed
+27 passed
 
-$ python -m modellib golden nk-gali-2015-ch3      # 8 targets, all passing
-$ python -m modellib golden ehl-2000              # 5 targets, all passing
-$ python -m modellib nesting                      # every declared limit holds
+$ python -m modellib golden nk-gali-2015-ch3     # 8 targets
+$ python -m modellib golden ehl-2000             # 5 targets
+$ python -m modellib golden gali-monacelli-2005  # 5 targets
 ```
 
-Two models, five components. The one-friction model reproduces the textbook closed
-forms under both shocks to twelve significant figures, at two calibrations. The
-two-friction model has no closed form at a general calibration and is verified at both
-of its limits instead.
+Three composed entries and twelve components, across three model families: the
+three-equation New Keynesian benchmark, the same model with sticky wages as well as
+sticky prices, and the canonical small open economy with the four policy regimes of its
+article as swappable components. Plus a real business cycle core written in **levels**
+rather than log-linearised, which the `tests/test_levels.py` suite exercises.
 
-Cross-checked, finally, against an independent transcription of the same chapters' full
-equation lists, solved separately: agreement is 3.3e-16 and 1.4e-16 for chapter 3 under
-the two shocks, 4.4e-16 and 3.3e-16 for chapter 6.
+Every entry is also cross-checked against an independent transcription of the same
+published equation list, solved separately. Agreement is at machine precision
+throughout: 3.3e-16 and 1.4e-16 for the one-friction model under its two shocks,
+4.4e-16 and 3.3e-16 for the two-friction model, 2.0e-15 at worst for the open economy
+across twelve variables, four regimes and two calibrations, and 1.6e-13 for the real
+business cycle model.
+
+## The solver, twice replaced
+
+Worth recording, because each version was forced by a failure rather than chosen.
+
+A fixed-point iteration on the policy function stalled at a residual of 2e-9 on a
+calibration it had previously solved, once two definitional equations were added.
+Newton's method on the matrix quadratic fixed that — and then returned a root of
+spectral radius 1.07 for the real business cycle model and reported it as a solution,
+because iteration converges to whichever root its starting point falls towards and a
+model with endogenous capital is a saddle-path problem. Selecting the root is now a
+generalized Schur decomposition, which also makes the Blanchard-Kahn condition
+checkable and separates its two failures; Newton is kept to polish the selected root.
 
 ## Two defects the closed forms did not catch
 
