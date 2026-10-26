@@ -18,6 +18,7 @@ here, nothing larger is worth attempting.
 
 ```
 $ python -m pytest -q
+167 passed in 36s
 
 $ python -m modellib golden nk-gali-2015-ch3     #  9 targets
 $ python -m modellib golden ehl-2000             #  5 targets
@@ -187,18 +188,24 @@ Stated plainly, because the gap between it and a usable library is the real ques
   decomposition and this computes impulse responses only. The first order already
   provides what a moments tier needs; what is missing besides the code is a detrending
   convention for the entries carrying a unit root.
-- **The suite takes about eight minutes**, and where the time goes has not been
-  measured. The parts added with the medium-scale entry account for about thirty seconds
-  of it -- its thirty-five golden targets, nesting targets included, evaluate in
-  twenty-three, and its property tests in six -- so the bulk is elsewhere and should be
-  profiled before anything is optimised.
-  One change is worth making whatever the profile says, because it is a defect in the
-  numerical path rather than a cost: the assembler substitutes parameter values BEFORE
-  differentiating, so every parameter sweep re-differentiates the whole system. A nesting
-  target drives a friction through four values and pays for four symbolic differentiations
-  of a twenty- to thirty-seven-equation system. Differentiating once with the parameters
-  kept symbolic, and substituting numbers afterwards, would make a sweep almost free. Not
-  done here: it belongs with its own verification, not in an entry's commit.
+- **The assembler substitutes parameter values BEFORE differentiating**, so every
+  parameter sweep re-differentiates the whole system. A nesting target drives a friction
+  through four values and pays for four symbolic differentiations of a twenty- to
+  thirty-seven-equation system; that is why the medium-scale entry's thirty-five targets
+  take twenty-four of the suite's thirty-six seconds. Differentiating once with the
+  parameters kept symbolic, and substituting numbers afterwards, would make a sweep
+  almost free. Not done here: it is on the numerical path and belongs with its own
+  verification rather than in an entry's commit.
+
+  The suite reached eight minutes before this was looked at, and the cause was not that.
+  The golden driver called `run_golden` once per TARGET, so an entry with n targets
+  evaluated n-squared of them -- invisible at nine targets, and 455 of 460 seconds at
+  thirty-five. Worth recording how that was found: the first version of this note
+  asserted, without measuring, that the time was elsewhere and that the medium-scale
+  entry accounted for about thirty seconds of it. A profile said the opposite, and every
+  one of that entry's targets was taking twelve seconds or more. The lesson is the same
+  one section 2.2c makes about shock signs: a plausible account of where a number comes
+  from is not a measurement of it.
 
 ## Running it
 
