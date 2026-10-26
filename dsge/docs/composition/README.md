@@ -189,10 +189,138 @@ Three rules follow, and `tests/test_coverage.py` enforces them:
    terms are not identically zero, and why its identity tests are parametrised over both
    shocks.
 
+Two refinements the Smets-Wouters sweep forced, both about reading the survivor list
+rather than about producing it.
+
+**A survivor may be unkillable.** Some mutations do not change the model, and then no
+test could possibly fail. Two kinds showed up here. A sign flip on a single-term
+homogeneous equation -- the core's closure `mc`, becoming `-mc` -- is the same equation,
+since scaling an equation by a constant cannot change its solution. And the operator that
+adds a small multiple of "a variable the equation does not contain" can pick a variable
+that is identically zero wherever that equation is live. Such survivors are noise, and
+noise in a survivor list is worse than useless: it trains the reader to discount the real
+ones. The discriminator is the model, not the suite -- rebuild every composition in which
+the equation is live, solve with and without the mutation, and compare the solution
+matrices. Identical means equivalent; different means a gap.
+
+**A gap can be a composition nobody built.** Three survivors here looked equivalent and
+were not. Adding `0.05*mc` to the core's habit-free Euler equation, to its marginal rate
+of substitution or to its capital accumulation identity failed nothing -- because every
+composition the suite built in which those equations were live had marginal cost pinned
+at zero, the price-setting closure being unreplaced there. But a determinate composition
+exists in which they are live and marginal cost moves: sticky prices on a capital core,
+with flexible wages and neither habit nor adjustment costs, which is an ordinary textbook
+model. It was simply never assembled.
+
+That is the general shape of the thing: a nesting test removes ONE component, so it never
+reaches a composition that differs from the entry by two. The remedy is a test that
+asserts the two routes to the same economy agree -- compose without a friction, versus
+compose with it and drive its parameter to zero -- taken in a composition where the
+equations under test are not degenerate.
+
 A convenient corollary for review: an identity is best checked as the residual of its own
 equation, period by period, rather than through a quantity it influences. The ordering of
 output gaps across policy regimes is a true statement about the model and a weak check on
 any coefficient; `i = phi_pi*pi` at every horizon is exact.
+
+### 2.2c What verification cannot see when it fits a normalisation
+
+Section 2.2b is about equations no test touches. This one is about an equation every
+layer of verification touched and none of them read correctly, which is a different
+failure and needs a different remedy.
+
+A cross-check against an independent implementation is the strongest check the library
+has: it is what found the natural-rate sign and the policy rule's argument. But where the
+two implementations adopt different conventions for a shock -- one carrying a rescaled
+wedge, the other the raw one -- the comparison has to allow a SCALE FACTOR for that shock,
+and a scale factor absorbs a sign.
+
+The distinction is worth keeping sharp, because it says exactly how far the weakness
+reaches. In `smets-wouters-2007` six of the seven shocks were compared at a scale FIXED
+at one, so for those six the normalisation is verified, not fitted. The seventh, the
+risk-premium wedge, needed a factor because the article and the replication genuinely
+differ there -- and that is the one that went wrong. It was implemented with the wrong
+sign, so that a wider premium raised consumption, and the cross-check agreed to 1e-13
+before the correction and to 1e-13 after it, because the fitted factor simply changed
+sign too. The weakness is not general; it is precisely coextensive with the places a
+convention had to be fitted, which is also where the risk of misreading the article is
+highest.
+
+Neither did the closed forms see it. The sharpest closed form in that entry is a
+neutrality result: in the flexible-price twin the wedge moves nothing, because the real
+rate falls by exactly its width. That is a CANCELLATION between two coefficients, and it
+holds whichever sign the pair carries so long as they carry the same one. Nor did the
+nesting tests, which drive a friction to zero and say nothing about a shock's direction.
+
+What caught it was reading the impulse response against the article's own sentence: "a
+positive shock to this wedge increases the required return on assets and reduces current
+consumption."
+
+Two rules follow.
+
+1. **A cross-check that fits a normalisation verifies structure, not orientation.** It
+   establishes that the equations are the article's up to the normalisation of each
+   shock, which is most of what one wants and not all of it.
+2. **Every shock carries a sign target**, stating the direction the economy moves in,
+   sourced to the article's PROSE rather than to its equations -- because the prose is
+   what states the direction, and a transcribed equation can be transcribed with its sign
+   inverted and still look right.
+
+The second rule is cheap: a sign target is a transcribed number that already exists, with
+a description saying which way it points and why.
+
+### 2.2d A model that refers to its own flexible-price allocation
+
+Some models contain an equation about an allocation they do not themselves have.
+Smets-Wouters's policy rule is the standard case: it responds to output less output under
+flexible prices, and the second term is the output of a parallel economy.
+
+The ordinary way to supply it is to write that economy out a second time. For
+Smets-Wouters that is eleven more equations with every coefficient repeated and nothing
+linking the copies. The failure mode is specific and nasty: correct the sticky Euler
+equation and not its twin, and the model still assembles, still solves, and now measures
+its output gap against the wrong benchmark -- invisibly, because the twin has no
+observable of its own.
+
+A composition therefore declares a **shadow** instead:
+
+```yaml
+shadow:
+  components: [core-nk-medium, capital-utilisation, fiscal-block-simple,
+               habit-consumption, investment-adjustment-cost]
+  suffix: _f
+  shared: [a, b, g, zi]
+  drop: [core-nk-medium.technology, core-nk-medium.risk-premium,
+         fiscal-block-simple.spending, investment-adjustment-cost.investment-shock]
+```
+
+The twin is composed from the host's OWN components, and the assembler enforces that the
+list is a subset of the host's. That restriction is the mechanism's whole content: it is
+what makes the twin provably the same model with blocks removed, rather than a second
+model free to drift. Every equation the two economies share is stored exactly once, so
+correcting one corrects both -- necessarily, not by discipline.
+
+`shared` names the objects the two economies hold in common, which are the exogenous
+processes: both economies are driven by the same realised technology, not by two
+independent draws. Their laws of motion are consequently dropped from the twin, and
+`drop` names them explicitly rather than having the assembler infer them -- an inference
+would be guesswork, while a declaration is checked, and omitting one surfaces as a
+closure failure instead of as a second technology process quietly fighting the first.
+
+Two things this requires of the core, and both are worth stating because they are what
+makes a twin expressible at all:
+
+- **The intertemporal margin is written in terms of a real rate**, with a separate
+  one-line component supplying `rr = i - E pi(+1)`. Writing `i - pi(+1)` inline is
+  shorter and makes a twin inexpressible, because the flexible-price economy has no
+  nominal rate and no inflation to subtract.
+- **The core carries a closure for each friction to replace.** Remove the nominal blocks
+  and the flexible-price and flexible-wage closures bind, which is what makes the twin
+  the flexible-price economy and not a recalibrated copy.
+
+A component needing the twin declares `variables.requires_shadow`, so that composing it
+without one fails at the closure check with a message naming what is missing, rather than
+later on an unresolved symbol.
 
 ### 2.3 Definition of done for a component
 
@@ -289,11 +417,17 @@ question.
 Implemented:
 
 - the component artefact type, its schema, and validation in `python -m modellib validate-components`;
-- the assembler with its four checks, incompatibility and dependency handling, and
-  resolution of derived parameters in dependency order;
+- the assembler with its checks — equation form first, then dependencies,
+  incompatibilities, the namespace, double provision, double replacement, unprovided
+  variables, the twin's subset condition, and closure — incompatibility and dependency
+  handling, and resolution of derived parameters in dependency order;
 - a first-order solution of the assembled system, explicit on non-convergence or
   instability rather than returning a plausible wrong answer;
-- closed-form golden targets and the nesting test, exercised on `nk-gali-2015-ch3`.
+- closed-form golden targets and the nesting test, exercised on every composed entry;
+- a flexible-price twin as a `shadow` composition (section 2.2d), for models whose
+  equations refer to an allocation they do not themselves contain;
+- mutation testing as the standard of equation coverage (section 2.2b), and sign targets
+  as the standard of shock orientation (section 2.2c).
 
 Not implemented, in the order the gaps bite:
 
@@ -339,9 +473,21 @@ Not implemented, in the order the gaps bite:
   lag — must say so in `taxonomy/variables.yaml`, because a contributor who treats it
   as forward-looking gets a model that assembles cleanly and has no wage dynamics at
   all.
-- **A production solver.** Iteration on the policy function is adequate for six
-  equations and is validated here against a closed form. It is not a substitute for a
-  QZ-based solver on a medium-scale model.
+- ~~**A production solver.**~~ Closed. Iteration on the policy function was adequate for
+  six equations and not for a model with endogenous capital; the solver is now a
+  generalized Schur decomposition on the companion pencil with a Newton polish, and it
+  carries a thirty-seven-equation model with its own flexible-price twin.
+- ~~**A medium-scale model.**~~ Closed by `smets-wouters-2007`: twelve components,
+  thirty-seven equations, seven shocks, verified against an independent implementation to
+  2.8e-13. The mechanism it needed — a flexible-price twin, composed rather than
+  duplicated — is section 2.2d, and it is the first piece of the layer that is about a
+  model referring to an allocation it does not itself contain.
+- **Unconditional moments.** The headline result of `smets-wouters-2007` is a variance
+  decomposition, and the harness computes impulse responses only. This is now the gap
+  that bites first: a moments tier needs the solution's autocovariances, which the first
+  order already provides, plus a detrending convention for the entries that carry a unit
+  root. That convention belongs in `taxonomy/families.yaml` beside the family's common
+  variables.
 
 ## 4. Sequencing
 

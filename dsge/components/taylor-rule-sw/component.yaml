@@ -1,0 +1,149 @@
+id: taylor-rule-sw
+kind: policy
+summary: >
+  Smets and Wouters's estimated policy rule: a partial adjustment towards a target that
+  responds to inflation, to the output gap, and to the CHANGE in the output gap.
+
+  The gap is the one term that makes this component unlike every other policy rule in the
+  library. Output less its flexible-price counterpart is not a variable the sticky model
+  contains: the second term is the output of a parallel economy. That is why the entry
+  using this rule declares a `shadow` composition, and why this component requires a
+  variable -- y_f -- that no component provides. It is provided by the twin, built from
+  the entry's own components.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: [i, v]
+  requires: [pi, y]
+  # Flexible-price output, from the twin. Not a taxonomy name -- the twin's variables are
+  # derived from the taxonomy's by suffix -- so it is declared here and checked by the
+  # assembler against the shadow the entry composes.
+  requires_shadow: [y]
+
+parameters:
+  - name: rho_i
+    symbol: "ρ"
+    description: Interest-rate smoothing coefficient
+    default: 0.81
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.75, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: r_pi
+    symbol: "r_π"
+    description: Long-run response of the nominal rate to inflation
+    default: 2.04
+    units: null
+    frequency: none
+    range: [1.01, 5.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [1.50, 0.25]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: r_y
+    symbol: "r_y"
+    description: Long-run response of the nominal rate to the output gap
+    default: 0.08
+    units: null
+    frequency: none
+    range: [0.0, 1.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [0.12, 0.05]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: r_dy
+    symbol: "r_Δy"
+    description: Response of the nominal rate to the change in the output gap
+    default: 0.22
+    units: null
+    frequency: none
+    range: [0.0, 1.0]
+    method: estimated
+    source: >
+      Smets and Wouters (2007), Table 1A, posterior mean. NOT multiplied by (1 - rho):
+      the smoothing applies to the level terms only, which the article's equation (14)
+      makes explicit and which is easy to get wrong when transcribing.
+    prior:
+      family: normal
+      hyperparameters: [0.12, 0.05]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_v
+    symbol: "ρ_r"
+    description: Persistence of the monetary policy shock
+    default: 0.15
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+equations:
+  - id: policy-rule
+    expr: "i - (rho_i*i(-1) + (1 - rho_i)*(r_pi*pi + r_y*(y - y_f)) + r_dy*((y - y_f) - (y(-1) - y_f(-1))) + v)"
+    description: >
+      The estimated rule. `y_f` is flexible-price output, supplied by the entry's shadow
+      composition; the gap is output less that, not output less its own trend and not the
+      output gap of a model with no capital.
+    source: "Smets and Wouters (2007), eq. (14)"
+  - id: monetary-shock
+    expr: "v - rho_v*v(-1) - eps_v"
+    description: Monetary policy shock process.
+    source: "Smets and Wouters (2007), Table 1B"
+
+shocks:
+  - id: eps_v
+    description: Innovation to the policy rate
+    normalisation: one unit
+    sign_convention: positive raises the policy rate
+    sd: 0.24
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+
+replaces: []
+depends_on: [core-nk-medium, fisher-equation]
+incompatible_with: [rule-inflation-only]
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order. The rule requires a flexible-price twin of the model, declared as a shadow composition by the entry."
+
+verification:
+  reviewed_by: null
+  notes: >
+    Written from the article's equation (14). The placement of (1 - rho) on the level
+    terms but not on the difference term is the detail most often transcribed wrongly,
+    and it is pinned by the cross-check recorded in smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equation"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

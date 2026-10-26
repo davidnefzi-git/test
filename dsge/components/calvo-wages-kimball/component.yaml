@@ -1,0 +1,170 @@
+id: calvo-wages-kimball
+kind: friction
+friction: Staggered nominal wage setting with a constant reset probability, under a Kimball labour aggregator
+summary: >
+  Calvo wage setting as Smets and Wouters estimate it. It differs from calvo-wages, the
+  library's Erceg-Henderson-Levin block, in what it is written in terms of: that one
+  carries wage inflation and a real wage gap, this one works directly in the level of the
+  real wage and measures the wage markup against the marginal rate of substitution the
+  core exposes.
+
+  Working against `mrs` rather than substituting the household's first-order condition in
+  place is what keeps this block independent of the consumption specification. The
+  reference implementation writes the marginal rate of substitution out inside the wage
+  equation, habit terms and all, and a model with that equation cannot have its
+  consumption block changed without editing its wage block too.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: [mkw, mkw_aux]
+  requires: [w, mrs, pi]
+
+parameters:
+  - name: xi_w
+    symbol: "ξ_w"
+    description: Probability that a nominal wage is NOT reset in a given quarter
+    default: 0.70
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.50, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: curv_w
+    symbol: "ε_w"
+    description: Kimball curvature of the labour market aggregator
+    default: 10.0
+    units: null
+    frequency: none
+    method: calibrated
+    source: "Smets and Wouters (2007), fixed parameter, section III"
+  - name: rho_w
+    symbol: "ρ_w"
+    description: Persistence of the wage markup process
+    default: 0.96
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: mu_w
+    symbol: "μ_w"
+    description: Moving-average coefficient of the wage markup process
+    default: 0.84
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: kappa_w
+    description: Slope of the wage Phillips curve in the wage markup gap, already multiplied by (1 + beta_bar*gamma)
+    default: null
+    method: derived
+    source: >
+      Smets and Wouters (2007), eq. (13). The factor (1 + beta_bar*gamma) that the
+      article divides by is absorbed here, because the equation below is written
+      multiplied through by it.
+    formula: "(1 - xi_w)*(1 - beta_bar*gamma_g*xi_w)/(xi_w*((markup_w - 1)*curv_w + 1))"
+  - name: kappa_w_inv
+    description: Reciprocal of the wage Phillips curve slope, the form the equation is written in
+    default: null
+    method: derived
+    source: "Reciprocal of kappa_w"
+    formula: "1/kappa_w"
+
+equations:
+  - id: wage-pc
+    expr: "kappa_w_inv*((1 + beta_bar*gamma_g)*w - w(-1) - beta_bar*gamma_g*w(+1) + pi - beta_bar*gamma_g*pi(+1) - (1 + beta_bar*gamma_g)*mkw) - (mrs - w)"
+    description: >
+      The wage Phillips curve, multiplied through by (1 + beta_bar*gamma) and then by the
+      reciprocal of its slope, for the same reason as the price curve: at xi_w = 0 the
+      equation becomes w = mrs, which is the core's flexible-wage closure exactly.
+
+      The last term is the wage markup gap, the real wage less the marginal rate of
+      substitution, with the sign that makes a positive gap push wages down.
+    source: "Smets and Wouters (2007), eq. (13) at zero indexation, rearranged"
+  - id: wage-markup-process
+    expr: "mkw - rho_w*mkw(-1) - mkw_aux + mu_w*mkw_aux(-1)"
+    description: The wage markup follows an ARMA(1,1).
+    source: "Smets and Wouters (2007), Table 1B"
+  - id: wage-markup-innovation
+    expr: "mkw_aux - eps_w"
+    description: >
+      Auxiliary variable carrying the lag of the innovation; see
+      calvo-prices-kimball.price-markup-innovation for why it must exist.
+    source: "Standard state-space treatment of a moving-average term"
+
+shocks:
+  - id: eps_w
+    description: Innovation to the wage markup
+    normalisation: one unit
+    sign_convention: positive raises the markup, and so raises the wage at a given marginal rate of substitution
+    sd: 0.24
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+
+replaces: [core-nk-medium.flex-wage]
+depends_on: [core-nk-medium]
+incompatible_with: [calvo-wages]
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: xi_w
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  statement: >
+    As xi_w goes to zero wages are reset every quarter, the wage markup gap is held at
+    zero and the real wage equals the marginal rate of substitution -- the core's
+    flexible-wage closure. The recovering composition keeps sticky prices, so what is
+    being tested is the removal of ONE friction and not of the nominal side as a whole.
+  tolerance: 1.0e-5
+  # First order in xi_w.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: w
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Written from the article's equation (13), restated in terms of the core's `mrs`
+    variable rather than with the household first-order condition substituted in. The
+    restatement is algebraically identical at the article's own consumption
+    specification, and the cross-check recorded in the smets-wouters-2007 entry confirms
+    it numerically against an independent implementation that does substitute it in.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

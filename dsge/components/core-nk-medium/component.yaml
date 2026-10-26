@@ -1,0 +1,445 @@
+id: core-nk-medium
+kind: core
+summary: >
+  The medium-scale New Keynesian skeleton: capital, utilisation, investment, a rental
+  rate and a shadow price of installed capital, on top of the consumption-labour block.
+  It is the spine of Smets-Wouters (2007) and of most estimated policy models, and it
+  differs from core-nk-classical in one structural respect beyond capital: it writes the
+  intertemporal margin in terms of a REAL rate, `rr`, rather than in terms of `i` and
+  `pi` directly. That is what makes a flexible-price twin of the model expressible at
+  all, since a twin has no nominal rate and no inflation to subtract.
+
+  Written habit-free, adjustment-cost-free and with utilisation fixed, and carrying one
+  closure equation for each of those frictions to replace. Composed with
+  capital-utilisation and fiscal-block-simple and nothing else, it IS the flexible-price
+  real business cycle model that Smets-Wouters measures its output gap against.
+
+  On the two citations, which differ deliberately: the `citation` field names Christiano,
+  Eichenbaum and Evans (2005), whose model this structure is, while every equation's own
+  `source` names Smets and Wouters (2007), whose numbered equations are the statement
+  implemented -- including the trend growth that makes beta_bar*gamma and not beta the
+  effective discount factor throughout. The same split applies to capital-utilisation and
+  investment-adjustment-cost, and follows the pattern calvo-wages already uses.
+
+citation:
+  authors: [Christiano, Eichenbaum, Evans]
+  year: 2005
+  title: "Nominal Rigidities and the Dynamic Effects of a Shock to Monetary Policy"
+  journal: "Journal of Political Economy 113(1), 1-45"
+  doi: 10.1086/426038
+  url: null
+
+variables:
+  provides: [mc, rk, ks, k, qk, c, inv, y, n, w, mrs, rr, u, a, b]
+  requires: [g]
+
+parameters:
+  - name: alpha
+    symbol: "α"
+    description: Capital share in the production function
+    default: 0.19
+    units: null
+    frequency: none
+    range: [0.05, 0.45]
+    method: estimated
+    source: >
+      Smets and Wouters (2007), Table 1A, posterior mean. The paper notes that 0.19 is
+      lower than a conventional capital income share because the fixed cost phi_p drives
+      a wedge between the two; it is a production-function exponent here, not an income
+      share.
+    prior:
+      family: normal
+      hyperparameters: [0.30, 0.05]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: delta
+    symbol: "δ"
+    description: Quarterly depreciation rate of physical capital
+    default: 0.025
+    units: null
+    frequency: quarterly
+    method: calibrated
+    source: "Smets and Wouters (2007), fixed parameter, section III"
+  - name: phi_p
+    symbol: "φ_p"
+    description: One plus the share of fixed costs in production, equal to the steady-state price markup
+    default: 1.60
+    units: null
+    frequency: none
+    range: [1.0, 3.0]
+    method: estimated
+    source: >
+      Smets and Wouters (2007), Table 1A, posterior mean. Labelled Phi in the printed
+      table; the replication code calls it cfc and uses the same symbol for the
+      steady-state price markup, which is why it appears in the Kimball slope of the
+      price Phillips curve as well as in the production function.
+    prior:
+      family: normal
+      hyperparameters: [1.25, 0.12]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: sigma_c
+    symbol: "σ_c"
+    description: Inverse of the intertemporal elasticity of substitution
+    default: 1.38
+    units: null
+    frequency: none
+    range: [0.25, 5.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [1.50, 0.37]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: sigma_l
+    symbol: "σ_l"
+    description: Elasticity of labour supply with respect to the real wage
+    default: 1.83
+    units: null
+    frequency: none
+    range: [0.25, 10.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [2.00, 0.75]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: gamma_trend
+    symbol: "γ̄"
+    description: Quarterly trend growth rate of output, in percent
+    default: 0.43
+    units: percent
+    frequency: quarterly
+    range: [0.0, 1.5]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [0.40, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: beta_pct
+    symbol: "100(β⁻¹ − 1)"
+    description: Discount rate in percent per quarter, the form in which it is estimated
+    default: 0.16
+    units: percent
+    frequency: quarterly
+    range: [0.01, 2.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: gamma
+      hyperparameters: [0.25, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: markup_w
+    symbol: "λ_w"
+    description: Steady-state wage markup
+    default: 1.5
+    units: null
+    frequency: none
+    method: calibrated
+    source: "Smets and Wouters (2007), fixed parameter, section III"
+  - name: g_y
+    description: Steady-state ratio of exogenous spending to output
+    default: 0.18
+    units: share
+    frequency: none
+    method: calibrated
+    source: "Smets and Wouters (2007), fixed parameter, section III"
+  - name: rho_a
+    symbol: "ρ_a"
+    description: Persistence of total factor productivity
+    default: 0.95
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_b
+    symbol: "ρ_b"
+    description: Persistence of the risk-premium wedge
+    default: 0.22
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+  # --- derived: the steady state the log-linear coefficients are built from ---------
+  - name: gamma_g
+    description: Gross quarterly growth factor of the trend
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): gamma = 1 + gamma_trend/100"
+    formula: "1 + gamma_trend/100"
+  - name: beta
+    symbol: "β"
+    description: Quarterly discount factor
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): beta = 1/(1 + beta_pct/100)"
+    formula: "1/(1 + beta_pct/100)"
+  - name: beta_bar
+    symbol: "β̄"
+    description: Growth-adjusted discount factor, beta*gamma^(-sigma_c)
+    default: null
+    method: derived
+    source: >
+      Smets and Wouters (2007), section III. Appears everywhere beta would appear in a
+      model without trend growth: the product beta_bar*gamma_g, and not beta, is the
+      effective discount factor in the Euler, investment and Phillips-curve equations.
+    formula: "beta*gamma_g**(-sigma_c)"
+  - name: rk_ss
+    description: Steady-state real rental rate of capital services
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): steady-state capital arbitrage, 1/beta*gamma^sigma_c = rk + 1 - delta"
+    formula: "(1/beta)*gamma_g**sigma_c - (1 - delta)"
+  - name: w_ss
+    description: Steady-state real wage
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): unit cost equal to 1/phi_p at the steady state"
+    formula: "(alpha**alpha*(1-alpha)**(1-alpha)/(phi_p*rk_ss**alpha))**(1/(1-alpha))"
+  - name: i_kbar
+    description: Steady-state ratio of investment to the capital stock carried into the period
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): capital accumulation at the steady state, 1 - (1-delta)/gamma"
+    formula: "1 - (1 - delta)/gamma_g"
+  - name: i_k
+    description: Steady-state investment-to-capital-services ratio
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): i_kbar*gamma"
+    formula: "i_kbar*gamma_g"
+  - name: l_k
+    description: Steady-state labour-to-capital ratio
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): cost minimisation, ((1-alpha)/alpha)*(rk/w)"
+    formula: "((1-alpha)/alpha)*(rk_ss/w_ss)"
+  - name: k_y
+    description: Steady-state capital-to-output ratio
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): phi_p*l_k^(alpha-1)"
+    formula: "phi_p*l_k**(alpha-1)"
+  - name: i_y
+    description: Steady-state investment share of output
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): i_k*k_y"
+    formula: "i_k*k_y"
+  - name: c_y
+    description: Steady-state consumption share of output
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): 1 - g_y - i_k*k_y"
+    formula: "1 - g_y - i_k*k_y"
+  - name: rkky
+    description: Steady-state utilisation cost per unit of output, rk*k_y
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): the coefficient on the utilisation rate in the resource constraint"
+    formula: "rk_ss*k_y"
+  - name: wl_c
+    description: Steady-state ratio of the wage bill to consumption
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007): (1/markup_w)*((1-alpha)/alpha)*rk*k_y/c_y"
+    formula: "(1/markup_w)*((1-alpha)/alpha)*rk_ss*k_y/c_y"
+  - name: c2_nohabit
+    description: Coefficient on expected hours growth in the Euler equation when there is no habit
+    default: null
+    method: derived
+    source: >
+      Smets and Wouters (2007), consumption Euler equation (2) evaluated at lambda = 0.
+      It does NOT vanish without habit: the term is there because the utility function is
+      non-separable in consumption and hours whenever sigma_c differs from one, and it
+      disappears only at sigma_c = 1.
+    formula: "(sigma_c - 1)*wl_c/sigma_c"
+
+equations:
+  - id: marginal-cost
+    expr: "mc - (alpha*rk + (1-alpha)*w - a)"
+    description: >
+      Real marginal cost as the cost-share-weighted average of the two factor prices,
+      less productivity. A definition, given the factor prices; with flexible prices it
+      becomes the restriction mc = 0 on those prices instead.
+    source: "Smets and Wouters (2007), eq. (10)"
+  - id: factor-demand
+    expr: "rk - (w + n - ks)"
+    description: >
+      Cost minimisation between capital services and labour. Note `ks`, capital
+      SERVICES, not the stock: it is utilisation that makes the two differ, and writing
+      `k` here is the most common way to get a medium-scale model subtly wrong.
+    source: "Smets and Wouters (2007), eq. (11)"
+  - id: capital-services
+    expr: "ks - (k(-1) + u)"
+    description: >
+      Capital services are the utilisation rate times the stock available this period.
+      `k(-1)` and not `k`, per the timing convention in taxonomy/variables.yaml: k is the
+      stock carried INTO the next period.
+    source: "Smets and Wouters (2007), eq. (6)"
+  - id: production
+    expr: "y - phi_p*(alpha*ks + (1-alpha)*n + a)"
+    description: >
+      Production function. phi_p multiplies the whole bracket because output is measured
+      net of a fixed cost, so a one-percent rise in inputs raises output by more than one
+      percent.
+    source: "Smets and Wouters (2007), eq. (9)"
+  - id: resource-constraint
+    expr: "y - (c_y*c + i_y*inv + g + rkky*u)"
+    description: >
+      Goods market clearing. The last term is the resource cost of varying utilisation:
+      running capital harder is not free, and omitting the term is a conservation error
+      rather than an approximation.
+    source: "Smets and Wouters (2007), eq. (7)"
+  - id: value-of-capital
+    expr: "qk - (-rr - b + (rk_ss/(rk_ss + 1 - delta))*rk(+1) + ((1 - delta)/(rk_ss + 1 - delta))*qk(+1))"
+    description: >
+      Arbitrage for the value of installed capital: its shadow price today is the
+      discounted sum of next period's rental rate and resale value, less the real rate,
+      LESS the risk premium, which raises the return the household requires and so
+      lowers what it will pay for installed capital. The article's equation (4) carries
+      the wedge at coefficient MINUS one here, and its text is explicit about the
+      direction: "a positive shock to this wedge increases the required return on assets
+      and reduces current consumption". The sign was the wrong way round in the first
+      draft of this component, and nothing caught it: the model solved, the closures
+      held, and the cross-check against a replication file agreed, because that file
+      carries a wedge of the opposite sign as well as a different scale. What caught it
+      was reading the impulse response and finding that a wider risk premium raised
+      consumption.
+      The coefficient is one and not 1/c_3 because the replication file rescales the
+      wedge, which would make this equation depend on the habit parameter and so deny
+      the core its habit-free closure.
+    source: "Smets and Wouters (2007), eq. (4)"
+  - id: capital-accumulation
+    expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv)"
+    description: >
+      Capital accumulation, an identity rather than a friction, which is why it sits in
+      the core. The investment-adjustment-cost component replaces it with the version
+      carrying the investment-specific shock, because that term exists only through the
+      adjustment cost.
+    source: "Smets and Wouters (2007), eq. (8), at zero adjustment cost"
+  - id: euler-no-habit
+    expr: "c - (c(+1) + c2_nohabit*(n - n(+1)) - (1/sigma_c)*rr - (1/sigma_c)*b)"
+    description: >
+      Consumption Euler equation without habit: the closure the habit-consumption
+      component replaces. It is the lambda = 0 case of the article's equation (2), hours
+      term included. The wedge enters at MINUS c_3, inside the same factor as the real
+      rate, which is where the article puts it.
+    source: "Smets and Wouters (2007), eq. (2) at lambda = 0"
+  - id: mrs-no-habit
+    expr: "mrs - (sigma_l*n + c)"
+    description: >
+      Marginal rate of substitution between consumption and leisure, without habit.
+      Exposed as a variable rather than written out inside the wage equation: that is
+      what lets a wage friction be composed without knowing what the consumption
+      specification is.
+    source: "Smets and Wouters (2007), eq. (13) bracket, at lambda = 0"
+  - id: flex-wage
+    expr: "w - mrs"
+    description: >
+      Flexible wages: the real wage equals the marginal rate of substitution. Replaced by
+      a wage-setting friction.
+    source: "Smets and Wouters (2007), section II, flexible-wage case"
+  - id: flex-price-mc
+    expr: "mc"
+    description: >
+      Flexible prices: marginal cost is constant, so the markup is. Replaced by a
+      price-setting friction.
+    source: "Smets and Wouters (2007), section II, flexible-price case"
+  - id: flex-investment
+    expr: "qk"
+    description: >
+      No adjustment cost: installed capital and new capital are perfect substitutes, so
+      the shadow price of installed capital does not move. Replaced by the investment
+      Euler equation.
+    source: "Smets and Wouters (2007), eq. (3) at zero adjustment cost"
+  - id: fixed-utilisation
+    expr: "u"
+    description: >
+      Utilisation held fixed, so that capital services and the stock coincide. Replaced
+      by the capital-utilisation component.
+    source: "Smets and Wouters (2007), eq. (5) at infinite utilisation cost"
+  - id: technology
+    expr: "a - rho_a*a(-1) - eps_a"
+    description: Total factor productivity, an AR(1) process.
+    source: "Smets and Wouters (2007), Table 1B"
+  - id: risk-premium
+    expr: "b - rho_b*b(-1) - eps_b"
+    description: >
+      Risk-premium wedge between the policy rate and the return households require on
+      assets: an AR(1) process.
+    source: "Smets and Wouters (2007), Table 1B"
+
+shocks:
+  - id: eps_a
+    description: Innovation to total factor productivity
+    normalisation: one unit
+    sign_convention: positive raises productivity
+    sd: 0.45
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+  - id: eps_b
+    description: Innovation to the risk-premium wedge
+    normalisation: one unit
+    sign_convention: >
+      positive widens the premium: it raises the return households require, and so lowers
+      consumption and the value of installed capital. This is the article's sign. A
+      replication file of it uses the opposite one, folded into a rescaling of the wedge,
+      so a number taken from either must be read with its own convention.
+    sd: 1.85
+    source: >
+      Smets and Wouters (2007), Table 1B reports 0.23. That figure is the standard
+      deviation of the RESCALED wedge -c_3*eps_b used in the replication code, not of the
+      wedge as the article's equation (4) writes it; this component uses the article's
+      convention, so the figure is divided by c_3 = 0.1244 at the posterior mean (the
+      sign does not affect a standard deviation). The
+      number is documentation only -- impulse responses here are to a unit innovation --
+      but it would be wrong by a factor of eight in an estimation, so it is stated and
+      sourced rather than copied.
+
+replaces: []
+depends_on: []
+incompatible_with: []
+compatible_cores: []
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order. Welfare comparisons across the frictions this core carries need a second order, which the harness does not yet provide."
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the article's own numbered equations. The composition
+    core-nk-medium + capital-utilisation + fiscal-block-simple is the flexible-price
+    economy and is cross-checked against an independent transcription of the reference
+    implementation's flexible-price block; nothing from that implementation is
+    reproduced here.
+  open_questions:
+    - "The measurement equations that map the model onto the seven observed series are not implemented, because no estimator is; they are declared in the data block of the smets-wouters-2007 manifest instead."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

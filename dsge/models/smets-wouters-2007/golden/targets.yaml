@@ -1,0 +1,535 @@
+# Golden targets for smets-wouters-2007.
+#
+# The composition and its flexible-price twin are declared once, at the top, and every
+# target below inherits them. A twelve-element list repeated thirty-one times is a list
+# that will eventually disagree with itself.
+#
+# Four kinds of target, and the order is deliberate.
+#
+# 1. CLOSED FORMS. Two of them isolate a coefficient nothing else pins. The risk-premium
+#    wedge is exactly neutral in the flexible-price twin -- the equilibrium real rate
+#    falls by precisely the width of the premium and no quantity moves -- which holds
+#    only if the wedge enters the Euler equation at -c_3 and the capital arbitrage
+#    equation at -1. Either coefficient wrong, in magnitude or in sign, and the twin's
+#    output stops being zero.
+#
+# 2. SIGN AND NORMALISATION. These exist because of a defect this entry's own
+#    verification nearly missed. The cross-check against an independent implementation
+#    fixes the scale at one for six of the seven shocks -- so for those six the
+#    normalisation is verified -- but the seventh needs a fitted factor, because the
+#    article and the replication genuinely differ on that shock's convention. A fitted
+#    factor absorbs a SIGN. The risk-premium wedge was implemented with the wrong sign, a
+#    positive premium raising consumption, and the cross-check agreed to 1e-13 both
+#    before and after the correction. What caught it was reading the impulse response
+#    against the article's own sentence: "a positive shock to this wedge increases the
+#    required return on assets and reduces current consumption". A cross-check that fits
+#    a normalisation verifies structure, not orientation. Hence these.
+#
+# 3. TRANSCRIBED. Recorded from an independent transcription of a third-party Dynare
+#    replication of the same article, written in its own notation with its own
+#    parameterisation path and its own equation forms, solved separately. It agrees with
+#    this composition to 2.8e-13 across seven shocks, thirty-three variables and eight
+#    periods, once two documented article-versus-replication differences are accounted
+#    for. Every one of the seven shocks is fired.
+#
+# 4. NESTING. One per friction: drive its parameter to the limit and the composition must
+#    reproduce the one without it.
+
+composition:
+  - core-nk-medium
+  - capital-utilisation
+  - fiscal-block-simple
+  - habit-consumption
+  - investment-adjustment-cost
+  - calvo-prices-kimball
+  - price-indexation
+  - calvo-wages-kimball
+  - wage-indexation
+  - fisher-equation
+  - taylor-rule-sw
+
+shadow:
+  components:
+    - core-nk-medium
+    - capital-utilisation
+    - fiscal-block-simple
+    - habit-consumption
+    - investment-adjustment-cost
+  suffix: _f
+  shared: [a, b, g, zi]
+  drop:
+    - core-nk-medium.technology
+    - core-nk-medium.risk-premium
+    - fiscal-block-simple.spending
+    - investment-adjustment-cost.investment-shock
+
+targets:
+
+# ---- 1. closed forms ---------------------------------------------------------------
+- id: twin-risk-premium-neutral-output
+  kind: analytic
+  description: >
+    Flexible-price output does not move at all under a risk-premium shock. In the twin
+    the wedge is absorbed entirely by the equilibrium real rate: it appears at -c_3 in
+    the Euler equation and at -1 in the capital arbitrage equation, and those are the two
+    places where it must cancel against the real rate for no quantity to move.
+  source: "Closed form: the wedge is a return requirement, and with no nominal rigidity the real rate meets it"
+  shock: eps_b
+  variable: y_f
+  period: 0
+  expected: "0"
+  rtol: 0.0
+  atol: 1.0e-11
+
+- id: twin-risk-premium-real-rate
+  kind: analytic
+  description: >
+    The twin's real rate falls by exactly the width of the premium: a one-unit wedge is
+    met by a one-unit fall in the risk-free rate, leaving the total return required
+    unchanged. Pins the coefficient on the wedge to minus one, and its sign.
+  source: "Closed form: rr_f = -b, the neutrality above written as an identity"
+  shock: eps_b
+  variable: rr_f
+  period: 0
+  expected: "-1"
+  rtol: 1.0e-12
+
+- id: twin-flexible-price-closure
+  kind: analytic
+  description: >
+    Marginal cost is identically zero in the twin, at every horizon. The twin is the
+    flexible-price economy because the core's own closures bind there, and this is the
+    one that says prices are flexible.
+  source: "Closed form: the core's flex-price-mc closure, which no component replaces in the twin"
+  shock: eps_a
+  variable: mc_f
+  period: 5
+  expected: "0"
+  rtol: 0.0
+  atol: 1.0e-11
+
+- id: investment-shock-capital-impact
+  kind: analytic
+  description: >
+    The capital stock's impact response to an investment shock, net of the part coming
+    through investment itself, is the shock's own coefficient in the accumulation
+    equation. That coefficient is the one the article and its replication package
+    disagree about, so it is given a closed form rather than a transcribed number: the
+    article's value is i_kbar*(1 + beta_bar*gamma)*gamma^2*phi, and the package's is that
+    divided by (1 + beta_bar*gamma), about 1.997 at the posterior mean.
+  source: "Smets and Wouters (2007), eq. (8), coefficient k_2"
+  shock: eps_zi
+  variable: k
+  period: 0
+  expected: "i_kbar*(1 + beta_bar*gamma_g)*gamma_g**2*varphi_i + i_kbar*inv_impact"
+  where:
+    inv_impact: "3.8119802378679313"
+  rtol: 1.0e-10
+
+# ---- 2. sign and normalisation -----------------------------------------------------
+- id: sign-risk-premium-lowers-consumption
+  kind: analytic
+  description: >
+    A wider risk premium lowers consumption. The article's text states exactly this, and
+    the first draft of this entry had the opposite, undetected by a cross-check whose
+    fitted scale factor absorbed the sign.
+  source: "Smets and Wouters (2007), section II: a positive shock to this wedge increases the required return on assets and reduces current consumption"
+  shock: eps_b
+  variable: c
+  period: 0
+  expected: "-0.27025523856604705"
+  rtol: 1.0e-10
+
+- id: sign-monetary-tightening-lowers-output
+  kind: analytic
+  description: A rise in the policy rate lowers output.
+  source: "Sign convention of eps_v, declared in taylor-rule-sw"
+  shock: eps_v
+  variable: y
+  period: 0
+  expected: "-0.7862337874826397"
+  rtol: 1.0e-10
+
+- id: sign-price-markup-raises-inflation
+  kind: analytic
+  description: >
+    A positive price-markup shock raises inflation and lowers output: a cost-push shock,
+    moving the two in opposite directions, which is what distinguishes it from every
+    other shock in the model.
+  source: "Sign convention of eps_p, declared in calvo-prices-kimball"
+  shock: eps_p
+  variable: pi
+  period: 0
+  expected: "1.8416907056790452"
+  rtol: 1.0e-10
+
+- id: sign-spending-crowds-out-consumption
+  kind: analytic
+  description: >
+    Higher government spending raises output and lowers consumption. The fall in
+    consumption is the sign that the resource constraint binds rather than being slack
+    in the shock.
+  source: "Sign convention of eps_g, declared in fiscal-block-simple"
+  shock: eps_g
+  variable: c
+  period: 0
+  expected: "-0.10007525941128893"
+  rtol: 1.0e-10
+
+# ---- 3. transcribed ----------------------------------------------------------------
+- id: monetary-inflation-impact
+  kind: analytic
+  description: Impact response of inflation to a one-unit rise in the policy rate.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_v
+  variable: pi
+  period: 0
+  expected: "-0.17644416409579206"
+  rtol: 1.0e-10
+
+- id: monetary-policy-rate-impact
+  kind: analytic
+  description: >
+    Impact response of the policy rate itself, below one because the rule's own response
+    to the fall in inflation and in the output gap offsets part of the innovation. Pins
+    the smoothing coefficient and the placement of (1 - rho) on the level terms.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_v
+  variable: i
+  period: 0
+  expected: "0.7466880551805546"
+  rtol: 1.0e-10
+
+- id: monetary-output-trough
+  kind: analytic
+  description: >
+    Output three quarters after a monetary tightening, which is where the gap troughs:
+    the hump is the whole point of the real frictions, and a model with habit or
+    adjustment costs switched off troughs on impact instead.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_v
+  variable: y
+  period: 3
+  expected: "-1.3933906347068055"
+  rtol: 1.0e-10
+
+- id: monetary-twin-output-is-unmoved
+  kind: analytic
+  description: >
+    And the twin does not move at all under a monetary shock, which is why the number
+    above IS the output gap: the twin has no nominal block for the shock to enter
+    through.
+  source: "Closed form: the twin contains no nominal block"
+  shock: eps_v
+  variable: y_f
+  period: 3
+  expected: "0"
+  rtol: 0.0
+  atol: 1.0e-11
+
+- id: monetary-investment-response
+  kind: analytic
+  description: Investment two quarters after a monetary tightening.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_v
+  variable: inv
+  period: 2
+  expected: "-2.1404369414822684"
+  rtol: 1.0e-10
+
+- id: monetary-real-wage-response
+  kind: analytic
+  description: >
+    The real wage four quarters after a monetary tightening. Exercises the indexed wage
+    Phillips curve at a horizon where both its own lag and the lag of inflation matter.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_v
+  variable: w
+  period: 4
+  expected: "-0.63200554958905"
+  rtol: 1.0e-10
+
+- id: technology-output-impact
+  kind: analytic
+  description: Impact response of output to a technology shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_a
+  variable: y
+  period: 0
+  expected: "0.7094817659515734"
+  rtol: 1.0e-10
+
+- id: technology-flexible-price-output-impact
+  kind: analytic
+  description: >
+    Flexible-price output on impact of a technology shock, 1.135 against the sticky
+    economy's 0.709: the gap is negative because output cannot rise as far as its
+    flexible-price counterpart when prices and wages are sticky. This is the target that
+    exercises the twin under a shock where it is not degenerate.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_a
+  variable: y_f
+  period: 0
+  expected: "1.1354575578401234"
+  rtol: 1.0e-10
+
+- id: technology-utilisation-impact
+  kind: analytic
+  description: >
+    Utilisation FALLS on impact of a positive technology shock, by 0.227. The sign is not
+    obvious and is worth a target: productivity rises but demand does not rise with it
+    under sticky prices, so capital is worked less hard.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_a
+  variable: u
+  period: 0
+  expected: "-0.22685730644388688"
+  rtol: 1.0e-10
+
+- id: technology-hours-response
+  kind: analytic
+  description: Hours two quarters after a technology shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_a
+  variable: n
+  period: 2
+  expected: "-0.28388807574140584"
+  rtol: 1.0e-10
+
+- id: spending-output-impact
+  kind: analytic
+  description: >
+    Impact response of output to a spending shock of one unit of steady-state output. The
+    multiplier is 0.95, below one, and the fall in consumption is what makes it so.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_g
+  variable: y
+  period: 0
+  expected: "0.9513923658047454"
+  rtol: 1.0e-10
+
+- id: investment-shock-investment-impact
+  kind: analytic
+  description: Impact response of investment to an investment-efficiency shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_zi
+  variable: inv
+  period: 0
+  expected: "3.8119802378679313"
+  rtol: 1.0e-10
+
+- id: investment-shock-value-of-capital
+  kind: analytic
+  description: >
+    The value of installed capital FALLS on impact of an investment-efficiency shock, by
+    1.54: new capital has become cheaper to produce, so installed capital is worth less.
+    The sign is the opposite of what "a shock to investment" suggests and is therefore
+    worth pinning.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_zi
+  variable: qk
+  period: 0
+  expected: "-1.5418744175374082"
+  rtol: 1.0e-10
+
+- id: price-markup-marginal-cost
+  kind: analytic
+  description: >
+    Marginal cost falls 2.05 on impact of a price-markup shock, more than output falls:
+    the markup rises by construction, and marginal cost is what gives way.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_p
+  variable: mc
+  period: 0
+  expected: "-2.04733088864387"
+  rtol: 1.0e-10
+
+- id: price-markup-output
+  kind: analytic
+  description: Output on impact of a price-markup shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_p
+  variable: y
+  period: 0
+  expected: "-0.9074494394012137"
+  rtol: 1.0e-10
+
+- id: wage-markup-real-wage
+  kind: analytic
+  description: Impact response of the real wage to a wage-markup shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_w
+  variable: w
+  period: 0
+  expected: "1.8157943839955066"
+  rtol: 1.0e-10
+
+- id: wage-markup-inflation
+  kind: analytic
+  description: >
+    Inflation rises 0.51 on impact of a wage-markup shock, against 1.84 for a price
+    markup shock of the same size: the wage shock reaches prices only through marginal
+    cost. The ratio exercises both Phillips curves against each other.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_w
+  variable: pi
+  period: 0
+  expected: "0.5100817131248142"
+  rtol: 1.0e-10
+
+- id: wage-markup-hours
+  kind: analytic
+  description: Hours on impact of a wage-markup shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_w
+  variable: n
+  period: 0
+  expected: "-0.30074038614831006"
+  rtol: 1.0e-10
+
+- id: risk-premium-policy-rate
+  kind: analytic
+  description: >
+    The policy rate FALLS when the risk premium widens: the rule responds to the
+    contraction the premium causes. The rate and the premium moving in opposite
+    directions is what distinguishes a risk-premium shock from a monetary one.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_b
+  variable: i
+  period: 0
+  expected: "-0.05662279916368854"
+  rtol: 1.0e-10
+
+- id: spending-hours-impact
+  kind: analytic
+  description: Hours on impact of a spending shock.
+  source: "Independent transcription; see spec/model.md"
+  shock: eps_g
+  variable: n
+  period: 0
+  expected: "0.6603621296031813"
+  rtol: 1.0e-10
+
+# ---- 4. nesting: one per friction --------------------------------------------------
+#
+# Each drives a friction's parameter to its limit and requires the composition to
+# reproduce the one without it. The four nominal frictions are nested against a
+# composition closed by rule-inflation-only rather than by the estimated rule: the
+# estimated rule's output gap is measured against the very twin that a flexible-price
+# limit is busy collapsing onto, so it cannot serve as the benchmark for its own limit.
+
+- id: nesting-capital-utilisation
+  kind: nesting
+  description: >
+    As psi goes to one, varying utilisation becomes infinitely costly, the coefficient
+    (1-psi)/psi vanishes, and utilisation is pinned at zero -- the core's own
+    fixed-utilisation closure. The first nesting target here whose limit is at a
+    parameter value other than zero, which is why the ratio is divided by the distance
+    to the limit and not by the parameter.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple]
+  shadow: null
+  recovers: [core-nk-medium, fiscal-block-simple]
+  parameter: psi_u
+  limit: 1
+  shock: eps_a
+  variable: u
+  sequence: [0.9, 0.99, 0.9999, 0.9999999]
+  tolerance: 1.0e-6
+
+- id: nesting-habit-consumption
+  kind: nesting
+  description: >
+    As lambda goes to zero the habit stock disappears, the weight on lagged consumption
+    goes to zero, the interest elasticity goes to 1/sigma_c, and the marginal rate of
+    substitution loses its lag. Both replaced equations are recovered algebraically, so
+    the limit is exact.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple]
+  parameter: lambda_h
+  limit: 0
+  shock: eps_a
+  variable: c
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+  tolerance: 1.0e-6
+
+- id: nesting-investment-adjustment-cost
+  kind: nesting
+  description: >
+    As phi goes to zero installed and new capital become perfect substitutes: the shadow
+    price stops moving, the investment-specific shock loses both of its coefficients, and
+    capital accumulation reverts to the core's identity. Visible only because the
+    investment Euler equation is written multiplied through by gamma^2*phi; in the
+    printed form the coefficient diverges and this limit cannot be taken at all.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption]
+  parameter: varphi_i
+  limit: 0
+  shock: eps_a
+  variable: inv
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-7]
+  tolerance: 1.0e-5
+
+- id: nesting-calvo-prices-kimball
+  kind: nesting
+  description: >
+    As xi_p goes to zero every price is reset each quarter, the reciprocal slope goes to
+    zero, and the Phillips curve becomes mc = 0: the real allocation must then be the
+    flexible-price one, whatever the interest-rate rule. The with-block carries the
+    Fisher equation and a rule, which the recovering composition cannot, because without
+    sticky prices the model has no inflation to Fisher and no rule to write.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost]
+  parameter: xi_p
+  limit: 0
+  shock: eps_a
+  variable: y
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+  tolerance: 1.0e-5
+
+- id: nesting-price-indexation
+  kind: nesting
+  description: >
+    At iota_p = 0 the indexed Phillips curve is algebraically the unindexed one, so the
+    composition must reproduce itself.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, price-indexation, fisher-equation, rule-inflation-only]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  parameter: iota_p
+  limit: 0
+  shock: eps_a
+  variable: pi
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+  tolerance: 1.0e-6
+
+- id: nesting-calvo-wages-kimball
+  kind: nesting
+  description: >
+    As xi_w goes to zero wages are reset every quarter, the wage markup gap is held at
+    zero and the real wage equals the marginal rate of substitution. The recovering
+    composition keeps sticky prices, so what is tested is the removal of ONE friction and
+    not of the nominal side as a whole.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, calvo-wages-kimball, fisher-equation, rule-inflation-only]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  parameter: xi_w
+  limit: 0
+  shock: eps_a
+  variable: w
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+  tolerance: 1.0e-5
+
+- id: nesting-wage-indexation
+  kind: nesting
+  description: At iota_w = 0 the indexed wage curve is the unindexed one, exactly.
+  composition: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, calvo-wages-kimball, wage-indexation, fisher-equation, rule-inflation-only]
+  shadow: null
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, calvo-wages-kimball, fisher-equation, rule-inflation-only]
+  parameter: iota_w
+  limit: 0
+  shock: eps_a
+  variable: w
+  sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+  tolerance: 1.0e-6

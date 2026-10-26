@@ -76,11 +76,24 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
     spec = load_targets(model_dir)
     results: list[GoldenResult] = []
 
+    # A targets file may set `composition` and `shadow` once at the top level, and each
+    # target inherits them unless it says otherwise. Without this, an entry assembled
+    # from twelve components repeats a twelve-element list and a four-field shadow block
+    # in every one of its thirty-one targets -- and a list repeated thirty-one times is
+    # a list that will eventually disagree with itself.
+    defaults = {k: spec[k] for k in ("composition", "shadow", "params")
+                if k in spec}
+
     for t in spec.get("targets", []):
+        t = {**defaults, **t}
         kind = t.get("kind", "numeric")
         try:
             if kind == "analytic":
-                comp = Composition(t["composition"][0], t["composition"][1:])
+                # `shadow`, when present, is a flexible-price twin of the model,
+                # composed from a subset of the components named above rather than
+                # written out a second time. See docs/composition/README.md 2.2d.
+                comp = Composition(t["composition"][0], t["composition"][1:],
+                                   t.get("shadow"))
                 actual, params = _response(comp, t.get("params"), t["shock"],
                                            t["variable"], t.get("period", 0))
                 names = dict(params)
@@ -90,12 +103,20 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
                               for k, v in comp.steady_state(t.get("params")).items()})
                 expected = evaluate_expression(t["expected"], names, t.get("where"))
                 rtol = float(t.get("rtol", 1e-10))
-                ok = bool(np.isclose(actual, expected, rtol=rtol, atol=0.0))
-                msg = "" if ok else f"expected {expected!r}, got {actual!r} (rtol={rtol})"
+                # atol, for a target whose expected value is an exact zero: a relative
+                # tolerance against zero demands bit-exactness, which no floating-point
+                # solution gives. The neutrality targets of smets-wouters-2007 are of
+                # that kind.
+                atol = float(t.get("atol", 0.0))
+                ok = bool(np.isclose(actual, expected, rtol=rtol, atol=atol))
+                msg = ("" if ok else
+                       f"expected {expected!r}, got {actual!r} "
+                       f"(rtol={rtol}, atol={atol})")
                 results.append(GoldenResult(t["id"], kind, expected, actual, ok, msg))
 
             elif kind == "nesting":
-                with_block = Composition(t["composition"][0], t["composition"][1:])
+                with_block = Composition(t["composition"][0], t["composition"][1:],
+                                         t.get("shadow"))
                 without = Composition(t["recovers"][0], t["recovers"][1:])
                 limit_value, _ = _response(without, None, t["shock"], t["variable"],
                                            t.get("period", 0))
@@ -105,7 +126,10 @@ def run_golden(model_dir: str | Path) -> list[GoldenResult]:
                     r, params = _response(with_block, {t["parameter"]: value},
                                           t["shock"], t["variable"], t.get("period", 0))
                     responses.append(r)
-                    ratios.append((r - limit_value) / value)
+                    # Divided by the DISTANCE to the limit, not by the parameter. The
+                    # two coincide whenever the limit is zero, which it was for every
+                    # target here until capital utilisation, whose limit is psi = 1.
+                    ratios.append((r - limit_value) / (value - float(t.get("limit", 0.0))))
                 converged = abs(responses[-1] - limit_value)
                 monotone = all(
                     abs(responses[i + 1] - limit_value) < abs(responses[i] - limit_value)

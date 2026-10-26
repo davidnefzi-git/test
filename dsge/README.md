@@ -18,25 +18,60 @@ here, nothing larger is worth attempting.
 
 ```
 $ python -m pytest -q
-27 passed
 
-$ python -m modellib golden nk-gali-2015-ch3     # 8 targets
-$ python -m modellib golden ehl-2000             # 5 targets
-$ python -m modellib golden gali-monacelli-2005  # 5 targets
+$ python -m modellib golden nk-gali-2015-ch3     #  9 targets
+$ python -m modellib golden ehl-2000             #  5 targets
+$ python -m modellib golden gali-monacelli-2005  #  5 targets
+$ python -m modellib golden smets-wouters-2007   # 35 targets
 ```
 
-Three composed entries and twelve components, across three model families: the
+Four composed entries and twenty-four components, across three model families: the
 three-equation New Keynesian benchmark, the same model with sticky wages as well as
-sticky prices, and the canonical small open economy with the four policy regimes of its
-article as swappable components. Plus a real business cycle core written in **levels**
-rather than log-linearised, which the `tests/test_levels.py` suite exercises.
+sticky prices, the canonical small open economy with the four policy regimes of its
+article as swappable components, and **Smets and Wouters (2007)** -- thirty-seven
+equations from twelve components, the workhorse estimated medium-scale model. Plus a
+real business cycle core written in **levels** rather than log-linearised, which the
+`tests/test_levels.py` suite exercises.
+
+Smets-Wouters is the entry that forced the last mechanism into the assembler, and it is
+worth reading for that reason. Its policy rule responds to output less output under
+FLEXIBLE PRICES, and the second term is the output of a parallel economy. The reference
+implementation writes that economy out a second time: eleven more equations, every
+coefficient repeated, nothing linking the two copies. Correct the sticky Euler equation
+and not its twin, and the model still assembles, still solves, and now measures its
+output gap against the wrong benchmark -- invisibly, because the twin has no observable
+of its own.
+
+So the twin is not written. It is **composed**, from a subset of the entry's own
+components, and the assembler enforces that subset condition: that is what makes the
+twin provably the same model with its nominal blocks removed, rather than a second model
+free to drift. Every equation the two economies share is stored exactly once.
+`models/smets-wouters-2007/spec/model.md` is the full account.
 
 Every entry is also cross-checked against an independent transcription of the same
 published equation list, solved separately. Agreement is at machine precision
 throughout: 3.3e-16 and 1.4e-16 for the one-friction model under its two shocks,
 4.4e-16 and 3.3e-16 for the two-friction model, 2.0e-15 at worst for the open economy
-across twelve variables, four regimes and two calibrations, and 1.6e-13 for the real
-business cycle model.
+across twelve variables, four regimes and two calibrations, 1.6e-13 for the real
+business cycle model, and 2.8e-13 for Smets-Wouters across seven shocks, thirty-three
+variables and eight periods.
+
+A cross-check is the strongest check here and it has one blind spot, which cost a defect
+to find. Where the two implementations adopt different conventions for a shock, the
+comparison has to fit a SCALE FACTOR for it -- and a fitted factor absorbs a SIGN. The
+risk-premium wedge of Smets-Wouters was implemented with the wrong sign, so that a wider
+premium raised consumption, and the cross-check agreed to 1e-13 both before and after
+the correction. The closed forms did not catch it either: the sharpest of them is that
+the wedge is exactly neutral in the flexible-price twin, and that is a cancellation
+between two coefficients, which holds whichever sign the pair carries so long as they
+carry the same one. What caught it was reading the impulse response against the
+article's own sentence.
+
+So: where a cross-check fits a normalisation it verifies structure, not orientation --
+and that is exactly where the risk of misreading the article is highest, since a factor
+has to be fitted only when the two sources disagree about it. Every shock now carries a
+target whose sign is meaningful, sourced to the article's prose rather than to its
+equations.
 
 ## The solver, twice replaced
 
@@ -133,19 +168,37 @@ mis-stated timing convention through; the rate check will not.
 
 Stated plainly, because the gap between it and a usable library is the real question.
 
-- **Log-linear equations only.** Blocks carry already-linearised equations. A real
-  library needs the nonlinear equations plus a steady-state solver, otherwise second
-  order, welfare and `minimum_perturbation_order` are unreachable. This is the largest
-  remaining decision, and it is where Dynare or a symbolic steady state must be chosen.
+- ~~**Log-linear equations only.**~~ Closed. A component may declare
+  `equation_form: levels`, carry the model's own non-linear equations and a steady state,
+  and the assembler solves that steady state, verifies it against every equation, and
+  evaluates the Jacobians there. A composition may not mix the two forms.
+- ~~**A toy solver.**~~ Closed, twice over. Iteration on the policy function returned a
+  root with spectral radius 1.07 for a model with capital and called it a solution; the
+  solver is now a generalized Schur decomposition on the companion pencil with a Newton
+  polish, and it carries a thirty-seven-equation model with its own flexible-price twin.
+- ~~**One core, three blocks.**~~ Closed: four cores and twenty-four components, and the
+  representation did need the work this item anticipated -- a component that introduces
+  variables and equations together, and one that supplies a whole parallel economy.
 - **No estimation.** The `prior` fields are declared and validated but nothing samples
-  from them. The data contract (observables, transformations, sample, hashes) is not
-  implemented.
-- **One core, three blocks.** The checks generalise; the equation representation will
-  need more work for blocks that introduce variables and equations together, such as
-  the financial accelerator.
-- **A toy solver.** Iteration on the policy function is adequate for six equations and
-  is validated against the closed form here. It is not a substitute for a QZ-based
-  solver on a medium-scale model.
+  from them. This is now the most visible gap: `smets-wouters-2007` reproduces the
+  model's dynamics and declares its seven observables, their transformations and its
+  sample, and its tier stays at `composed` for want of a sampler.
+- **No unconditional moments.** The headline result of `smets-wouters-2007` is a variance
+  decomposition and this computes impulse responses only. The first order already
+  provides what a moments tier needs; what is missing besides the code is a detrending
+  convention for the entries carrying a unit root.
+- **The suite takes about eight minutes**, and where the time goes has not been
+  measured. The parts added with the medium-scale entry account for about thirty seconds
+  of it -- its thirty-five golden targets, nesting targets included, evaluate in
+  twenty-three, and its property tests in six -- so the bulk is elsewhere and should be
+  profiled before anything is optimised.
+  One change is worth making whatever the profile says, because it is a defect in the
+  numerical path rather than a cost: the assembler substitutes parameter values BEFORE
+  differentiating, so every parameter sweep re-differentiates the whole system. A nesting
+  target drives a friction through four values and pays for four symbolic differentiations
+  of a twenty- to thirty-seven-equation system. Differentiating once with the parameters
+  kept symbolic, and substituting numbers afterwards, would make a sweep almost free. Not
+  done here: it belongs with its own verification, not in an entry's commit.
 
 ## Running it
 

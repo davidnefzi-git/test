@@ -1,0 +1,85 @@
+id: wage-indexation
+kind: friction
+friction: Partial indexation of non-reset wages to past price inflation
+summary: >
+  A wage that is not renegotiated still rises, by a fraction of last quarter's price
+  inflation. As with prices, the friction puts a lag into the wage equation and so makes
+  the real wage carry more history than nominal stickiness alone would give it.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: []
+  requires: [w, mrs, pi, mkw]
+
+parameters:
+  - name: iota_w
+    symbol: "ι_w"
+    description: Degree of indexation of non-reset wages to past price inflation
+    default: 0.58
+    units: null
+    frequency: none
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.50, 0.15]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+equations:
+  - id: wage-pc-indexed
+    expr: "kappa_w_inv*((1 + beta_bar*gamma_g)*w - w(-1) - beta_bar*gamma_g*w(+1) - iota_w*pi(-1) + (1 + beta_bar*gamma_g*iota_w)*pi - beta_bar*gamma_g*pi(+1) - (1 + beta_bar*gamma_g)*mkw) - (mrs - w)"
+    description: >
+      The indexed wage Phillips curve. It differs from the equation it replaces in
+      exactly two terms, the lagged inflation term and the coefficient on current
+      inflation, so that iota_w = 0 returns the replaced equation algebraically.
+    source: "Smets and Wouters (2007), eq. (13), rearranged"
+
+replaces: [calvo-wages-kimball.wage-pc]
+depends_on: [calvo-wages-kimball]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: iota_w
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, calvo-wages-kimball, fisher-equation, rule-inflation-only]
+  statement: >
+    At iota_w = 0 the indexed wage curve is the unindexed one, so the composition must
+    reproduce itself exactly.
+  tolerance: 1.0e-6
+  # First order in iota_w.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: w
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    One equation, written from the article. Verified by the nesting target above and by
+    the golden targets of smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

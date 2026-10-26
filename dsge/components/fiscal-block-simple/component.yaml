@@ -1,0 +1,99 @@
+id: fiscal-block-simple
+kind: policy
+summary: >
+  Exogenous government spending, as an AR(1) process with a contemporaneous response to
+  the technology innovation. The cross-term is not decoration: Smets and Wouters estimate
+  it at about one half and introduce it because their spending series contains net
+  exports, which move with productivity. A model that drops it attributes that
+  covariation to the spending shock itself.
+
+  Deliberately simple -- no distortionary taxation, no debt, no fiscal rule -- and named
+  so, to leave the name fiscal-block free for a component that has those things.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: [g]
+  requires: []
+
+parameters:
+  - name: rho_g
+    symbol: "ρ_g"
+    description: Persistence of exogenous spending
+    default: 0.97
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_ga
+    symbol: "ρ_ga"
+    description: Contemporaneous response of spending to the technology innovation
+    default: 0.52
+    units: null
+    frequency: none
+    range: [-1.0, 2.0]
+    method: estimated
+    source: >
+      Smets and Wouters (2007), Table 1B, posterior mean. The printed table gives this a
+      beta prior, B(0.5, 0.2^2); the replication code uses a normal, N(0.5, 0.25^2), and
+      a beta prior would in any case be incompatible with the negative values the
+      parameter can take. The code's prior is recorded here, and the discrepancy is
+      recorded in the entry's verification notes.
+    prior:
+      family: normal
+      hyperparameters: [0.5, 0.25]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation; see source on the printed table's disagreement"
+
+equations:
+  - id: spending
+    expr: "g - rho_g*g(-1) - eps_g - rho_ga*eps_a"
+    description: >
+      Spending follows an AR(1) driven by its own innovation and by the technology
+      innovation. `eps_a` is declared by the core, not here: a component may fire another
+      component's shock, and this one must, since the cross-term is the whole point.
+    source: "Smets and Wouters (2007), Table 1B and section III"
+
+shocks:
+  - id: eps_g
+    description: Innovation to exogenous spending
+    normalisation: one unit
+    sign_convention: positive raises spending
+    sd: 0.53
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+
+replaces: []
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+verification:
+  reviewed_by: null
+  notes: >
+    One equation, written from the article's shock specification. Verified in composition
+    by the spending-shock golden targets of smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

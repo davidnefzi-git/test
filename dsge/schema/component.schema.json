@@ -100,6 +100,13 @@
             "type": "string"
           },
           "description": "Variables used but introduced elsewhere. A composition in which no included component provides one of these is refused."
+        },
+        "requires_shadow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variables this component needs from a FLEXIBLE-PRICE TWIN of the model rather than from the model itself: Smets-Wouters's policy rule needs flexible-price output. Named by their taxonomy name, without the twin's suffix; the equation writes the suffixed form, y_f, and the assembler checks that the composition declares a shadow supplying it. Declared rather than left implicit so that composing such a component without a twin fails at the closure check, with a message that says what is missing, instead of failing later on an unresolved symbol."
         }
       }
     },
@@ -124,6 +131,19 @@
           },
           "sign_convention": {
             "type": "string"
+          },
+          "sd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimated or calibrated standard deviation of the innovation. Documentation only as far as the solver is concerned -- impulse responses here are to a unit innovation -- but it is part of the model's calibration and an estimation that used the wrong one would be wrong, so it carries a source like any other number."
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       }
@@ -387,6 +407,13 @@
               "description": "Decreasing (or increasing) values of `parameter` approaching `limit`. The response must move monotonically towards the limiting value along this sequence."
             }
           }
+        },
+        "with_also": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Components present in the with-block only, because they exist only as a consequence of the component under test. Without sticky prices a model has no inflation, and therefore no Fisher equation and no interest-rate rule: the two sides of the nesting test then cannot be built from the same component list. The limit is still the composition named in `recovers`, which contains none of these."
         }
       }
     },

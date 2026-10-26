@@ -36,6 +36,12 @@ COMPONENT_SCHEMA_PATH = REPO_ROOT / "schema" / "component.schema.json"
 LEAD, LAG, NOW = "_tp1", "_tm1", "_t"
 
 
+# Memoised solutions, keyed by equations and parameters; see Composition.solve for why
+# the equations are in the key. Process-local, so a mutation test in a fresh process
+# never sees another process's entries.
+_SOLVE_CACHE: dict[tuple, tuple] = {}
+
+
 class CompositionError(ValueError):
     pass
 
@@ -46,11 +52,35 @@ def _component_validator() -> Draft202012Validator:
         return Draft202012Validator(json.load(f))
 
 
+class _NoDuplicateKeys(yaml.SafeLoader):
+    """A loader that refuses a mapping with a repeated key.
+
+    yaml.safe_load keeps the last of two identical keys and says nothing. The
+    namespace had `q` declared twice -- Tobin's q and the real exchange rate -- and
+    for several commits the first declaration simply did not exist. Nothing failed:
+    every check downstream asks whether a name is in the namespace, and the name was,
+    with the wrong meaning attached. A namespace whose entries can be silently
+    dropped is not a shared commitment, so the file is refused instead.
+    """
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if key in seen:
+                raise CompositionError(
+                    f"taxonomy/variables.yaml declares '{key}' twice. YAML would keep "
+                    f"only the second, so one declaration would be silently discarded."
+                )
+            seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
 @lru_cache
 def variable_namespace() -> dict[str, dict]:
     """taxonomy/variables.yaml: the namespace component equations are written in."""
     with open(TAXONOMY_DIR / "variables.yaml") as f:
-        return yaml.safe_load(f) or {}
+        return yaml.load(f, Loader=_NoDuplicateKeys) or {}
 
 
 def component_dirs():
@@ -137,6 +167,16 @@ def validate_component(component: dict[str, Any], folder_name: str | None = None
     return errors
 
 
+def _rename_vars(expr: str, mapping: dict[str, str]) -> str:
+    """Rename variables in an equation string, leaving parameters and calls alone.
+
+    One pass over identifier tokens, so a rename can never apply twice and `y_star`
+    cannot be mangled by a rule for `y`.
+    """
+    return re.sub(r"[A-Za-z_][A-Za-z0-9_]*",
+                  lambda m: mapping.get(m.group(0), m.group(0)), expr)
+
+
 def _subst(expr: str, variables: list[str], shocks: list[str]) -> str:
     """Rewrite x(+1), x(-1) and x into distinct sympy symbol names."""
     out = expr
@@ -153,9 +193,11 @@ def _subst(expr: str, variables: list[str], shocks: list[str]) -> str:
 class Composition:
     """A core plus a set of blocks, with the checks that make it a model."""
 
-    def __init__(self, core: str, blocks: list[str] | None = None):
+    def __init__(self, core: str, blocks: list[str] | None = None,
+                 shadow: dict[str, Any] | None = None):
         self.core_id = core
         self.block_ids = list(blocks or [])
+        self.shadow_spec = shadow
         self.ids = [core] + self.block_ids
         if len(set(self.ids)) != len(self.ids):
             raise CompositionError("a component is listed twice")
@@ -220,15 +262,6 @@ class Composition:
         self.provider = provider
         self.variables = sorted(provider)
 
-        missing = []
-        for cid, c in comps.items():
-            for v in c["variables"]["requires"]:
-                if v not in provider:
-                    missing.append((cid, v))
-        if missing:
-            detail = "; ".join(f"'{c}' requires '{v}'" for c, v in missing)
-            raise CompositionError(f"unprovided variables: {detail}")
-
         replaced: dict[str, str] = {}
         all_eq_ids = {f"{cid}.{e['id']}" for cid, c in comps.items() for e in c["equations"]}
         for cid, c in comps.items():
@@ -257,6 +290,39 @@ class Composition:
             {s["id"] for c in comps.values() for s in (c.get("shocks") or [])}
         )
 
+        # A flexible-price twin, if the model needs one. Merged here, before the two
+        # closure checks below, so that the twin is held to the same conditions as the
+        # host rather than to none.
+        self.shadow = None
+        if self.shadow_spec is not None:
+            self._merge_shadow()
+
+        for cid, c in comps.items():
+            wanted = c["variables"].get("requires_shadow") or []
+            if not wanted:
+                continue
+            if self.shadow is None:
+                raise CompositionError(
+                    f"component '{cid}' requires {', '.join(wanted)} from a "
+                    f"flexible-price twin, and this composition declares no shadow"
+                )
+            suffix = self.shadow["suffix"]
+            absent = [v for v in wanted if v + suffix not in self.shadow["variables"]]
+            if absent:
+                raise CompositionError(
+                    f"component '{cid}' requires {', '.join(v + suffix for v in absent)} "
+                    f"from the twin, which does not provide it; the twin provides "
+                    f"{', '.join(self.shadow['variables'])}"
+                )
+
+        missing = []
+        for cid, c in comps.items():
+            for v in c["variables"]["requires"]:
+                if v not in provider:
+                    missing.append((cid, v))
+        if missing:
+            detail = "; ".join(f"'{c}' requires '{v}'" for c, v in missing)
+            raise CompositionError(f"unprovided variables: {detail}")
 
         if len(self.equations) != len(self.variables):
             raise CompositionError(
@@ -264,6 +330,114 @@ class Composition:
                 f"{len(self.variables)} endogenous variables "
                 f"({', '.join(self.variables)})"
             )
+
+
+    # ------------------------------------------------------------------ shadow --
+    def _merge_shadow(self) -> None:
+        """Add a flexible-price twin of this model, built from its own components.
+
+        WHY A MECHANISM AND NOT TEN MORE EQUATIONS
+
+        Smets-Wouters's policy rule responds to the output gap, and the gap's second
+        term is the output of a parallel economy in which prices and wages are flexible.
+        The reference implementation writes that economy out a second time: eleven more
+        equations, eleven more variables, every coefficient repeated. Nothing links the
+        two copies, so an author who corrects the sticky Euler equation and not its twin
+        gets a model that still assembles, still solves, and whose output gap is now
+        measured against the wrong benchmark. The error is invisible because the twin
+        has no observable of its own -- it only shifts the gap.
+
+        So the twin is not written. It is COMPOSED, from a subset of the host's own
+        components, and the subset is the point: the flexible-price economy is this
+        model with its nominal frictions removed, which means every equation the two
+        economies share is stored exactly once. Correcting the Euler equation corrects
+        both, necessarily.
+
+        The spec has four fields:
+
+          components  which of the host's components the twin is built from. Required to
+                      be a SUBSET of the host's, which is what rules out drift.
+          suffix      appended to each twin variable: y -> y_f.
+          shared      variables the two economies hold in common rather than duplicate.
+                      The exogenous processes: both economies are driven by the same
+                      realised technology, not by two independent draws.
+          drop        equations of the twin that the host already supplies -- the laws
+                      of motion of the shared processes. Stated explicitly, by id, so
+                      that a mistake shows up as a closure failure and not as a second
+                      technology process quietly fighting the first.
+        """
+        spec = self.shadow_spec
+        unknown = set(spec) - {"components", "suffix", "shared", "drop", "note"}
+        if unknown:
+            raise CompositionError(f"shadow: unknown field(s) {', '.join(sorted(unknown))}")
+        sub_ids = list(spec.get("components") or [])
+        if not sub_ids:
+            raise CompositionError("shadow: 'components' is empty")
+        outside = [cid for cid in sub_ids if cid not in self.components]
+        if outside:
+            raise CompositionError(
+                f"shadow uses component(s) the host does not compose: {', '.join(outside)}. "
+                f"A twin may only be built from the host's own components -- that is what "
+                f"makes it the same model with blocks removed, rather than a second model "
+                f"free to drift from it."
+            )
+        suffix = spec.get("suffix", "_f")
+        if not re.fullmatch(r"_[a-z][a-z0-9_]*", suffix):
+            raise CompositionError(f"shadow: suffix '{suffix}' must match _[a-z][a-z0-9_]*")
+
+        sub_core = [cid for cid in sub_ids if self.components[cid].get("kind") == "core"]
+        if len(sub_core) != 1:
+            raise CompositionError(
+                f"shadow: expected exactly one core among its components, found "
+                f"{len(sub_core)}"
+            )
+        inner = Composition(sub_core[0], [c for c in sub_ids if c != sub_core[0]])
+
+        shared = list(spec.get("shared") or [])
+        unknown_shared = [v for v in shared if v not in inner.provider]
+        if unknown_shared:
+            raise CompositionError(
+                f"shadow: shared variable(s) not in the twin: {', '.join(unknown_shared)}"
+            )
+        not_in_host = [v for v in shared if v not in self.provider]
+        if not_in_host:
+            raise CompositionError(
+                f"shadow: shared variable(s) the host does not provide: "
+                f"{', '.join(not_in_host)}"
+            )
+
+        drop = list(spec.get("drop") or [])
+        inner_ids = [eid for eid, _ in inner.equations]
+        unknown_drop = [e for e in drop if e not in inner_ids]
+        if unknown_drop:
+            raise CompositionError(
+                f"shadow: drop names equation(s) the twin does not contain: "
+                f"{', '.join(unknown_drop)} (it has {', '.join(inner_ids)})"
+            )
+
+        rename = {v: v + suffix for v in inner.variables if v not in shared}
+        twin_vars = sorted(rename.values())
+        clash = [v for v in twin_vars if v in self.provider]
+        if clash:
+            raise CompositionError(
+                f"shadow: twin variable(s) collide with the host: {', '.join(clash)}"
+            )
+
+        twin_eqs = [(f"{suffix.lstrip('_')}:{eid}", _rename_vars(expr, rename))
+                    for eid, expr in inner.equations if eid not in drop]
+
+        for v in twin_vars:
+            self.provider[v] = f"shadow({suffix})"
+        self.variables = sorted(self.provider)
+        self.equations = self.equations + twin_eqs
+        self.shadow = {
+            "composition": inner,
+            "suffix": suffix,
+            "shared": shared,
+            "dropped": drop,
+            "variables": twin_vars,
+            "rename": rename,
+        }
 
     # ------------------------------------------------------------ parameters --
     def parameters(self, overrides: dict[str, float] | None = None) -> dict[str, float]:
@@ -395,6 +569,11 @@ class Composition:
             )
         return values
 
+    def _steady_state_spec(self) -> tuple:
+        """The components' declared steady states, as part of the solve cache's key."""
+        return tuple(sorted((cid, repr(c.get("steady_state")))
+                            for cid, c in self.components.items()))
+
     def _residual_function(self, params: dict[str, float]):
         """F(y, y, y, 0) as a callable, for the steady-state solve and its check."""
         v, sh = self.variables, self.shocks
@@ -456,10 +635,39 @@ class Composition:
 
     # ------------------------------------------------------------------ solve --
     def solve(self, overrides: dict[str, float] | None = None):
+        """Solve, with the result memoised on the equations and the parameters.
+
+        The solution is a pure function of those two things, and building the Jacobians
+        means differentiating every equation symbolically, which is by far the most
+        expensive step in the library. Nothing above this layer knew to avoid repeating
+        it: the golden runner is handed one target at a time, so a model with
+        twenty-four targets was differentiated twenty-four times, and the suite spent
+        most of its time recomputing a matrix it already had.
+
+        The key includes the EQUATIONS and not only the component ids, so that a
+        mutation test -- which changes an equation while leaving the ids alone -- cannot
+        be served a stale solution. It includes the declared STEADY STATE for the same
+        reason, which is less obvious and was caught by an existing test: for a
+        composition written in levels the Jacobians are evaluated at that point, so two
+        compositions can share every equation and every parameter and still have
+        different solutions -- or, in that test's case, one solution and one refusal.
+        The returned arrays are made read-only, because a caller that wrote to them would
+        otherwise corrupt every later hit.
+        """
+        params = self.parameters(overrides)
+        key = (tuple(self.equations), tuple(self.shocks), self.equation_form,
+               self._steady_state_spec(), tuple(sorted(params.items())))
+        hit = _SOLVE_CACHE.get(key)
+        if hit is not None:
+            return hit
         from .lre import solve as _solve
         A2, A0, A1, B, params = self.matrices(overrides)
         P, Q = _solve(A2, A0, A1, B)
-        return P, Q, params
+        P.flags.writeable = False
+        Q.flags.writeable = False
+        out = (P, Q, params)
+        _SOLVE_CACHE[key] = out
+        return out
 
     def index(self, variable: str) -> int:
         return self.variables.index(variable)
@@ -475,6 +683,14 @@ class Composition:
         if self.replaced:
             lines.append("  replaced equations:")
             lines += [f"    {t} removed by {by}" for t, by in self.replaced.items()]
+        if self.shadow:
+            sh = self.shadow
+            lines.append(
+                f"  flexible-price twin '{sh['suffix']}' from "
+                f"{' + '.join(sh['composition'].ids)}"
+            )
+            lines.append(f"    shared with the host: {', '.join(sh['shared'])}")
+            lines.append(f"    twin variables: {', '.join(sh['variables'])}")
         lines.append(f"  shocks: {', '.join(self.shocks)}")
         lines.append(f"  equation form: {self.equation_form}")
         return "\n".join(lines)
@@ -516,8 +732,21 @@ def run_nesting(component_id: str) -> NestingResult:
     recovers = list(nt["recovers"])
     without = Composition(recovers[0], recovers[1:])
 
-    # The composition WITH the component: the recovering composition plus this one.
-    with_block = Composition(recovers[0], recovers[1:] + [component_id])
+    # The composition WITH the component: the recovering composition, this one, and
+    # any component that exists only BECAUSE this one does. Sticky prices are the case
+    # that forces the field: remove them and there is no inflation, hence no Fisher
+    # equation and no interest-rate rule either, so the two sides of the test cannot be
+    # the same component list. Listing them is not a loosening -- the limit still has to
+    # be the composition in `recovers`, which contains neither.
+    with_also = list(nt.get("with_also") or [])
+    overlap = [cid for cid in with_also if cid in recovers]
+    if overlap:
+        raise CompositionError(
+            f"{component_id}: nesting_target.with_also lists {', '.join(overlap)}, which "
+            f"is already in `recovers`; with_also is for components present only on the "
+            f"with-block side"
+        )
+    with_block = Composition(recovers[0], recovers[1:] + [component_id] + with_also)
 
     def response(comp, overrides):
         P, Q, params = comp.solve(overrides)
@@ -529,7 +758,10 @@ def run_nesting(component_id: str) -> NestingResult:
     for value in probe["sequence"]:
         r, params_last = response(with_block, {nt["parameter"]: float(value)})
         responses.append(r)
-        ratios.append((r - limit_value) / float(value))
+        # Divided by the DISTANCE to the limit, not by the parameter. The two coincide
+        # whenever the limit is zero, which it was for every component until capital
+        # utilisation, whose limit is psi = 1.
+        ratios.append((r - limit_value) / (float(value) - float(nt["limit"])))
 
     monotone = all(
         abs(responses[k + 1] - limit_value) < abs(responses[k] - limit_value)

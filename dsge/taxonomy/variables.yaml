@@ -113,10 +113,15 @@ inv:
   units: log deviation from steady state
   timing: contemporaneous
   common_variable: investment
-q:
+qk:
   description: Shadow value of installed capital (Tobin's q)
   units: log deviation
-  timing: contemporaneous
+  timing: >
+    contemporaneous, but FORWARD-looking: it is an asset price and enters its own
+    equation led, never lagged. Named qk and not q because `q` is the real exchange
+    rate below. The two were once both called q, and since YAML keeps only the last
+    of two identical keys, this declaration was silently discarded for a while; the
+    duplicate-key guard in modellib.compose now refuses the file outright.
   common_variable: null
 u:
   description: Capital utilisation rate
@@ -141,8 +146,16 @@ v:
   timing: predetermined (AR(1) in its own lag)
   common_variable: null
 g:
-  description: Government purchases
-  units: log deviation from steady state
+  description: Government purchases, in units of steady-state output
+  units: >
+    share of steady-state output: the log deviation of spending MULTIPLIED by its
+    steady-state share. The declaration said "log deviation" until the resource
+    constraint of core-nk-medium was written, where g appears additively beside
+    c_y*c and i_y*inv; for that to be an identity, g must already carry its share.
+    The difference is a factor of about five at a spending share of 0.18, so a
+    component that reads this as a plain log deviation will report a spending
+    multiplier five times too large and will not fail any test that does not check
+    the resource constraint against output.
   timing: predetermined (AR(1) in its own lag)
   common_variable: null
 
@@ -183,6 +196,61 @@ nx:
   description: Net exports, as a share of steady-state output
   units: share of steady-state output
   timing: contemporaneous
+  common_variable: null
+
+# --- medium-scale spine -----------------------------------------------------------
+rr:
+  description: Real interest rate, the one-period real return the household prices
+  units: log deviation (quarterly, not annualised)
+  timing: >
+    contemporaneous. Distinct from `rn`, the natural rate: `rr` is the real rate that
+    actually obtains, `rn` the one that would obtain under flexible prices. A component
+    that writes `i - pi(+1)` in place of `rr` is making the Fisher equation implicit,
+    which is legal but then no flexible-price twin of the model can be formed, because
+    that twin has no nominal rate and no inflation to subtract.
+  common_variable: null
+mrs:
+  description: Marginal rate of substitution between consumption and leisure
+  units: log deviation
+  timing: >
+    contemporaneous, but it inherits the timing of the consumption specification it is
+    built from: under habit formation the MRS carries c(-1), so a wage block that treats
+    `mrs` as purely contemporaneous will still assemble. Exposing the MRS as a variable
+    rather than writing it out inside the wage equation is what keeps a wage friction
+    independent of the consumption friction.
+  common_variable: null
+b:
+  description: Risk-premium (preference) wedge between the policy rate and the return on assets
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+zi:
+  description: Investment-specific efficiency, the shock to the marginal efficiency of investment
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+mkp:
+  description: Price markup process
+  units: log deviation
+  timing: >
+    predetermined, and ARMA(1,1) rather than AR(1). A first-order system cannot lag a
+    shock, so the MA term requires the auxiliary variable `mkp_aux` below. A component
+    that writes the innovation lagged instead will be rejected by the assembler.
+  common_variable: null
+mkp_aux:
+  description: Auxiliary variable equal to the price-markup innovation, carrying its lag
+  units: log deviation
+  timing: contemporaneous (equal to the innovation in the same period)
+  common_variable: null
+mkw:
+  description: Wage markup process
+  units: log deviation
+  timing: predetermined, ARMA(1,1); see `mkp` for why the auxiliary variable is needed
+  common_variable: null
+mkw_aux:
+  description: Auxiliary variable equal to the wage-markup innovation, carrying its lag
+  units: log deviation
+  timing: contemporaneous (equal to the innovation in the same period)
   common_variable: null
 
 # --- levels-form additions ---------------------------------------------------------

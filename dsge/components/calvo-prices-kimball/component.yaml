@@ -1,0 +1,177 @@
+id: calvo-prices-kimball
+kind: friction
+friction: Staggered price setting with a constant reset probability, under a Kimball aggregator
+summary: >
+  Calvo price setting as Smets and Wouters estimate it, which differs from the textbook
+  version in two ways that both matter numerically. The aggregator is Kimball rather than
+  Dixit-Stiglitz, so the demand elasticity rises with a firm's relative price and the
+  Phillips curve is flatter by the factor (phi_p - 1)*curv_p + 1; and the effective
+  discount factor is beta_bar*gamma, not beta, because the economy grows.
+
+  The equation is written with the INVERSE slope multiplying the inflation terms, so that
+  the flexible-price limit xi_p -> 0 is the core closure mc = 0 exactly rather than a
+  coefficient going to infinity.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: [pi, mkp, mkp_aux]
+  requires: [mc]
+
+parameters:
+  - name: xi_p
+    symbol: "ξ_p"
+    description: Probability that a price is NOT reset in a given quarter
+    default: 0.66
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.50, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: curv_p
+    symbol: "ε_p"
+    description: Kimball curvature of the goods market aggregator
+    default: 10.0
+    units: null
+    frequency: none
+    method: calibrated
+    source: >
+      Smets and Wouters (2007), fixed parameter, section III. A curvature, not an
+      elasticity of substitution: it is the parameter that makes the Phillips curve
+      flatter at a given reset probability, and it is not identified separately from
+      xi_p, which is why the authors fix it.
+  - name: rho_p
+    symbol: "ρ_p"
+    description: Persistence of the price markup process
+    default: 0.89
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: mu_p
+    symbol: "μ_p"
+    description: Moving-average coefficient of the price markup process
+    default: 0.69
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: kappa_p
+    description: Slope of the price Phillips curve in real marginal cost
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007), eq. (10): ((1-xi_p)(1-beta_bar*gamma*xi_p)/xi_p)/((phi_p-1)*curv_p+1)"
+    formula: "((1 - xi_p)*(1 - beta_bar*gamma_g*xi_p)/xi_p)/((phi_p - 1)*curv_p + 1)"
+  - name: kappa_p_inv
+    description: Reciprocal of the Phillips curve slope, the form the equation is written in
+    default: null
+    method: derived
+    source: "Reciprocal of kappa_p; see the equation's own description for why the reciprocal is used"
+    formula: "1/kappa_p"
+
+equations:
+  - id: price-pc
+    expr: "kappa_p_inv*(pi - beta_bar*gamma_g*pi(+1) - mkp) - mc"
+    description: >
+      The price Phillips curve, multiplied through by the reciprocal of its slope.
+
+      Written the usual way round, inflation equals a slope times marginal cost, and the
+      slope diverges as xi_p goes to zero: the flexible-price limit cannot be taken, and
+      the nesting test has nothing to converge to. In this form the limit is immediate --
+      at xi_p = 0 the equation reads mc = 0, which is the core closure this component
+      replaces, equation for equation. The solution is identical either way.
+    source: "Smets and Wouters (2007), eq. (10) at zero indexation, rearranged"
+  - id: price-markup-process
+    expr: "mkp - rho_p*mkp(-1) - mkp_aux + mu_p*mkp_aux(-1)"
+    description: >
+      The price markup follows an ARMA(1,1) and not an AR(1); the moving-average term is
+      what lets the model fit the high-frequency behaviour of inflation without a large
+      innovation variance.
+    source: "Smets and Wouters (2007), Table 1B"
+  - id: price-markup-innovation
+    expr: "mkp_aux - eps_p"
+    description: >
+      The auxiliary variable exists because a first-order system cannot lag a shock: the
+      moving-average term needs the PREVIOUS innovation, so the innovation is given a
+      variable of its own whose lag is then available. Not economics, but not a trick
+      either -- it is the standard way to put an ARMA process in a state-space model, and
+      leaving it out silently turns the process into an AR(1).
+    source: "Standard state-space treatment of a moving-average term"
+
+shocks:
+  - id: eps_p
+    description: Innovation to the price markup
+    normalisation: one unit
+    sign_convention: positive raises the markup, and so raises inflation at given marginal cost
+    sd: 0.14
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+
+replaces: [core-nk-medium.flex-price-mc]
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: xi_p
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost]
+  with_also: [fisher-equation, rule-inflation-only]
+  statement: >
+    As xi_p goes to zero every price is reset each quarter, the reciprocal slope goes to
+    zero, and the equation becomes mc = 0: the real allocation must then be the
+    flexible-price one, whatever the interest-rate rule. The Fisher equation and the rule
+    are listed in with_also rather than in recovers because they exist only as a
+    consequence of this component -- remove sticky prices and the model has no inflation
+    to Fisher and no rule to write.
+  tolerance: 1.0e-5
+  # First order in xi_p, constant measured at 1.28 and flat across the sequence.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: y
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Written from the article's equation (10). Verified by the nesting target above and in
+    composition by the golden targets of smets-wouters-2007, which include a transcribed
+    cross-check against an independent implementation of the full sticky model.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

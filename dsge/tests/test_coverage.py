@@ -40,7 +40,10 @@ def test_every_entry_declares_targets():
 def test_every_entry_composition_is_declared_and_assembles(d):
     from modellib.compose import Composition
     spec = yaml.safe_load((d / "manifest.yaml").read_text())["composition"]
-    c = Composition(spec["core"], spec["blocks"])
+    # The flexible-price twin is part of the composition, not a decoration on it: an
+    # entry whose policy rule reads flexible-price output is not closed without its
+    # twin, so the check that the composition assembles has to assemble the twin too.
+    c = Composition(spec["core"], spec["blocks"], spec.get("shadow"))
     assert len(c.equations) == len(c.variables)
 
 
@@ -54,7 +57,13 @@ def test_every_component_appears_in_some_entry():
     # Variants deliberately held outside the default compositions are listed here, and
     # each must be exercised by a test of its own.
     variants = {"rotemberg-prices", "rule-cpi-inflation", "rule-exchange-rate-peg",
-                "rule-optimal-domestic-price-stability", "core-rbc-hansen"}
+                "rule-optimal-domestic-price-stability", "core-rbc-hansen",
+                # Closes the nominal side on its own, which is what lets the four
+                # nominal frictions of the medium-scale family have nesting targets at
+                # all: the estimated rule's output gap is measured against the very twin
+                # a flexible-price limit collapses onto. Exercised by those targets and
+                # by three tests of its own in tests/test_medium_scale.py.
+                "rule-inflation-only"}
     orphans = {d.name for d in component_dirs()} - used - variants
     assert not orphans, f"components no entry composes and no variant list covers: {orphans}"
 
