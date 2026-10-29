@@ -59,6 +59,21 @@ def _shadow_names(comp):
     return {v + "_f" for v in (comp["variables"].get("requires_shadow") or [])}
 
 
+# The origin of an equation is distinct from its verification against a source.
+# A canonical status alone must never be read as a certified transcription.
+SOURCE_CHECK_VALUES = {
+    "verified_primary", "verified_working_paper", "pending", "standard_identity"
+}
+
+@pytest.mark.parametrize("d", DIRS, ids=lambda d: d.name)
+def test_every_equation_declares_primary_source_check(d):
+    for eq in COMPS[d.name]["equations"]:
+        assert eq.get("source_check") in SOURCE_CHECK_VALUES, (
+            f"{d.name}.{eq['id']}: missing or invalid independent source-check status"
+        )
+        if eq["source_check"] in {"verified_primary", "verified_working_paper"}:
+            assert eq.get("source"), f"{d.name}.{eq['id']}: no traceable source"
+
 # ------------------------------------------------------------------ interfaces -------
 @pytest.mark.parametrize("d", DIRS, ids=lambda d: d.name)
 def test_every_variable_used_is_declared(d):
