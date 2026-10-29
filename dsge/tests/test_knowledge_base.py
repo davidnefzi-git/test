@@ -227,7 +227,7 @@ def test_every_derivation_pointer_resolves(d):
     anchor in place, as a line reading **Anchor: `<name>`**. A derivation cannot then be
     renamed or deleted while a component still points at it.
 
-    calvo-wages pointed at 'spec/model.md of ehl-2000' for two of its equations. That
+    calvo-wages pointed at the Galí chapter-6 model specification for two of its equations. That
     document does not exist and never did in this tree.
     """
     for e in COMPS[d.name]["equations"]:
