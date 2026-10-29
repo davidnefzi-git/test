@@ -120,47 +120,12 @@ shocks:
 verification:
   tier: composed
   notes: >
-    The DYNAMICS are reproduced, at the posterior means of Tables 1A and 1B. The
-    estimation is not: there is no Bayesian sampler here, so the tier is `composed` and
-    not `estimation_replicated`.
-
-    Verified in three layers.
-
-    Closed forms. The sharpest is a neutrality result: in the flexible-price twin a
-    risk-premium shock moves nothing at all, because the equilibrium real rate falls by
-    exactly the width of the premium. That holds only if the wedge enters the Euler
-    equation at -c_3 and the capital arbitrage equation at -1, so one target pins two
-    coefficients.
-
-    An independent implementation. Both economies were compared against a separate
-    transcription of a third-party Dynare replication of the same article, in its own
-    notation, with its own parameterisation path and its own equation forms, solved
-    separately. Agreement is at machine precision -- the worst residual being 2.8e-13
-    over seven shocks, thirty-three variables and eight periods -- once two documented
-    differences are accounted for. Both are differences between the ARTICLE and that
-    replication rather than errors in either, and this entry follows the article in both:
-    the risk-premium wedge's sign and scale, and the factor (1 + beta_bar*gamma) on the
-    investment shock in the capital accumulation equation, which Del Negro and
-    Schorfheide (2012) showed the replication omits.
-
-    Mutation. Every equation of the twelve components perturbed in turn: eighty-nine
-    mutants, eighty-five killed, four provably unkillable (three sign flips on an
-    equation that is a single identifier, where a homogeneous equation times minus one
-    has the same solution set, and one scaling of a parameter that is deliberately zero).
-    The five real survivors were the same gap five times, and closing it needed a new
-    kind of test -- see spec/model.md.
-
-    And the defect that none of those layers caught on its own. The risk-premium wedge
-    was first implemented with the wrong SIGN, so that a wider premium raised
-    consumption. The cross-check agreed to 1e-13 before the correction and after it,
-    because it fits a scale factor for that one shock and a fitted factor absorbs a sign.
-    The closed form did not catch it either: the twin's neutrality is a cancellation
-    between two coefficients, and it holds whichever sign the pair carries so long as
-    they carry the same one. What caught it was reading the impulse response against the
-    article's own sentence. Where a cross-check fits a normalisation it verifies
-    structure, not orientation -- and that is exactly where the risk of misreading the
-    article is highest, since a factor has to be fitted only when the two sources
-    disagree about it.
+    First-order dynamics of the Smets–Wouters model at the documented parameter
+    values. The source PDF supplied is ECB Working Paper No. 722 (2007), not the
+    final AER printing. The economic sign of the risk-premium disturbance and the
+    investment-specific shock coefficient in capital accumulation follow the
+    equations of the working-paper version. Estimation and welfare are outside
+    the scope of this representation.
   open_questions:
     - "The estimation is not reproduced: no Bayesian sampler, and the authors' data are not redistributable."
     - "The variance decomposition that is the article's headline result needs unconditional moments, which this harness does not compute."
