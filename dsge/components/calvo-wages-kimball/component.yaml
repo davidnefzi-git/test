@@ -131,3 +131,68 @@ shocks:
     source: "Smets and Wouters (2007), Table 1B, posterior mean"
 
 replaces: [core-nk-medium.flex-wage]
+depends_on: [core-nk-medium]
+incompatible_with: [calvo-wages]
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: xi_w
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  statement: >
+    As xi_w goes to zero wages are reset every quarter, the wage markup gap is held at
+    zero and the real wage equals the marginal rate of substitution -- the core's
+    flexible-wage closure. The recovering composition keeps sticky prices, so what is
+    being tested is the removal of ONE friction and not of the nominal side as a whole.
+  tolerance: 1.0e-5
+  # First order in xi_w.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: w
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: markup-against-a-supplied-mrs
+    status: library
+    embodied_in: [wage-pc]
+    statement: >
+      The wage markup is measured against the marginal rate of substitution that the core
+      supplies as a variable, rather than against the household first-order condition
+      substituted in place.
+    substituting: >
+      Algebraically identical at the article's own consumption specification, and
+      deliberately different in form: the substituted version makes this block depend on
+      the consumption block, so a model written that way cannot have its consumption
+      specification changed without editing its wage equation.
+  - id: kimball-labour-aggregator
+    status: canonical
+    embodied_in: [wage-pc]
+    statement: >
+      Labour services are aggregated by a Kimball aggregator with curvature curv_w, which
+      is a curvature and not an elasticity of substitution.
+    substituting: >
+      Galli's epsilon_w in calvo-wages is an elasticity of substitution with a different
+      default; conflating the two changes the slope by roughly a factor of two, which is
+      why the two components use different names.
+
+verification:
+  reviewed_by: null
+  notes: >
+    Smets–Wouters wage equation written using the separately declared household marginal rate of substitution.
+
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"
