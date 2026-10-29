@@ -1,0 +1,61 @@
+id: nk-gali-2015-ch6
+name: Sticky-price and sticky-wage benchmark (Galí 2015, chapter 6)
+family: monetary-dsge
+summary: >
+  Galí (2015, chapter 6) New Keynesian model with staggered price and wage setting.
+  The entry extends the chapter-3 benchmark with differentiated labour and nominal
+  wage rigidity while preserving the same price-setting block.
+composition:
+  core: core-nk-classical
+  blocks: [calvo-prices, calvo-wages, taylor-rule]
+citation:
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapter 6"
+  journal: "Princeton University Press"
+  doi: null
+
+economics:
+  question: >
+    How does monetary transmission change when wages as well as prices are set in
+    staggered contracts, and what does the central bank then face?
+  time: dynamic-stochastic
+  uncertainty: aggregate
+  open_economy: false
+  agents: [representative household supplying differentiated labour, monopolistically competitive firms, central bank]
+  equilibrium: >
+    Symmetric monopolistically competitive equilibrium in both goods and labour markets,
+    log-linearised about the zero-inflation steady state.
+  frictions: [staggered price setting, staggered nominal wage setting]
+  mechanisms: [nominal-rigidity, real-rigidity]
+  policy_instruments: [nominal interest rate]
+  calibration_region: null
+
+common_variable_map:
+  # Four of the family's nine. The model has no capital and no separate consumption
+  # aggregate, and it carries the real wage GAP (omega_tilde) rather than the level of
+  # the real wage, so `real_wage` would be a different object under the same name.
+  output_gap: x
+  inflation: pi
+  policy_rate: i
+  output: y
+
+shocks:
+  - id: eps_v
+    description: Monetary policy shock
+    normalisation: one unit, positive is contractionary
+  - id: eps_a
+    description: Technology shock
+    normalisation: one unit, positive raises productivity
+
+provenance:
+  license: "Own implementation from Galí (2015), chapter 6"
+  permission_note: >
+    The operative equations and derived wage identities are documented in
+    docs/theory/wage-setting.md.
+
+verification:
+  tier: composed
+  notes: >
+    Analytical limit checks validate the Galí chapter-6 first-order dynamics
+    represented by this composition.
