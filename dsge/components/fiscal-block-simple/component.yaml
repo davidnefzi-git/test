@@ -52,8 +52,8 @@ parameters:
       parameter can take. The code's prior is recorded here, and the discrepancy is
       recorded in the entry's verification notes.
     prior:
-      family: normal
-      hyperparameters: [0.5, 0.25]
+      family: beta
+      hyperparameters: [0.5, 0.2]
       fixed: false
       note: "hyperparameters are mean and standard deviation; see source on the printed table's disagreement"
 
