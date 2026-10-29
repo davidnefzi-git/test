@@ -284,7 +284,7 @@ equations:
       Real marginal cost as the cost-share-weighted average of the two factor prices,
       less productivity. A definition, given the factor prices; with flexible prices it
       becomes the restriction mc = 0 on those prices instead.
-    source: "Smets and Wouters (2007), ECB WP 722, eq. (9), PDF p. 15 (price markup / marginal cost)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (9), PDF p. 15 (marginal cost)"
   - id: factor-demand
     status: original
     source_check: verified_working_paper
@@ -377,7 +377,7 @@ equations:
       Exposed as a variable rather than written out inside the wage equation: that is
       what lets a wage friction be composed without knowing what the consumption
       specification is.
-    source: "Smets and Wouters (2007), ECB WP 722, eq. (12) at zero external habit, PDF p. 16"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (12), PDF p. 16 (MRS, zero habit)"
   - id: flex-wage
     status: original
     source_check: standard_identity
@@ -455,3 +455,75 @@ shocks:
       sourced rather than copied.
 
 replaces: []
+depends_on: []
+incompatible_with: []
+compatible_cores: []
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order. Welfare comparisons across the frictions this core carries need a second order, which the harness does not yet provide."
+
+assumptions:
+  - id: household-owned-capital
+    status: canonical
+    embodied_in: [value-of-capital, capital-accumulation, capital-services]
+    statement: >
+      Households own the capital stock, choose its utilisation and rent services to firms,
+      so the arbitrage condition for installed capital sits in the household's problem and
+      is discounted at the household's rate.
+    substituting: >
+      Under firm-owned capital the arbitrage condition moves to the firm's problem. Its
+      form survives; the discount factor need not, and a financial friction between the
+      two sides would then enter here rather than through the risk-premium wedge.
+  - id: balanced-growth-path
+    status: canonical
+    embodied_in: [capital-accumulation, resource-constraint, euler-no-habit]
+    statement: >
+      Output, consumption, investment, capital and the real wage grow at a common
+      deterministic gross rate gamma. Variables are deviations from that path, so the
+      effective discount factor is beta*gamma^(1-sigma_c) and the steady-state ratios
+      carry gamma.
+    substituting: >
+      Equations carried into a model without trend growth must have beta_bar*gamma
+      replaced by beta and the ratios recomputed; the coefficients are not dimensionless.
+      A stochastic trend invalidates the stationarisation outright. See
+      docs/theory/consumption-and-capital.md section 5.
+  - id: real-rate-formulation
+    status: library
+    embodied_in: [value-of-capital, euler-no-habit]
+    statement: >
+      The intertemporal margins are written in terms of a real rate rr, supplied by a
+      separate one-equation component, rather than in terms of i and expected inflation
+      directly.
+    substituting: >
+      Nothing economic turns on it, and it is what makes a flexible-price twin of the
+      model expressible at all: that twin has no nominal rate and no inflation to
+      subtract. A reader comparing this core with the article's own statement will find
+      the article writes r - pi(+1) inline.
+  - id: fixed-costs-in-production
+    status: canonical
+    embodied_in: [production, marginal-cost]
+    statement: >
+      Output is measured net of a fixed cost, so phi_p multiplies the whole production
+      bundle and equals the steady-state gross price markup. The capital exponent alpha is
+      therefore a production-function parameter and not a capital income share.
+    substituting: >
+      Removing the fixed cost sets phi_p to one, which changes the Kimball slope of the
+      price Phillips curve as well as the production function: the same parameter appears
+      in both.
+
+verification:
+  reviewed_by: null
+  notes: >
+    Real structural block of Smets–Wouters as stated in ECB Working Paper 722; no claim of final-AER line-by-line verification.
+
+  open_questions:
+    - "The measurement equations that map the model onto the seven observed series are not implemented, because no estimator is; they are declared in the data block of the smets-wouters-2007 manifest instead."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"
