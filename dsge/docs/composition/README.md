@@ -134,8 +134,8 @@ models/<model-id>/
     manifest.yaml                With a `composition` block instead of parameters of its own
     model.py                     Thin adapter: exposes the composition through modellib.Model
     golden/targets.yaml          Targets, including closed-form ones
-    tests/test_properties.py     The nesting test and any model-specific property
-tests/test_components.py         Every component validates against its schema
+    tests/test_medium_scale.py     The nesting test and any model-specific property
+tests/test_composition.py         Every component validates against its schema
 tests/test_composition.py        The assembler's checks, mostly negative controls
 docs/composition/README.md       This file
 ```
@@ -322,6 +322,92 @@ A component needing the twin declares `variables.requires_shadow`, so that compo
 without one fails at the closure check with a message naming what is missing, rather than
 later on an unresolved symbol.
 
+### 2.2e Economic contracts, beside the technical interface
+
+`provides` / `requires` / `replaces` is an interface between *equation systems*. It
+establishes that a composition closes, that no variable is determined twice and that no
+equation is removed twice. It cannot establish that the blocks rest on the same view of
+the economy.
+
+Two components can agree on every variable name and still disagree about whether markets
+are complete, how expectations are formed, what an asset return is, or what "the real
+wage" means. A library built for compositions nobody has tried yet has to say so, and the
+place it says so is the `assumptions` field on each component.
+
+Each entry names an assumption, states it in terms a reader can check against the
+equations, names the equations in which it is operative, says whether it is the cited
+work's or this library's, and — where the consequences are known — what replacing it would
+require.
+
+```yaml
+assumptions:
+  - id: complete-international-markets
+    status: canonical
+    embodied_in: [risk-sharing, consumption]
+    statement: >
+      Households trade a full set of state-contingent claims internationally, so
+      marginal utilities are equalised across countries state by state...
+    substituting: >
+      Four coupled changes, not one substitution: the risk-sharing equation gives way to
+      a current-account identity plus a debt-elastic premium or a portfolio condition;
+      net foreign assets become a state; the consumption-output relation acquires a
+      wealth term; and a stationarity device is needed...
+```
+
+**The `substituting` field is the one that earns its keep**, and the example shows why. A
+compatibility flag — "incompatible with incomplete markets" — would have been shorter and
+would have implied that some other block could be mounted in its place. The field instead
+says that the substitution is four changes and names them. Likewise, habit formation is
+not a parameter one raises from zero: external and internal habit differ in the number of
+leads the Euler equation carries, and the field says so rather than letting a reader
+assume a reparameterisation.
+
+Three rules keep the field from becoming a catalogue.
+
+1. **Only assumptions that bear on composition**: those another component might
+   contradict, or that a reader must grant before transplanting the equations. Not the
+   model's whole content.
+2. **`embodied_in` must name equations that exist.** An assumption embodied in no equation
+   is either not this component's or an equation that is missing, and a test checks it.
+3. **Declare a compatibility only if it can be justified theoretically.** Where the
+   consequences of a substitution have not been worked out, `substituting` is null. The
+   library documents an adaptation without performing it; it does not invent a
+   compatibility to fill a cell.
+
+### 2.2f What an equation is, with respect to its source
+
+`source` is free text, and free text cannot be relied on for the one question a reader
+most needs answered: is this the publication's equation, an algebraic rearrangement of it,
+a deliberate departure from it, or something nobody has checked?
+
+Before this field existed, sixteen of the library's equations carried that information in
+prose — "rearranged", "at lambda = 0", "at zero adjustment cost", "per the annotation of a
+third-party Dynare replication" — three carried no source at all, and the remaining
+fifty-nine looked original without the file being able to say so.
+
+Every equation now declares a `status`:
+
+| status | meaning |
+|---|---|
+| `original` | attested in the cited publication, at the section or equation number `source` gives |
+| `derived` | obtained mathematically from relations in that publication; `derivation` must point at the steps |
+| `adapted` | the publication's assumptions or conventions are deliberately changed; `derivation` must point at the statement of what changed and why |
+| `standard` | a textbook relation or accounting identity not specific to the work cited — a Fisher equation, an AR(1) process, a resource constraint |
+| `unverified` | the source or the correspondence with it is not established |
+
+`unverified` is an honest label and not a failure: it marks what a reader must check
+before relying on the equation. Using it where it applies is the point of having it.
+
+**Pointers resolve or the test fails.** A `derivation` is `docs/theory/<file>.md#<anchor>`,
+and the document declares the anchor in place. A derivation cannot then be renamed or
+deleted while a component still points at it — which had already happened: two equations
+pointed at a document that did not exist in this tree, so two of the three equations of
+the wage block were derived with no derivation anywhere.
+
+**The derivations live in one place.** A component does not restate the algebra it points
+at. The alternative — each component carrying its own derivation — would have duplicated
+the Calvo derivation five times, and independently maintained copies diverge.
+
 ### 2.3 Definition of done for a component
 
 Mirrors the model checklist in `CLAUDE.md`, and is additional to it.
@@ -350,8 +436,8 @@ references it.
 | Branch | Contents |
 |---|---|
 | `taxonomy/<topic>` | `taxonomy/variables.yaml`, `taxonomy/families.yaml` |
-| `schema/<topic>` | `schema/*.json`, this document, `docs/decisions.md` |
-| `harness/<topic>` | `modellib/*`, `tests/test_composition.py`, `tests/test_components.py` |
+| `schema/<topic>` | `schema/*.json`, this document, `docs/audit-2026-10.md` |
+| `harness/<topic>` | `modellib/*`, `tests/test_composition.py`, `tests/test_composition.py` |
 | `component/<component-id>` | One component, and nothing else |
 | `model/<model-id>` | One model entry, and nothing else |
 

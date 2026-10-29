@@ -1,222 +1,243 @@
-# DSGE composition-layer prototype
+# A library of canonical DSGE models and reusable structural components
 
-A working test of a composition design for a structural-model library. It assembles the basic New Keynesian model of
-Galí (2015, ch. 3) from a classical core plus two blocks, rather than writing it as one
-file, and verifies the result against closed-form solutions.
+## What this is for
 
-Written from the textbook equations. No third-party replication file is reproduced, so
-nothing here carries another project's licence.
+This library exists so that the specification of a structural macroeconomic model can be
+**recovered, understood and reused** — not merely run.
 
-## Why this model
+Three uses, in increasing order of difficulty:
 
-The simplest canonical case. Its solution for a monetary policy shock is known in closed
-form, so the assembler can be checked exactly instead of to a transcribed decimal; and it
-nests the classical model, so the nesting test has a known target. If the design fails
-here, nothing larger is worth attempting.
+1. **Recover a canonical model.** Its environment, the agents' problems, its equilibrium
+   conditions, its complete equation system, its parameters with their sources, its steady
+   state, and the theoretical properties that hold in it.
+2. **Understand a mechanism.** What economic primitives a friction rests on, which
+   first-order conditions produce its equations, which approximations were taken, and what
+   the resulting coefficients mean.
+3. **Reuse a mechanism somewhere else.** Which assumptions must hold for its equations to
+   remain valid, which other mechanisms contradict it, and which steps of its derivation
+   have to be redone when the surrounding economy differs from the one it came from.
 
-## Result
+The third is the hard one and it is the reason the library is organised the way it is. A
+linearised equation is not a portable object. Having the Euler equation with habit
+formation does not let you reintroduce it into an economy whose budget constraint, assets
+or household structure differ. Having a Phillips curve does not let you reconstruct the
+pricing problem without the aggregation technology, the competitive structure and the
+firm's optimality conditions. A library that stores only equations supports the first use
+and quietly fails the third.
 
-```
-$ python -m pytest -q
-167 passed in 36s
+## What this is not
 
-$ python -m modellib golden nk-gali-2015-ch3     #  9 targets
-$ python -m modellib golden ehl-2000             #  5 targets
-$ python -m modellib golden gali-monacelli-2005  #  5 targets
-$ python -m modellib golden smets-wouters-2007   # 35 targets
-```
+Not an estimation environment, not a DSGE solver intended to compete with Dynare, not a
+replication harness.
 
-Four composed entries and twenty-four components, across three model families: the
-three-equation New Keynesian benchmark, the same model with sticky wages as well as
-sticky prices, the canonical small open economy with the four policy regimes of its
-article as swappable components, and **Smets and Wouters (2007)** -- thirty-seven
-equations from twelve components, the workhorse estimated medium-scale model. Plus a
-real business cycle core written in **levels** rather than log-linearised, which the
-`tests/test_levels.py` suite exercises.
+There is a numerical engine, and its purpose is narrow: to establish that the equations
+written down are the equations intended, that the models close, and that the components
+compose. It is a verification instrument, not the product.
 
-Smets-Wouters is the entry that forced the last mechanism into the assembler, and it is
-worth reading for that reason. Its policy rule responds to output less output under
-FLEXIBLE PRICES, and the second term is the output of a parallel economy. The reference
-implementation writes that economy out a second time: eleven more equations, every
-coefficient repeated, nothing linking the two copies. Correct the sticky Euler equation
-and not its twin, and the model still assembles, still solves, and now measures its
-output gap against the wrong benchmark -- invisibly, because the twin has no observable
-of its own.
+There is no likelihood, no Kalman filter, no sampler, no data download. Information about
+calibrations, estimated values and priors **is** kept, because those are properties of the
+canonical models, but their presence is not a reason to build econometric machinery around
+them.
 
-So the twin is not written. It is **composed**, from a subset of the entry's own
-components, and the assembler enforces that subset condition: that is what makes the
-twin provably the same model with its nominal blocks removed, rather than a second model
-free to drift. Every equation the two economies share is stored exactly once.
-`models/smets-wouters-2007/spec/model.md` is the full account.
+---
 
-Every entry is also cross-checked against an independent transcription of the same
-published equation list, solved separately. Agreement is at machine precision
-throughout: 3.3e-16 and 1.4e-16 for the one-friction model under its two shocks,
-4.4e-16 and 3.3e-16 for the two-friction model, 2.0e-15 at worst for the open economy
-across twelve variables, four regimes and two calibrations, 1.6e-13 for the real
-business cycle model, and 2.8e-13 for Smets-Wouters across seven shocks, thirty-three
-variables and eight periods.
+## Organisation
 
-A cross-check is the strongest check here and it has one blind spot, which cost a defect
-to find. Where the two implementations adopt different conventions for a shock, the
-comparison has to fit a SCALE FACTOR for it -- and a fitted factor absorbs a SIGN. The
-risk-premium wedge of Smets-Wouters was implemented with the wrong sign, so that a wider
-premium raised consumption, and the cross-check agreed to 1e-13 both before and after
-the correction. The closed forms did not catch it either: the sharpest of them is that
-the wedge is exactly neutral in the flexible-price twin, and that is a cancellation
-between two coefficients, which holds whichever sign the pair carries so long as they
-carry the same one. What caught it was reading the impulse response against the
-article's own sentence.
+Two artefact types, and four layers of knowledge about them.
 
-So: where a cross-check fits a normalisation it verifies structure, not orientation --
-and that is exactly where the risk of misreading the article is highest, since a factor
-has to be fitted only when the two sources disagree about it. Every shock now carries a
-target whose sign is meaningful, sourced to the article's prose rather than to its
-equations.
+### The two artefact types
 
-## The solver, twice replaced
-
-Worth recording, because each version was forced by a failure rather than chosen.
-
-A fixed-point iteration on the policy function stalled at a residual of 2e-9 on a
-calibration it had previously solved, once two definitional equations were added.
-Newton's method on the matrix quadratic fixed that — and then returned a root of
-spectral radius 1.07 for the real business cycle model and reported it as a solution,
-because iteration converges to whichever root its starting point falls towards and a
-model with endogenous capital is a saddle-path problem. Selecting the root is now a
-generalized Schur decomposition, which also makes the Blanchard-Kahn condition
-checkable and separates its two failures; Newton is kept to polish the selected root.
-
-## Two defects the closed forms did not catch
-
-Worth stating prominently, because it is the most useful thing this prototype has
-produced.
-
-Both were in the core, both survived every passing target, and both were found only by
-comparing against an independent implementation:
-
-- **the sign of the natural rate.** A positive persistent technology shock lowers the
-  natural rate; the file had it rising. The model therefore answered that such a shock
-  opens a *positive* output gap, +0.0855 where the truth is -0.0855. Right magnitude,
-  wrong direction.
-- **the policy rule.** It responded to the output gap where the article writes it in
-  output. The two coincide exactly when natural output does not move.
-
-What they have in common: both are identically masked under a monetary shock, and every
-target then in the library used one. Hence the rule now recorded in the design document
-— every shock a component declares must be exercised by at least one golden target —
-and the stronger one it implies: closed forms verify that a model solves what it says,
-and only an independent implementation verifies that it says what the article says.
-
-## What each file contains, and what it is for
-
-| File | Contents | Use |
+| | **model entry** | **component** |
 |---|---|---|
-| `schema/component.schema.json` | JSON Schema for a component (friction block) manifest: `provides`, `requires`, `replaces`, `depends_on`, `incompatible_with`, `nesting_target`, `minimum_perturbation_order`, and per-parameter `prior`. | The proposed new artefact type. A block has no equilibrium, no welfare and no verification tier, so `manifest.schema.json` cannot describe it honestly. |
-| `taxonomy/variables.yaml` | The canonical variable namespace: symbol, definition, units, and `timing`. | Composition presupposes that blocks written by different hands connect. `timing` is the decisive field: a block that disagrees on whether a stock is predetermined assembles without error and produces wrong dynamics. |
-| `components/core-nk-classical/` | The core: Euler equation, natural rate, two exogenous processes, and the flexible-price pricing condition. Five equations for six variables. | Deliberately not closed on its own. The sixth equation is whatever policy block closes the nominal side, which is why `Composition("core-nk-classical")` raises. |
-| `components/calvo-prices/` | Calvo (1983) price setting. Introduces no variable; replaces the core's pricing equation by the Phillips curve. Carries priors and a `nesting_target`. | The worked example of the `provides` / `requires` / `replaces` pattern. |
-| `components/rotemberg-prices/` | Rotemberg (1982) pricing, declared `incompatible_with: [calvo-prices]`. | Present only to exercise the incompatibility check. Equivalent to Calvo at first order, not beyond, hence a mutually exclusive variant and never an alias. |
-| `components/taylor-rule/` | Interest rate rule, with priors on `phi_pi` and `phi_x`. | The policy block that closes the core. |
-| `modellib/compose.py` | The assembler: loads components, runs the four composition checks, resolves derived parameters in dependency order, and builds the coefficient matrices from the declarative equations. | The core of the design. Its job is to refuse to assemble a model that is not well posed. |
-| `modellib/lre.py` | First-order solution of `A2 E y(+1) + A0 y + A1 y(-1) + B eps = 0` by iteration on the policy function, with explicit failure on non-convergence or instability. | Deliberately small. A silently wrong solution is the worst outcome for a library whose purpose is verified numbers. |
-| `modellib/golden.py` | Golden-target runner for two new target kinds: `analytic` (expected value as a closed form in the model's parameters) and `nesting`. | Both kinds are absent from the current repository format and both are required. |
-| `models/nk-gali-2015-ch3/manifest.yaml` | The model entry. Replaces `model.py` by a `composition` block, and carries `common_variable_map`, structured `solver` settings, a declared `shocks` list, and `verification.tier: composed`. | Shows the five model-manifest changes in use rather than in prose. |
-| `models/nk-gali-2015-ch3/golden/targets.yaml` | Six targets: five analytic, one nesting. | What verification looks like for a model you assembled, which has no paper of its own. |
-| `tests/test_composition.py` | Ten tests, most of them negative controls. | The checks that must fail: unclosed composition, missing policy block, two pricing blocks, a friction block used as a core, an unknown parameter, a violated Taylor principle. |
-| `tests/test_golden.py` | One test per golden target. | Mirrors the existing repository's `tests/test_golden.py`. |
+| folder | `models/<id>/` | `components/<id>/` |
+| what it is | a published model, assembled | a reusable piece of one: a core, a friction, a maintained assumption, a policy rule |
+| runs on its own | yes | no |
+| has an equilibrium, a tier | yes | no |
+| verified by | closed forms, cross-checks against independent implementations, published values | a nesting test, plus the entries that compose it |
 
-## The four composition checks
+A model entry holds no equations. It names the components it is assembled from, and the
+assembler refuses a composition that is not closed. That is what makes a second model
+sharing a mechanism **one more component**, not a second copy of the equations: there is
+one Calvo Phillips curve in this library, not one per model that uses it.
 
-A composition that is not closed, or that is doubly determined, otherwise solves without
-complaint and yields dynamics that mean nothing. That silent failure is the whole reason
-the interface fields exist. The assembler refuses when:
+### The four layers
 
-1. a required variable is provided by no included component;
-2. two components provide the same variable;
-3. two components replace the same equation;
-4. the number of equations differs from the number of endogenous variables.
+**1. Equations, structured.** Each component carries its equations in a form the engine
+can read and differentiate, each with the variables it uses, the parameters it needs and
+the equations of other components it replaces. `schema/component.schema.json` is the
+contract.
 
-Each refusal names what is wrong:
+**2. Derivations, in prose.** `docs/theory/` holds the algebra: primitives, the agents'
+problems, the first-order conditions, the aggregation, the approximation. Organised **by
+mechanism, not by component**, because the derivations are shared — one Calvo derivation
+serves every pricing block. Each document ends with a table headed *what a transplant
+requires*, which lists the steps that fail when the environment changes. That table is the
+part written for the third use above.
+
+**3. Contracts, declared.** Three things a reader must not have to infer:
+
+- every equation declares its **status** with respect to its source — attested in the
+  publication, derived from it, deliberately adapted, a standard relation, or unverified —
+  and a derived or adapted equation must point at where the steps are written out;
+- every component declares the economic **assumptions it maintains**, the equations in
+  which each is operative, and what replacing one would require;
+- `taxonomy/` pins the shared vocabulary: variables with their timing and units, families
+  with the variables their members report for comparison, mechanisms, and the parameter
+  symbols more than one component may declare.
+
+The `timing` field in `taxonomy/variables.yaml` is the one to read first. Two components
+can be internally correct, agree on every variable name, and produce a model whose
+dynamics are wrong because one treats the capital stock as chosen last period and the
+other as chosen this period. No closure check catches that; only a stated convention does.
+
+**4. Verification, mechanical where it can be.** Described below.
+
+### The directory layout
 
 ```
-Composition("core-nk-classical", ["calvo-prices"])
-  -> composition is not closed: 5 equations for 6 endogenous variables (a, i, pi, rn, v, x)
-
-Composition("core-nk-classical", ["calvo-prices", "rotemberg-prices", "taylor-rule"])
-  -> components 'calvo-prices' and 'rotemberg-prices' are declared incompatible
+components/<id>/component.yaml    one component: equations, interface, parameters,
+                                  assumptions, nesting target, provenance
+models/<id>/manifest.yaml         what the entry is assembled from, and what is verified
+models/<id>/golden/targets.yaml   the numbers it must reproduce
+models/<id>/spec/model.md         the model: environment, problems, system, properties
+docs/theory/                      the derivations, by mechanism
+docs/composition/README.md        why the composition layer is built this way
+docs/audit-2026-10.md             what was wrong, what changed, what is still open
+taxonomy/                         variables, families, mechanisms, shared parameters
+schema/                           the component contract, as JSON Schema
+modellib/                         the assembler, the solver, the golden runner
+tests/                            what is checked, and what is deliberately not
 ```
 
-## The nesting test
+---
 
-A model you assembled has no article, so `reproduces_paper` is unavailable. The honest
-substitute: drive the friction parameter to its limit and require the composed model to
-return to the core's own solution.
+## Content
 
-`calvo-prices` declares `theta_p -> 0`. Two things are checked, not one. That the output
-gap response converges to the classical value of zero, and that it does so at the rate
-implied analytically,
+Described by kind rather than enumerated, since the library grows.
 
-```
-lim (x / theta_p) = -(1 - beta*rho_v) / (Theta * (sigma + (varphi+alpha)/(1-alpha)) * (phi_pi - rho_v))
-```
+**Cores** are the skeletons other components mount on. Each owns a family's endogenous
+variables and is deliberately **not** closed on its own: a core plus nothing does not
+solve, because the equation that closes the nominal or real side is whichever component
+supplies it. Each also carries one **closure equation per friction it expects**, so that a
+model without the friction is still complete and so that the friction's frictionless limit
+is an equation rather than a numerical coincidence.
 
-which the prototype matches to four significant figures at `theta_p = 1e-4`
-(`-0.2525463` against `-0.2525`). Convergence alone would let a sign error or a
-mis-stated timing convention through; the rate check will not.
+**Frictions** introduce a mechanism, normally by replacing a core equation. Each declares
+a **nesting target**: the parameter that switches it off, the limit, the composition that
+must be recovered, and — where a closed form exists — the rate of convergence. A limit
+alone is satisfied by a block with a sign error whose effect happens to vanish; the rate
+is not.
 
-## What this prototype does not do
+**Maintained assumptions** are components with no friction parameter: a relation the model
+takes as given and that another component might replace. They exist as components when
+their replacement is a live possibility, and as declared assumptions on a core when it is
+not.
 
-Stated plainly, because the gap between it and a usable library is the real question.
+**Policy rules** close the nominal or fiscal side. Where a published comparison turns on
+the rule — several regimes for the same economy — each regime is a component, so the
+comparison is a matter of exchanging one block rather than maintaining several models that
+differ in one equation.
 
-- ~~**Log-linear equations only.**~~ Closed. A component may declare
-  `equation_form: levels`, carry the model's own non-linear equations and a steady state,
-  and the assembler solves that steady state, verifies it against every equation, and
-  evaluates the Jacobians there. A composition may not mix the two forms.
-- ~~**A toy solver.**~~ Closed, twice over. Iteration on the policy function returned a
-  root with spectral radius 1.07 for a model with capital and called it a solution; the
-  solver is now a generalized Schur decomposition on the companion pencil with a Newton
-  polish, and it carries a thirty-seven-equation model with its own flexible-price twin.
-- ~~**One core, three blocks.**~~ Closed: four cores and twenty-four components, and the
-  representation did need the work this item anticipated -- a component that introduces
-  variables and equations together, and one that supplies a whole parallel economy.
-- **No estimation.** The `prior` fields are declared and validated but nothing samples
-  from them. This is now the most visible gap: `smets-wouters-2007` reproduces the
-  model's dynamics and declares its seven observables, their transformations and its
-  sample, and its tier stays at `composed` for want of a sampler.
-- **No unconditional moments.** The headline result of `smets-wouters-2007` is a variance
-  decomposition and this computes impulse responses only. The first order already
-  provides what a moments tier needs; what is missing besides the code is a detrending
-  convention for the entries carrying a unit root.
-- **The assembler substitutes parameter values BEFORE differentiating**, so every
-  parameter sweep re-differentiates the whole system. A nesting target drives a friction
-  through four values and pays for four symbolic differentiations of a twenty- to
-  thirty-seven-equation system; that is why the medium-scale entry's thirty-five targets
-  take twenty-four of the suite's thirty-six seconds. Differentiating once with the
-  parameters kept symbolic, and substituting numbers afterwards, would make a sweep
-  almost free. Not done here: it is on the numerical path and belongs with its own
-  verification rather than in an entry's commit.
+**Model entries** are published models assembled from the above, spanning the closed
+economy, the open economy, real business cycle models and the medium-scale estimated
+family. Each carries a specification document, a manifest recording what is verified and
+at what tier, and numerical targets.
 
-  The suite reached eight minutes before this was looked at, and the cause was not that.
-  The golden driver called `run_golden` once per TARGET, so an entry with n targets
-  evaluated n-squared of them -- invisible at nine targets, and 455 of 460 seconds at
-  thirty-five. Worth recording how that was found: the first version of this note
-  asserted, without measuring, that the time was elsewhere and that the medium-scale
-  entry accounted for about thirty seconds of it. A profile said the opposite, and every
-  one of that entry's targets was taking twelve seconds or more. The lesson is the same
-  one section 2.2c makes about shock signs: a plausible account of where a number comes
-  from is not a measurement of it.
+Scale, at the time of this writing: 24 components across 4 cores, 4 model entries, 78
+equations each with a declared status, 52 declared assumptions, 4 theory documents, and
+471 tests. The point of recording it is the ratio, not the totals: the library is small
+enough that every equation can be accounted for individually, and it is organised so that
+it stays that way as it grows.
+
+---
+
+## Verification, and what it does not establish
+
+Four layers, each catching what the one before it cannot.
+
+**Closed forms.** Where an analytic solution exists it is the target, because it holds at
+*every* calibration rather than at one. These are stronger than transcribed table cells.
+
+**Independent implementations.** Each entry is compared against a separate transcription
+of the same published equation list, in its own notation, solved separately. Agreement is
+at machine precision throughout. This is the layer that catches an equation that solves
+correctly but says something other than the article does.
+
+**Nesting.** Drive a friction's parameter to its limit; the composition must reproduce the
+one without it, at the analytically implied rate where one exists.
+
+**Mutation.** Perturb each equation in turn and require at least one test to fail. An
+equation whose perturbation survives is an equation nothing verifies, whatever a review
+concluded. Running this over the library found half of one branch's equations unverified,
+and the recurring cause was always the same: a term alive under only one shock, or at only
+one calibration.
+
+### Three things verification here cannot do
+
+**It cannot certify economics.** No test establishes that a Phillips curve is Galí's, that
+two components are theoretically compatible, or that a derivation is correct. Those
+require mathematics and reading. The library's answers to them are the `status` field, the
+theory documents and the open questions — not a green tick.
+
+**A cross-check that fits a normalisation verifies structure, not orientation.** When two
+implementations differ in a shock's convention, the comparison must fit a scale factor for
+that shock — and a fitted factor absorbs a **sign**. One wedge in this library was
+implemented with the wrong sign and the cross-check agreed to 1e-13 before the correction
+and after it. The closed form did not catch it either, because the relevant one is a
+cancellation between two coefficients and holds whichever sign the pair carries. What
+caught it was reading the impulse response against the article's own sentence. Every
+shock now carries a target whose sign is meaningful, sourced to the publication's prose
+rather than to its equations.
+
+**A nesting test removes one component**, so it never reaches a composition two blocks
+away from an entry. Five equations of one core were perturbable with no test failing,
+because every composition the suite built in which they were live had marginal cost pinned
+at zero. The composition that exposed them was an ordinary model that had simply never
+been assembled.
+
+Both of those are recorded in `docs/composition/README.md`, in the sections on what
+verification cannot see.
+
+---
+
+## Honesty rules
+
+These are binding on anything added to the library.
+
+- A tier is never set above what the tests demonstrate.
+- A field that cannot be determined from the source is `null`, and the question goes in
+  `verification.open_questions`. It is not guessed.
+- An adaptation is never presented as an original equation. That is what the `status`
+  field exists for.
+- An equation number, a reference or a result that has not been consulted is not
+  reconstructed. Where a correspondence is second-hand, the component says so.
+- A parameter's `source` points at where the number actually came from.
+- `open_questions` holds questions that are open. Resolved items go to `notes`, where they
+  read as history.
+- A documentary reorganisation does not change a number. When one is changed, the change
+  is a separate, justified act.
+
+---
 
 ## Running it
 
 ```bash
 pip install -e ".[dev]"
 python -m pytest -q
-python -m modellib golden nk-gali-2015-ch3
-python -m modellib describe core-nk-classical calvo-prices taylor-rule
-python -m modellib describe core-nk-classical taylor-rule          # the classical limit
-python -m modellib irf core-nk-classical calvo-prices taylor-rule
+python -m modellib describe <core> <block> ...     # the assembled system
+python -m modellib golden <model-id>               # its targets
+python -m modellib irf <core> <block> ...          # impulse responses
 ```
 
-Dependencies: `numpy`, `sympy`, `pyyaml`, and `pytest` for the tests. No MATLAB, no
-Dynare, no network access.
+Dependencies: `numpy`, `scipy`, `sympy`, `pyyaml`, and `pytest`. No MATLAB, no Dynare, no
+network access.
+
+## Where to start reading
+
+| if you want | read |
+|---|---|
+| what a model is and what holds in it | `models/<id>/spec/model.md` |
+| where an equation comes from | the component's `status` and `derivation` fields, then `docs/theory/` |
+| whether a mechanism fits your model | the component's `assumptions`, then the *what a transplant requires* table in its theory document |
+| why the library is built this way | `docs/composition/README.md` |
+| what is wrong with it today | `docs/audit-2026-10.md` §6 |
