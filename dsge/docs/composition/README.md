@@ -98,9 +98,9 @@ pricing, or external by internal habits can affect several equilibrium equations
 at once. The consequences are set out by the component's `assumptions`
 and by `docs/theory/`.
 
-See `docs/theory/source-editions.md` for the distinction between the
-supplied Galí chapter PDFs, the full EHL article, Galí–Monacelli, and the ECB
-working-paper version of Smets–Wouters.
+See `docs/theory/source-editions.md` for the verified primary-source scope of each
+canonical model and `docs/model-documentation-policy.md` for the documentation required
+for theoretical, calibrated and estimated entries.
 
 Unresolved scientific limitations remain in the component and model files.
 Transient test counts, build timings, mutation anecdotes and historical
