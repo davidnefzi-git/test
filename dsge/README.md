@@ -43,6 +43,24 @@ The canonical equation is recorded in its component YAML. Mathematical demonstra
 are held in the shared theory documents; derivation pointers connect the two without
 maintaining competing copies.
 
+## Model documentation modes
+
+Canonical entries follow the methodology of their source.
+
+- **Theoretical or calibrated models** document primitives, equilibrium, steady state,
+  calibration and theoretical verification. They do not include an artificial estimation
+  procedure.
+- **Estimated models** additionally document the empirical specification when estimation
+  is part of the canonical contribution. The model then uses `estimation.yaml` for
+  structured source facts and `spec/estimation.md` for their interpretation.
+
+Smets and Wouters (2007) is the current Bayesian example: its observable mapping, priors,
+posterior procedure and published empirical evidence are documented, while the repository
+does not run the estimation itself.
+
+See `docs/model-documentation-policy.md` for the full rule and `CONTRIBUTING.md` before
+adding or changing a model.
+
 ## Scientific provenance
 
 Two distinct fields apply to an equation:
