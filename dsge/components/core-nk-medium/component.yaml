@@ -443,16 +443,13 @@ shocks:
       consumption and the value of installed capital. This is the article's sign. A
       replication file of it uses the opposite one, folded into a rescaling of the wedge,
       so a number taken from either must be read with its own convention.
-    sd: 1.85
+    sd: 0.23
     source: >
-      Smets and Wouters (2007), Table 1B reports 0.23. That figure is the standard
-      deviation of the RESCALED wedge -c_3*eps_b used in the replication code, not of the
-      wedge as the article's equation (4) writes it; this component uses the article's
-      convention, so the figure is divided by c_3 = 0.1244 at the posterior mean (the
-      sign does not affect a standard deviation). The
-      number is documentation only -- impulse responses here are to a unit innovation --
-      but it would be wrong by a factor of eight in an estimation, so it is stated and
-      sourced rather than copied.
+      Smets and Wouters (2007), American Economic Review 97(3), Table 1B
+      (p. 594): posterior mean 0.23 for sigma_b, the standard deviation of
+      the innovation in epsilon_b as written in equations (2) and (4).
+      A transformed disturbance requires an explicit matching coefficient
+      rescaling; the published quantity itself is 0.23.
 
 replaces: []
 depends_on: []
@@ -517,7 +514,7 @@ verification:
     Real structural block of Smets–Wouters as stated in ECB Working Paper 722; no claim of final-AER line-by-line verification.
 
   open_questions:
-    - "The measurement equations that map the model onto the seven observed series are not implemented, because no estimator is; they are declared in the data block of the smets-wouters-2007 manifest instead."
+    - "The seven observation equations are documented from AER eq. (15) in models/smets-wouters-2007/estimation.yaml; they are not implemented by the structural solver."
 
 provenance:
   source_url: null

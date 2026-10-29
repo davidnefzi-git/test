@@ -50,6 +50,13 @@ citation:
   journal: "American Economic Review 97(3), 586-606"
   doi: 10.1257/aer.97.3.586
 
+# Empirical evidence is a separate information resource, not a runnable estimator.
+estimation_reference:
+  publication: "American Economic Review 97(3), 586-606"
+  specification: "estimation.yaml"
+  interpretation: "spec/estimation.md"
+  status: "published results documented; no estimation performed by the library"
+
 economics:
   question: >
     How much of US business cycle fluctuation is accounted for by each of seven
@@ -121,17 +128,17 @@ verification:
   tier: composed
   notes: >
     First-order dynamics of the Smets–Wouters model at the documented parameter
-    values. The source PDF supplied is ECB Working Paper No. 722 (2007), not the
-    final AER printing. The economic sign of the risk-premium disturbance and the
-    investment-specific shock coefficient in capital accumulation follow the
-    equations of the working-paper version. Estimation and welfare are outside
-    the scope of this representation.
+    values. The final American Economic Review article has now been checked for
+    its empirical observation system, Bayesian priors, posterior results and
+    estimation method, which are recorded in estimation.yaml and spec/estimation.md.
+    The component solver still implements only first-order dynamics; it does not
+    run the AER Bayesian estimation or produce its marginal likelihood.
   open_questions:
     - "The estimation is not reproduced: no Bayesian sampler, and the authors' data are not redistributable."
     - "The variance decomposition that is the article's headline result needs unconditional moments, which this harness does not compute."
     - "Welfare comparisons across the frictions need a second order, out of reach while equations are supplied log-linearised."
-    - "The seven measurement equations are not implemented, because no estimator reads them."
-    - "Parameter values are the posterior MEANS of Tables 1A and 1B. Chib and Ramamurthy (2010) show the mode the article reports is not the mode; the means are unaffected by that point, but anyone reproducing the estimation should know it."
+    - "The seven measurement relations are documented in estimation.yaml (AER eq. 15), but no estimator implements them."
+    - "The component defaults reproduce posterior MEANS from AER Tables 1A–1B; posterior MODES, dispersion and quantiles are separately preserved in estimation.yaml."
 
 provenance:
   license: "Own implementation, written from the article's numbered equations"

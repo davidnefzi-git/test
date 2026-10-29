@@ -10,7 +10,7 @@ the editions identified here, not to third-party replication code.
 | Galí (2015), ch. 6 | Scanned chapter headed **A Model with Sticky Wages and Prices** | Wage pricing eqs. (15), (19)–(20); wage-gap eq. (21); dynamic IS eq. (22) |
 | Erceg, Henderson and Levin (2000) | Journal of Monetary Economics 46, 281–313 | Original fixed-capital and subsidy environment and second-order welfare analysis; **not** the complete composition stored as `ehl-2000` |
 | Galí and Monacelli (2005) | Review of Economic Studies 72, 707–734 | Complete-markets small-open-economy equilibrium; eqs. (27), (29)–(31), (35)–(37) |
-| Smets and Wouters (2007) | **ECB Working Paper No. 722**, February 2007, including the model appendix | The working paper's linearised relations (1)–(14); **not** a page-for-page verification of the final American Economic Review text |
+| Smets and Wouters (2007) | **American Economic Review** 97(3), 586–606 (21-page supplied PDF), and ECB Working Paper No. 722, February 2007 | AER equations (1)–(15), Bayesian estimates and Tables 1A–1B; working-paper source conventions retained for comparison |
 
 ## Formula and version conventions
 
@@ -36,9 +36,14 @@ marginal cost (9); pricing (10); factor demand (11); wage markup / MRS (12);
 wage setting (13); monetary rule (14). Component citations to the supplied PDF should
 use this numbering, not numbering inherited from an unverified edition or annotations.
 
-**Theoretical limitation.** The ECB working-paper text does not independently certify
-every statement of the published AER article. `source_check: verified_working_paper`
-is deliberately different from `verified_primary`.
+**Source distinction.** The AER publication is now available as a primary source
+for the canonical paper's empirical methods, priors and results. The
+`source_check: verified_working_paper` attribute on existing component
+relations records their earlier comparison with the ECB edition; it does
+not automatically become `verified_primary` without a fresh equation-level
+review. The empirical source transcription is held in
+`models/smets-wouters-2007/estimation.yaml` and explained in
+`models/smets-wouters-2007/spec/estimation.md`.
 
 ## Remaining source boundaries
 

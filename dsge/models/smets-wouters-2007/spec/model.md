@@ -1,11 +1,11 @@
 # Smets and Wouters (2007), as composed here
 
-**Source edition.** The primary PDF supplied for verification is ECB Working Paper
-No. 722 (February 2007), 57 PDF pages, including a model appendix. The model
-entry cites the American Economic Review 2007 publication. The working paper is a
-separate version and must not be treated as proof that every AER equation,
-parameter-table entry or page reference is identical. Claims of exact AER
-correspondence require checking the AER version itself.
+**Primary source.** Smets and Wouters (2007), *American Economic Review* 97(3),
+586–606, has been supplied and is the authoritative source for the Bayesian
+empirical reference. The earlier ECB Working Paper No. 722 remains relevant when
+comparing equation conventions. See [`estimation.md`](estimation.md) and
+[`../estimation.yaml`](../estimation.yaml) for the seven observables, estimation
+procedure, priors, posterior results and associated evidence.
 
 
 ## What the entry is and is not
@@ -13,13 +13,12 @@ correspondence require checking the AER version itself.
 It is the model's **dynamics**, at the posterior means of Tables 1A and 1B, assembled
 from twelve components and verified three ways.
 
-It is **not** the estimation. There is no Bayesian estimator in the harness and the
-authors' data cannot be redistributed from this repository, so the entry's tier is
-`composed` and not `estimation_replicated`. What the estimation would need is written
-down rather than left implicit: the seven observables, their transformations, the sample
-and the frequency are declared in the manifest's `data` block, so that adding an
-estimator later is a matter of writing one and not of rediscovering what it should be
-fitted to.
+**The estimated model is more than its dynamics.** The AER's Section II reports a
+Bayesian likelihood on seven observables, 36 inferred parameters, explicit priors,
+a posterior-mode optimisation and Metropolis–Hastings inference. Those elements are
+now part of this model's reference resources in `estimation.yaml` and
+`spec/estimation.md`. They are source-based published facts, **not an estimation
+performed by the library**, whose numerical tier remains `composed`.
 
 ## The structure, and why it is cut this way
 
@@ -153,14 +152,19 @@ These are scientific normalisation distinctions, not statistics from a
 particular test run. The source-version limitations are recorded in
 `docs/theory/source-editions.md`.
 
-## Known limits
+## Bayesian evidence and limits
 
-- The variance decomposition that is the article's headline result needs unconditional
-  moments, which the harness does not compute.
-- Welfare comparisons across the frictions need a second order, out of reach while
-  equations are supplied log-linearised.
-- The seven measurement equations are declared but not implemented, because no estimator
-  reads them.
-- Chib and Ramamurthy (2010) show the mode the article reports is not the mode. The
-  posterior **means** are used here, which are unaffected by that point, but anyone
-  reproducing the estimation should know it.
+The paper's Table 1A reports nineteen structural/steady-state posterior distributions
+and Table 1B seventeen shock-process posterior distributions. Their full priors,
+posterior modes, means and quantiles are available in
+[`estimation.yaml`](../estimation.yaml). Equation (15), the Metropolis–Hastings
+procedure, comparisons against VAR and BVAR models, and counterfactual importance of
+frictions are explained in [`estimation.md`](estimation.md). The reference also
+identifies the steady-state inflation and hours intercepts absent from the dynamic
+component composition.
+
+The library does not estimate the model, compute posterior uncertainty bands,
+integrate a marginal likelihood, or reproduce variance decompositions from data.
+Welfare analyses beyond first order are likewise outside its current solver.
+These are limitations of executable verification, **not omissions from the
+scientific description of the canonical estimated model**.
