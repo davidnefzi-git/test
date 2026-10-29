@@ -129,7 +129,7 @@ parameters:
     formula: "sigma*gamma + (1 - alpha_open)*(sigma*eta - 1)"
   - name: sigma_a
     description: >
-      Open-economy intertemporal elasticity. Replaces sigma in the IS curve: openness
+      Inverse effective intertemporal elasticity in the open-economy IS curve. Replaces sigma: openness
       changes how a given interest rate moves demand, which is the model's first
       substantive departure from the closed economy.
     default: null
