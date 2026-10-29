@@ -136,8 +136,7 @@ the real interest rate and does not change real quantities under the maintained
 model assumptions. This equilibrium restriction is included among the algebraic
 reference targets, but alone it cannot determine the economic sign of a shock.
 
-Two economically relevant **source versus third-party implementation**
-conventions must remain visible:
+Two economically relevant **normalisation conventions** must remain visible:
 
 1. **Risk-premium orientation.** A positive risk-premium shock increases the
    required return on households' assets and reduces consumption. The Euler
@@ -145,8 +144,7 @@ conventions must remain visible:
    convention is described explicitly in ECB WP 722, §2, eqs. (2) and (4).
 2. **Investment disturbance in accumulation.** ECB WP 722, eq. (8), has an
    investment-efficiency coefficient including the factor
-   `(1 + beta_bar*gamma_g)`. A third-party implementation is reported to
-   omit that factor. The library retains the equation of the supplied paper.
+   `(1 + beta_bar*gamma_g)`. Alternative implementations may omit that factor; the library follows the published source. The library retains the equation of the supplied paper.
 
 These are scientific normalisation distinctions, not statistics from a
 particular test run. The source-version limitations are recorded in
