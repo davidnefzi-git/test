@@ -45,11 +45,13 @@ parameters:
 equations:
   - id: policy-rule-strict
     status: standard
+    source_check: standard_identity
     expr: "i - phi_pi*pi - v"
     description: The nominal rate responds to inflation alone.
     source: "Taylor (1993)"
   - id: monetary-shock
     status: standard
+    source_check: standard_identity
     expr: "v - rho_v*v(-1) - eps_v"
     description: Monetary policy shock process.
     source: "Standard"
