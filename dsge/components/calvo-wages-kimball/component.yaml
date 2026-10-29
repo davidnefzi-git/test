@@ -2,8 +2,8 @@ id: calvo-wages-kimball
 kind: friction
 friction: Staggered nominal wage setting with a constant reset probability, under a Kimball labour aggregator
 summary: >
-  Calvo wage setting as Smets and Wouters estimate it. It differs from calvo-wages, the
-  library's Erceg-Henderson-Levin block, in what it is written in terms of: that one
+  Calvo wage setting as Smets and Wouters estimate it. It differs from the Galí chapter-6
+  `calvo-wages` block in what it is written in terms of: that block
   carries wage inflation and a real wage gap, this one works directly in the level of the
   real wage and measures the wage markup against the marginal rate of substitution the
   core exposes.
