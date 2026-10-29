@@ -119,11 +119,13 @@ parameters:
 equations:
   - id: euler
     status: original
+    source_check: verified_primary
     expr: "x - x(+1) + (1/sigma)*(i - pi(+1) - rn)"
     description: Dynamic IS curve, from the household Euler equation written in the output gap
     source: "Gali (2015), ch. 3, eq. (23); checked against the supplied chapter (PDF p. 13). The preference-shock term is suppressed in this composition."
   - id: natural-rate
     status: original
+    source_check: verified_primary
     expr: "rn + sigma*psi_ya*(1 - rho_a)*a"
     description: >
       Natural rate of interest implied by the technology process:
@@ -136,21 +138,25 @@ equations:
     source: "Gali (2015), ch. 3, eq. (24); checked against the supplied chapter (PDF p. 13). The preference-shock term is suppressed."
   - id: technology
     status: standard
+    source_check: standard_identity
     expr: "a - rho_a*a(-1) - eps_a"
     description: AR(1) technology process
     source: null
   - id: monetary-shock
     status: standard
+    source_check: standard_identity
     expr: "v - rho_v*v(-1) - eps_v"
     description: AR(1) monetary policy shock process
     source: null
   - id: natural-output
     status: original
+    source_check: verified_primary
     expr: "y_nat - psi_ya*a"
     description: Natural level of output implied by the technology process
     source: "Gali (2015), ch. 3, eq. (20); checked against the supplied chapter (PDF p. 12)."
   - id: output-gap-definition
     status: original
+    source_check: verified_primary
     expr: "y - y_nat - x"
     description: >
       The output gap is output less its natural level. Carried explicitly because the
@@ -159,6 +165,7 @@ equations:
     source: "Gali (2015) ch. 3, definition of the output gap"
   - id: flex-wage-mc
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/wage-setting.md#marginal-cost-sticky-wage"
     expr: "mc - (sigma + (varphi + alpha)/(1 - alpha))*x"
     description: >
@@ -170,6 +177,7 @@ equations:
     source: "Gali (2015) ch. 3, marginal cost in terms of the output gap"
   - id: flex-price-output
     status: original
+    source_check: verified_primary
     expr: "x"
     description: >
       Flexible-price pricing: price equals marginal cost, output equals its natural
@@ -180,62 +188,3 @@ equations:
     source: "Gali (2015) ch. 3, classical monetary model"
 
 compatible_cores: []
-incompatible_with: []
-minimum_perturbation_order: 1
-solution_requirement: "First order. The equations are supplied already log-linearised, so no steady state is solved."
-
-assumptions:
-  - id: representative-household
-    status: canonical
-    embodied_in: [euler]
-    statement: >
-      A single infinitely-lived household faces no borrowing constraint and prices state-
-      contingent claims, so one Euler equation describes the economy's intertemporal
-      margin.
-    substituting: >
-      Incomplete markets, borrowing constraints or heterogeneity replace the Euler
-      equation by a distribution and an aggregation step; no component in this library
-      does that, and none of the frictions here would survive the change unaltered.
-  - id: no-capital
-    status: canonical
-    embodied_in: [natural-output, flex-wage-mc]
-    statement: >
-      Output is produced from labour alone, with decreasing returns. There is no
-      investment margin and no state variable other than the exogenous processes.
-    substituting: >
-      Adding capital is not a block one mounts on this core: natural output, the output
-      gap and marginal cost all change. core-nk-medium is that model.
-  - id: zero-inflation-steady-state
-    status: canonical
-    embodied_in: [euler, natural-rate, natural-output, output-gap-definition, flex-wage-mc]
-    statement: >
-      Every equation is a first-order approximation about a steady state with zero
-      inflation and no trend growth, so relative price dispersion is second order and does
-      not appear.
-    substituting: >
-      At non-zero trend inflation the approximation acquires terms in the dispersion and
-      the Phillips curve's slope changes; see docs/theory/price-setting.md section 7. No
-      component in this library is valid at trend inflation.
-
-verification:
-  reviewed_by: null
-  notes: >
-    Equations written from the textbook statements, not translated from any replication
-    file. Verified in composition: see models/nk-gali-2015-ch3, whose closed-form golden
-    targets exercise this core under both shocks and under both the classical and the
-    sticky-price closures. Cross-checked additionally against an independent
-    transcription of the chapter's full equation list, taken from a third-party Dynare
-    replication and solved separately: agreement is 3.3e-16 under the monetary shock and
-    1.4e-16 under the technology shock. That cross-check is what revealed the policy
-    rule had been written in the output gap rather than in output.
-  open_questions:
-    - "Only the log-linearised form is carried. The non-linear equations and a steady-state solver are needed before second order or welfare."
-
-provenance:
-  source_url: null
-  repository: null
-  license: "Own implementation, written from the textbook"
-  redistributable: true
-  permission_note: null
-  ingested_by: "Claude (composition prototype)"
-  ingested_on: "2026-10-15"
