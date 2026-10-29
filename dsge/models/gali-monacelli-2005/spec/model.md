@@ -39,7 +39,7 @@ Sixteen equations in sixteen variables, under the domestic-inflation rule.
 | 2 | $rn_t = -\sigma_\alpha\Gamma(1-\rho_a)a_t + \alpha\sigma_\alpha(\Theta+\Psi)E_t\Delta y^{\ast}_{t+1}$ | natural rate |
 | 3 | $y^n_t = \Gamma a_t + \alpha\Psi y^{\ast}_t$ | natural output |
 | 4 | $x_t = y_t - y^n_t$ | the output gap |
-| 5 | $y_t = y^{\ast}_{t} + \frac{1}{\sigma_\alpha} s_t$ | **risk sharing**, under complete markets |
+| 5 | $ y_t = y^{\ast}_{t} + \frac{1}{\sigma_\alpha} s_t $ | **risk sharing**, under complete markets |
 | 6 | $\pi_t = \pi_{H,t} + \alpha\Delta s_t$ | CPI against domestic inflation |
 | 7 | $\Delta s_t = \Delta e_t - \pi_{H,t}$ | terms of trade, with world inflation at zero |
 | 8 | $q_t = (1-\alpha)s_t$ | real exchange rate |
