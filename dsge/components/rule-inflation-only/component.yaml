@@ -95,9 +95,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Two equations, both standard. Exercised by the nesting targets of
-    calvo-prices-kimball, price-indexation, calvo-wages-kimball and wage-indexation, and
-    by the regime comparison in the tests of smets-wouters-2007.
+    Simplifying inflation-only rule used to close the nominal block for theoretical comparisons.
+
   open_questions: []
 
 provenance:
