@@ -54,7 +54,7 @@ shocks:
 provenance:
   license: "Own implementation, written from the article"
   permission_note: >
-    No third-party file is reproduced. Equation numbers are the article's own, recorded
+    The implementation is written from the primary article. Equation numbers are the article's own, recorded
     in the component files and cross-read against a third party's annotations, which
     agree. docs/theory/open-economy.md derives the relations the components use.
 
