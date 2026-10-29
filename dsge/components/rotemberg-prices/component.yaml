@@ -108,7 +108,7 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    First-order Rotemberg price adjustment is documented, but its original 1982 source was not among the supplied PDFs.
+    First-order Rotemberg price adjustment is documented; independent equation-level verification against Rotemberg (1982) is pending.
 
   open_questions:
     - "The non-equivalence beyond first order is the whole point of the comparison and needs the non-linear equations."
