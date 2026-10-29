@@ -45,7 +45,7 @@ equations:
       The household equates the marginal cost of running capital harder to the rental
       rate it earns. Replaces the core's fixed-utilisation closure, which is the psi = 1
       case: at psi = 1 the coefficient is zero and utilisation does not move at all.
-    source: "Smets and Wouters (2007), eq. (5)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (7), PDF p. 14"
 
 replaces: [core-nk-medium.fixed-utilisation]
 depends_on: [core-nk-medium]
