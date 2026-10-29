@@ -268,7 +268,8 @@
           "id",
           "expr",
           "description",
-          "status"
+          "status",
+          "source_check"
         ],
         "additionalProperties": false,
         "properties": {
