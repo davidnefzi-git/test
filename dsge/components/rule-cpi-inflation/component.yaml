@@ -35,6 +35,7 @@ parameters:
 equations:
   - id: policy-rule-citr
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "i - phi_pi*pi"
     description: Interest rate rule in CPI inflation
