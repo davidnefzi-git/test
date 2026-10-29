@@ -339,10 +339,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article's own statements, each carrying its equation
-    number. Cross-checked against an independent transcription of a third-party Dynare
-    replication of the same article, read for verification only: see
-    models/gali-monacelli-2005 for the residuals.
+    Galí and Monacelli (2005) open-economy equilibrium under complete international markets, law of one price and a stationary world-price normalisation.
+
   open_questions:
     - "World inflation is set to zero, as the article does on p. 724. A component making it an exogenous process would replace terms-of-trade."
     - "Complete markets is carried as an equation of the core rather than as a separate assumption component. It should become one when an incomplete-markets alternative is written, since that alternative must replace it."
