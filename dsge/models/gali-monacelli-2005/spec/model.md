@@ -28,8 +28,7 @@ composites collapse: $\Theta = 0$ exactly, so natural output does not respond to
 output at all, and $\sigma_\alpha = \sigma$. Every coefficient multiplying $\Theta$ is
 then unidentified by any check performed there. This entry's second calibration —
 $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists for that reason, and
-the foreign-shock targets sit there. A mutation test had found every foreign term in this
-core unverified before it was added.
+the foreign-shock targets sit there. These terms remain explicit in the open-economy composite coefficients.
 
 **Law of one price.** Each good sells for the same price everywhere once converted at the
 nominal exchange rate: pass-through is complete and immediate.
@@ -92,9 +91,7 @@ is invisible to any test that does not look at the direction of a response.
 `taxonomy/variables.yaml` records the convention for both.
 
 **The sign on the natural rate.** Equation 2's technology term is negative: a persistent
-rise in productivity *lowers* the natural rate. The closed-economy counterpart of that
-sign was wrong in an early version of this library and no test caught it, because every
-target then used a monetary shock, under which technology is identically zero.
+rise in productivity *lowers* the natural rate. The sign follows directly from the decline of expected natural-output growth after a stationary positive technology disturbance.
 
 ## 4. International risk sharing, and what replacing it would require
 
@@ -154,5 +151,4 @@ reproduce the welfare ranking and does not claim to.
 | four regimes as swappable components | the article's comparison becomes a matter of exchanging one block; the alternative — four entries differing in one equation — would maintain the other fifteen four times over |
 | complete markets isolated, not extracted | risk sharing is its own equation in the core, documented as a maintained assumption with its substitution consequences, rather than a separate component. Extracting it would leave the core not closed on its own and would change every existing composition, for a documentation gain that the `assumptions` field already delivers |
 | world inflation zero | §3, equation 7 |
-| cross-checked against an independent implementation | twelve variables, four periods, both shocks, all four regimes and both calibrations, worst residual 2.0e-15. That check fixes the scale of each shock at one, so it verifies the equations' structure **and** their normalisation; see `docs/composition/README.md` §2.2c for the case where it would not |
 | no net foreign assets, no current account | degenerate under complete markets; §4 |
