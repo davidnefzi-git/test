@@ -60,6 +60,7 @@ parameters:
 equations:
   - id: spending
     status: original
+    source_check: verified_working_paper
     expr: "g - rho_g*g(-1) - eps_g - rho_ga*eps_a"
     description: >
       Spending follows an AR(1) driven by its own innovation and by the technology
@@ -108,8 +109,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    One equation, written from the article's shock specification. Verified in composition
-    by the spending-shock golden targets of smets-wouters-2007.
+    The AR(1) spending process includes an innovation loading on technology, as stated in ECB Working Paper 722.
+
   open_questions: []
 
 provenance:

@@ -6,11 +6,10 @@ behind the two identities those components rely on.
 The component files carry the equations the solver uses and point here. This document is
 the single source of truth for the algebra.
 
-**What is established here.** Sections 1 to 3 are the Erceg–Henderson–Levin derivation,
-reproduced because the library's components use its intermediate objects. Sections 4 and
-5 derive two relations the components label `derived`; both are short and both are given
-in full, because until now they pointed at a document that did not exist. Section 6
-states the Smets–Wouters form and what distinguishes it.
+**What is established here.** Sections 1 to 3 present the Galí (2015, chapter 6) formulation of staggered wages, based on the mechanism of Erceg, Henderson and Levin (2000),
+and the relevant source relations are derived below. Sections 4 and 5 demonstrate
+the real-wage-gap identity and the marginal-cost relation explicitly. Section 6
+states the Smets–Wouters variant and its distinct parameterisation.
 
 ---
 
@@ -31,7 +30,8 @@ W_t = \left(\int_0^1 W_t(j)^{1-\varepsilon_w}\,dj\right)^{1/(1-\varepsilon_w)}.$
 Differentiation is what gives the wage setter market power; $\varepsilon_w$ governs how
 much.
 
-**Preferences.** Period utility $U(C_t, \{N_t(j)\}) = \log C_t - \frac{1}{1+\varphi}\int_0^1 N_t(j)^{1+\varphi} dj$
+**Preferences.** For the log-consumption case ($\sigma=1$), period utility is
+$U(C_t, \{N_t(j)\}) = \log C_t - \frac{1}{1+\varphi}\int_0^1 N_t(j)^{1+\varphi} dj$
 in the Galí chapter 6 case, so that $\varphi$ is the inverse Frisch elasticity. The
 marginal rate of substitution between consumption and the supply of type $j$ is
 
@@ -98,10 +98,11 @@ wage. And $\varepsilon_w$ enters the slope but **not** the steady-state allocati
 first order, which is why it is not separately identified and why the library records
 Galí's calibrated value with its source rather than treating it as free.
 
-The library writes this curve in terms of the **wage markup gap**
-$\tilde\omega_t \equiv \mu^w_t - \mu^w$, which under the chapter 6 preferences satisfies
-$\tilde\omega_t = \big(\sigma + \frac{\varphi}{1-\alpha}\big) x_t - \tilde\omega_t$
-— see the component's own equation for the exact form it uses.
+The **wage-markup deviation** is
+$\widehat\mu^w_t = \tilde\omega_t - (\sigma + \varphi/(1-\alpha))x_t$,
+where $\tilde\omega_t$ is the **real-wage gap** (actual real wage minus its flexible-price-and-wage counterpart). These are distinct objects. Consequently
+$\pi^w_t = \beta E_t\pi^w_{t+1} + \lambda_w[(\sigma + \varphi/(1-\alpha))x_t - \tilde\omega_t]$,
+as in Galí (2015), ch. 6, eqs. (19)–(20).
 
 **Anchor: `wage-phillips-curve`.**
 

@@ -21,6 +21,7 @@ parameters: []
 equations:
   - id: policy-optimal
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "pi_h"
     description: Domestic inflation is held at zero at every date
@@ -46,11 +47,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    One of the four policy regimes the article compares. The four are mutually
-    incompatible by construction: each supplies the single equation that closes the
-    nominal side, so including two would replace nothing and over-determine the system.
-    The assembler refuses the combination on the declared incompatibility, and would
-    refuse it on the equation count in any case.
+    Strict domestic-price stability is optimal only under the special welfare assumptions in Galí–Monacelli (2005).
+
   open_questions: []
 
 provenance:

@@ -73,10 +73,8 @@ separate variable. That is why this entry reports no `consumption` common variab
 so would assert a distinction the model does not make.
 
 **The policy rule responds to output, not to the output gap.** Equation 7 carries $y_t$.
-This was wrong in an early version of this library — written in $x_t$ — and no test
-caught it, because output and the output gap coincide whenever natural output does not
-move, which is the case under a monetary shock. Every target then used a monetary shock.
-The entry now carries technology-shock targets for that reason.
+The distinction matters under technology disturbances, when natural output varies.
+The model carries technology-shock targets as well as monetary-shock targets.
 
 ## 4. Steady state
 
@@ -123,5 +121,5 @@ entry's tier is `composed` and makes no welfare claim.
 | **not** written as one file | the model is a composition of three components; `nk-gali-2015-ch3` is the simplest case the machinery is tested on, and if the assembler cannot reproduce this model's closed form, nothing larger is worth attempting |
 | verified by closed forms, not table cells | the impact responses of the gap and of inflation to a monetary shock hold at **every** calibration, so they are stronger than any transcribed figure; the entry's targets are those forms, at two calibrations |
 | marginal cost exposed, slope not folded | §3 |
-| equation numbers second-hand | the chapter-3 numbers in the component files come from the annotations of a third-party Dynare replication, not the printed edition. The relations are not in doubt; the numbering is unconfirmed, and `core-nk-classical` and `calvo-prices` record that in `verification.open_questions` |
+| source equations | Galí (2015), chapter 3, eqs. (17), (20) and (22)–(24), checked against the supplied chapter |
 | no indexation block for this family | `price-indexation` exists but was written for the medium-scale family, whose curve carries trend growth and a Kimball slope. An indexation block in Galí's parameterisation does not exist |

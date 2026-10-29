@@ -8,23 +8,16 @@ summary: >
   pattern.
 
 citation:
-  authors: [Calvo]
-  year: 1983
-  title: "Staggered Prices in a Utility-Maximizing Framework"
-  journal: "Journal of Monetary Economics 12(3), 383-398"
-  doi: 10.1016/0304-3932(83)90060-0
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapters 3 and 6"
+  journal: "Princeton University Press"
+  doi: null
   url: null
 
 variables:
   provides: []
-  # `mc` and `pi`, not `x` and `pi`. The equation below was once written in the output
-  # gap, and the declaration was never updated when it was rewritten in marginal cost:
-  # `mc` was used and undeclared, `x` was declared and unused. Both halves of that
-  # mistake matter. An undeclared requirement defeats the composition check, which
-  # verifies that everything a component requires is provided -- so this block could be
-  # mounted on a core providing no marginal cost, and the error would surface only at
-  # matrix assembly, as an unresolved symbol. A stale requirement is the other way
-  # round: it asserts a dependency the equations do not have.
+  # Marginal-cost formulation; both price inflation and real marginal cost are required.
   requires: [pi, mc]
 
 parameters:
@@ -85,6 +78,7 @@ parameters:
 equations:
   - id: nkpc
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/price-setting.md#calvo-phillips-curve"
     expr: "pi - beta*pi(+1) - lambda_p*mc"
     description: >
@@ -93,7 +87,7 @@ equations:
       kappa = lambda_p*(sigma + (varphi + alpha)/(1 - alpha)); composed with
       calvo-wages instead, the same equation delivers the two-friction model without
       being touched.
-    source: "Gali (2015) ch. 3, inflation dynamics, eq. (22) per the annotation of a third-party Dynare replication; the marginal-cost form is ch. 6 eq. (18)"
+    source: "Galí (2015), ch. 3, eqs. (17), (21)-(22), and ch. 6, eq. (18); primary source checked. The component uses the marginal-cost form."
 
 replaces: [core-nk-classical.flex-price-output]
 depends_on: [core-nk-classical]
@@ -156,12 +150,9 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Written from the textbook statement of the Phillips curve. The nesting target passes
-    on both counts: the impact output-gap response converges monotonically to the
-    classical value of zero, and the ratio of the response to theta_p converges to the
-    analytically implied constant.
+    Marginal-cost representation of Galí's Phillips curve; the output-gap slope follows upon imposing flexible wages.
+
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
     - >
       Indexation to past inflation exists as `price-indexation`, but it depends on
       `calvo-prices-kimball` rather than on this component: it was written for the

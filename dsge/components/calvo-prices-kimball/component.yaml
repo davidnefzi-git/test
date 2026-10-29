@@ -95,6 +95,7 @@ parameters:
 equations:
   - id: price-pc
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/price-setting.md#multiplied-through"
     expr: "kappa_p_inv*(pi - beta_bar*gamma_g*pi(+1) - mkp) - mc"
     description: >
@@ -108,6 +109,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (10) at zero indexation, rearranged"
   - id: price-markup-process
     status: original
+    source_check: verified_working_paper
     expr: "mkp - rho_p*mkp(-1) - mkp_aux + mu_p*mkp_aux(-1)"
     description: >
       The price markup follows an ARMA(1,1) and not an AR(1); the moving-average term is
@@ -116,6 +118,7 @@ equations:
     source: "Smets and Wouters (2007), Table 1B"
   - id: price-markup-innovation
     status: standard
+    source_check: standard_identity
     expr: "mkp_aux - eps_p"
     description: >
       The auxiliary variable exists because a first-order system cannot lag a shock: the
@@ -197,9 +200,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Written from the article's equation (10). Verified by the nesting target above and in
-    composition by the golden targets of smets-wouters-2007, which include a transcribed
-    cross-check against an independent implementation of the full sticky model.
+    Smets–Wouters Kimball price setting; complete derivation of the aggregator curvature remains a separate primary-source question.
+
   open_questions: []
 
 provenance:

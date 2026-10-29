@@ -58,6 +58,7 @@ parameters:
 equations:
   - id: nkpc-domestic
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#domestic-phillips-curve"
     expr: "pi_h - beta*pi_h(+1) - kappa_a*x"
     description: Phillips curve in domestic inflation
@@ -112,9 +113,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Written from the article's eq. (36) and the definitions below eqs. (32) and (36).
-    Verified by the closed-form targets and the nesting target of
-    models/gali-monacelli-2005.
+    Domestic-price Phillips curve with openness-sensitive marginal-cost slope, derived under the law of one price and flexible wages.
+
   open_questions:
     - "This component and calvo-prices implement the same mechanism on different price indices, and differ only in which inflation variable they write. Merging them requires the pricing block to be parameterised by the index it sets, which the current schema cannot express. Until it can, two components is the honest arrangement: claiming reuse would be false."
     - "The open-economy slope is written in the output gap rather than in marginal cost, because the article states it that way. The marginal-cost form would be needed before a wage friction could be added to this core."

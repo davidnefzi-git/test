@@ -1,18 +1,20 @@
 id: ehl-2000
-name: Staggered price and wage contracts (Erceg, Henderson and Levin 2000)
+name: Sticky-price and sticky-wage benchmark (Galí 2015, ch. 6; EHL 2000 mechanism)
 family: monetary-dsge
 summary: >
-  The New Keynesian model with both sticky prices and sticky wages, assembled by adding
-  calvo-wages to the composition that produces nk-gali-2015-ch3.
+  Galí (2015, chapter 6) teaching-model specialisation of the Erceg-Henderson-Levin
+  staggered-wage and staggered-price mechanism. This is not the full EHL (2000) model:
+  EHL features fixed aggregate capital, corrective output/labour subsidies, and a
+  second-order welfare objective not represented by this first-order composition.
 composition:
   core: core-nk-classical
   blocks: [calvo-prices, calvo-wages, taylor-rule]
 citation:
-  authors: [Erceg, Henderson, Levin]
-  year: 2000
-  title: "Optimal Monetary Policy with Staggered Wage and Price Contracts"
-  journal: "Journal of Monetary Economics 46(2), 281-313"
-  doi: 10.1016/S0304-3932(00)00028-3
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapter 6"
+  journal: "Princeton University Press"
+  doi: null
 
 economics:
   question: >
@@ -50,15 +52,14 @@ shocks:
 provenance:
   license: "Own implementation, written from the article and textbook statements"
   permission_note: >
-    No third-party file is reproduced. The equations are implemented from the published
-    statements; two of the three are derived, and docs/theory/wage-setting.md gives the
-    derivations in full.
+    No third-party file is reproduced. The operative equations are Galí (2015),
+    chapter 6, a pedagogical specialisation of EHL's nominal rigidity mechanism;
+    they do not reproduce the full EHL (2000) capital, fiscal and welfare framework.
+    The derived wage identities are documented in docs/theory/wage-setting.md.
 
 verification:
   tier: composed
   notes: >
-    Verified at its two limits, no closed form existing at a general calibration.
-    This manifest exists so that tests/test_golden.py collects the entry at all: it
-    filters on the presence of a manifest, and without one the entry's targets ran only
-    when invoked by hand. A mutation test found every equation of calvo-wages
-    unverified as a result.
+    Analytical limit checks validate the Galí chapter-6 specialisation represented
+    here. They do not establish a reproduction of the capital, subsidy or welfare
+    features of Erceg, Henderson and Levin (2000).

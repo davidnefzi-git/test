@@ -67,6 +67,7 @@ parameters:
 equations:
   - id: euler-habit
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "c - (c1*c(-1) + (1 - c1)*c(+1) + c2*(n - n(+1)) - c3*rr - c3*b)"
     description: >
@@ -78,13 +79,14 @@ equations:
     source: "Smets and Wouters (2007), eq. (2)"
   - id: mrs-habit
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "mrs - (sigma_l*n + (1/(1 - lambda_h/gamma_g))*c - ((lambda_h/gamma_g)/(1 - lambda_h/gamma_g))*c(-1))"
     description: >
       Marginal rate of substitution under habit: it is the gap between consumption and
       its habit stock, not consumption itself, that the household trades against
       leisure. The lag on c is what carries habit into wage setting.
-    source: "Smets and Wouters (2007), eq. (13), the bracket multiplying the wage gap"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (12), PDF p. 16 (marginal rate of substitution)"
 
 replaces: [core-nk-medium.euler-no-habit, core-nk-medium.mrs-no-habit]
 depends_on: [core-nk-medium]
@@ -139,8 +141,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Both equations written from the article's numbered equations. Verified by the nesting
-    target above and in composition by the golden targets of smets-wouters-2007.
+    External habit Euler equation and marginal rate of substitution, corresponding to ECB Working Paper 722, eqs. (2) and (12).
+
   open_questions: []
 
 provenance:

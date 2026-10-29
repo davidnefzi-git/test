@@ -30,6 +30,7 @@ parameters: []
 equations:
   - id: fisher
     status: standard
+    source_check: standard_identity
     expr: "rr - (i - pi(+1))"
     description: >
       Expected inflation, not realised: the real rate relevant to an intertemporal
@@ -59,7 +60,9 @@ assumptions:
 
 verification:
   reviewed_by: null
-  notes: "One identity. Verified in composition by every nominal target of smets-wouters-2007."
+  notes: >
+    Ex-ante Fisher relation; a definition of the real rate in the linearised monetary economy.
+
   open_questions: []
 
 provenance:

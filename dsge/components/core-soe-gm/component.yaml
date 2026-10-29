@@ -129,7 +129,7 @@ parameters:
     formula: "sigma*gamma + (1 - alpha_open)*(sigma*eta - 1)"
   - name: sigma_a
     description: >
-      Open-economy intertemporal elasticity. Replaces sigma in the IS curve: openness
+      Inverse effective intertemporal elasticity in the open-economy IS curve. Replaces sigma: openness
       changes how a given interest rate moves demand, which is the model's first
       substantive departure from the closed economy.
     default: null
@@ -166,12 +166,14 @@ parameters:
 equations:
   - id: is-curve
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "x - x(+1) + (1/sigma_a)*(i - pi_h(+1) - rn)"
     description: Dynamic IS curve, in the open-economy intertemporal elasticity and in DOMESTIC inflation
     source: "Gali and Monacelli (2005), eq. (37)"
   - id: natural-rate
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "rn + sigma_a*Gamma_gm*(1 - rho_a)*a - alpha_open*sigma_a*(Theta_gm + Psi_gm)*(y_star(+1) - y_star)"
     description: >
@@ -180,17 +182,20 @@ equations:
     source: "Gali and Monacelli (2005), equation below eq. (37)"
   - id: natural-output
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "y_nat - Gamma_gm*a - alpha_open*Psi_gm*y_star"
     description: Natural level of output, which now depends on world output as well as domestic technology
     source: "Gali and Monacelli (2005), eq. (35)"
   - id: output-gap-definition
     status: original
+    source_check: verified_primary
     expr: "x - y + y_nat"
     description: The output gap is output less its natural level
     source: "Gali and Monacelli (2005), equation above eq. (35)"
   - id: risk-sharing
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#risk-sharing"
     expr: "y - y_star - (1/sigma_a)*s"
     description: >
@@ -201,12 +206,14 @@ equations:
     source: "Gali and Monacelli (2005), eq. (29)"
   - id: cpi-domestic-link
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#relative-prices"
     expr: "pi - pi_h - alpha_open*(s - s(-1))"
     description: CPI inflation is domestic inflation plus the openness-weighted change in the terms of trade
     source: "Gali and Monacelli (2005), eq. (14)"
   - id: terms-of-trade
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#relative-prices"
     expr: "s - s(-1) - e + e(-1) + pi_h"
     description: >
@@ -216,42 +223,50 @@ equations:
     source: "Gali and Monacelli (2005), eq. (15) in first differences, with pistar = 0 (p. 724)"
   - id: real-exchange-rate
     status: derived
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#real-exchange-rate"
     expr: "q - (1 - alpha_open)*s"
     description: Real exchange rate implied by the terms of trade under the model's price structure
     source: "Gali and Monacelli (2005), relation between q and s"
   - id: employment
     status: original
+    source_check: verified_primary
     expr: "y - a - n"
     description: Production function with labour as the only input
     source: "Gali and Monacelli (2005), eq. (22)"
   - id: net-exports
     status: original
+    source_check: verified_primary
     expr: "nx - alpha_open*(omega_gm/sigma - 1)*s"
     description: Net exports as a share of steady-state output
     source: "Gali and Monacelli (2005), eq. (31)"
   - id: consumption
     status: original
+    source_check: verified_primary
     expr: "y - c - alpha_open*omega_gm/sigma*s"
     description: Consumption, which differs from output by the terms-of-trade correction
     source: "Gali and Monacelli (2005), eq. (27)"
   - id: real-wage
     status: original
+    source_check: verified_primary
     expr: "w - sigma*c - varphi*n"
     description: Labour supply condition
     source: "Gali and Monacelli (2005), equation above eq. (11)"
   - id: technology
     status: original
+    source_check: verified_primary
     expr: "a - rho_a*a(-1) - eps_a"
     description: AR(1) domestic technology process
     source: "Gali and Monacelli (2005), p. 723"
   - id: foreign-output
     status: original
+    source_check: verified_primary
     expr: "y_star - rho_y_star*y_star(-1) - eps_star"
     description: AR(1) foreign output process
     source: "Gali and Monacelli (2005), p. 723"
   - id: flex-price-output
     status: original
+    source_check: verified_primary
     expr: "x"
     description: >
       Flexible-price pricing: output equals its natural level. The equation a
@@ -324,10 +339,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article's own statements, each carrying its equation
-    number. Cross-checked against an independent transcription of a third-party Dynare
-    replication of the same article, read for verification only: see
-    models/gali-monacelli-2005 for the residuals.
+    Galí and Monacelli (2005) open-economy equilibrium under complete international markets, law of one price and a stationary world-price normalisation.
+
   open_questions:
     - "World inflation is set to zero, as the article does on p. 724. A component making it an exogenous process would replace terms-of-trade."
     - "Complete markets is carried as an equation of the core rather than as a separate assumption component. It should become one when an incomplete-markets alternative is written, since that alternative must replace it."

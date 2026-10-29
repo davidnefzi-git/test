@@ -1,5 +1,13 @@
 # Smets and Wouters (2007), as composed here
 
+**Source edition.** The primary PDF supplied for verification is ECB Working Paper
+No. 722 (February 2007), 57 PDF pages, including a model appendix. The model
+entry cites the American Economic Review 2007 publication. The working paper is a
+separate version and must not be treated as proof that every AER equation,
+parameter-table entry or page reference is identical. Claims of exact AER
+correspondence require checking the AER version itself.
+
+
 ## What the entry is and is not
 
 It is the model's **dynamics**, at the posterior means of Tables 1A and 1B, assembled
@@ -118,72 +126,32 @@ blocks removed.
 A component that needs the twin says so, with `requires_shadow`, so that composing the
 rule without a twin fails at the closure check with a message naming what is missing.
 
-## Verification
+## Theoretical and numerical checks
 
-### Layer 1: closed forms
+The first-order equations are supplied in their structurally reduced form,
+with the flexible-price counterpart built from common real-side components.
+This representation must be distinguished from direct primary-source verification.
 
-The sharpest is a neutrality result. **In the twin, a risk-premium shock moves nothing.**
-The wedge raises the return households require; with no nominal rigidity the equilibrium
-risk-free real rate falls by exactly as much, and no quantity moves at all.
+In the flexible-price counterpart, the risk-premium disturbance is absorbed by
+the real interest rate and does not change real quantities under the maintained
+model assumptions. This equilibrium restriction is included among the algebraic
+reference targets, but alone it cannot determine the economic sign of a shock.
 
-That holds only if the wedge enters the Euler equation at `−c_3` and the arbitrage
-equation at `−1`. Either coefficient wrong, in magnitude or in sign, and the twin's
-output stops being zero. One target, two coefficients.
+Two economically relevant **source versus third-party implementation**
+conventions must remain visible:
 
-The others are the twin's closures (`mc_f = 0`, `w_f = mrs_f`), the utilisation slope,
-capital services against the stock carried into the period, and the resource constraint
-and production function along the whole impulse response rather than at one horizon.
+1. **Risk-premium orientation.** A positive risk-premium shock increases the
+   required return on households' assets and reduces consumption. The Euler
+   and capital-value equations contain its negative contributions. This
+   convention is described explicitly in ECB WP 722, §2, eqs. (2) and (4).
+2. **Investment disturbance in accumulation.** ECB WP 722, eq. (8), has an
+   investment-efficiency coefficient including the factor
+   `(1 + beta_bar*gamma_g)`. A third-party implementation is reported to
+   omit that factor. The library retains the equation of the supplied paper.
 
-### Layer 2: an independent implementation
-
-Both economies were compared against a separate transcription of a third-party Dynare
-replication of the same article: its own notation, its own parameterisation path, its own
-equation forms — unscaled Phillips curves, the household first-order condition
-substituted into the wage equation, the rescaled risk-premium wedge, no real-rate
-variable at all — solved separately.
-
-Agreement is at machine precision, the worst residual being **2.8e-13** over seven
-shocks, thirty-three variables and eight periods, once two differences are accounted for.
-Both are differences between the **article** and that replication, not errors in either,
-and this entry follows the article in both:
-
-1. **The risk-premium wedge.** The article carries it at `−c_3` in the Euler equation and
-   `−1` in the arbitrage equation. The replication rescales it and flips its sign. The
-   replication's convention makes the arbitrage equation depend on the habit parameter,
-   which would deny the core its habit-free closure.
-2. **The investment shock in capital accumulation.** The article's equation (8) carries
-   the factor `(1 + β̄γ)`, about 1.997 at the posterior mean; the replication omits it, a
-   discrepancy pointed out by Del Negro and Schorfheide (2012).
-
-### Layer 3: mutation
-
-Every equation of the twelve components was perturbed in turn — a parameter scaled, a
-variable added, a sign flipped — and the suite re-run. A perturbation that survives names
-an equation nothing verifies.
-
-### What layer 2 cannot see, and the defect that proved it
-
-The cross-check fixes the scale at one for six of the seven shocks, so for those six the
-normalisation is verified rather than fitted. The seventh needs a factor, because the
-article and the replication genuinely differ on the wedge's convention -- and a fitted
-factor absorbs a **sign**.
-
-The risk-premium wedge was first implemented with the wrong sign, so that a wider premium
-*raised* consumption. The cross-check agreed to 1e-13 before the correction and to 1e-13
-after it. Neither the closure tests nor the nesting tests saw it either: the twin's
-neutrality result is a *cancellation*, and it holds whichever sign both coefficients
-carry, as long as they carry the same one.
-
-What caught it was reading the impulse response against the article's own sentence: *"a
-positive shock to this wedge increases the required return on assets and reduces current
-consumption."*
-
-The lesson is recorded in the targets file and generalised in `docs/audit-2026-10.md`: where
-a cross-check fits a normalisation it verifies **structure**, not **orientation** -- and
-that is exactly where the risk of misreading the article is highest, since a convention
-has to be fitted only when the two sources disagree about it. Every shock in this entry
-therefore carries a target whose sign is meaningful, stating what direction the economy
-moves in and sourced to the article's text rather than to its equations.
+These are scientific normalisation distinctions, not statistics from a
+particular test run. The source-version limitations are recorded in
+`docs/theory/source-editions.md`.
 
 ## Known limits
 

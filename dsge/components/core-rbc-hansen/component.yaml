@@ -115,11 +115,13 @@ parameters:
 equations:
   - id: euler
     status: original
+    source_check: pending
     expr: "1/c - beta*(1/c(+1))*(rk(+1) + 1 - delta)"
     description: Consumption Euler equation
     source: "Hansen (1985), first-order condition for capital"
   - id: labour-foc
     status: original
+    source_check: pending
     expr: "(1 - theta)*(y/n) - B_hansen*c"
     description: >
       Labour first-order condition under indivisible labour. The intensive-margin
@@ -128,11 +130,13 @@ equations:
     source: "Hansen (1985), first-order condition for labour under indivisibility"
   - id: resource-constraint
     status: original
+    source_check: pending
     expr: "c - y - (1 - delta)*k(-1) + k"
     description: Resource constraint
     source: "Hansen (1985), resource constraint"
   - id: capital-accumulation
     status: original
+    source_check: pending
     expr: "k - (1 - delta)*k(-1) - inv"
     description: >
       Law of motion of capital. Note the timing: k with no lag is the stock carried into
@@ -142,26 +146,31 @@ equations:
     source: "Hansen (1985), capital accumulation"
   - id: production
     status: original
+    source_check: pending
     expr: "y - a*k(-1)**theta*n**(1 - theta)"
     description: Cobb-Douglas production function, with capital predetermined
     source: "Hansen (1985), production function"
   - id: rental-rate
     status: original
+    source_check: pending
     expr: "rk - theta*(y/k(-1))"
     description: Rental rate of capital, the marginal product
     source: "Hansen (1985), factor prices"
   - id: real-wage
     status: original
+    source_check: pending
     expr: "w - (1 - theta)*(y/n)"
     description: Real wage, the marginal product of labour
     source: "Hansen (1985), factor prices"
   - id: technology
     status: original
+    source_check: pending
     expr: "log(a) - gamma_a*log(a(-1)) - eps_a"
     description: AR(1) in the LOG of productivity, the level of which is one in steady state
     source: "Hansen (1985), p. 319"
   - id: productivity
     status: original
+    source_check: pending
     expr: "prod - y/n"
     description: Labour productivity, reported because it is one of the article's moments
     source: "Hansen (1985), Table 1"
@@ -226,10 +235,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article. Cross-checked against an independent
-    transcription of a third-party Dynare replication of the same model, solved
-    separately: see models/hansen-1985 for the residuals. The steady state is verified
-    against the model's own equations to 1e-12 before any differentiation.
+    Hansen (1985) is a separate primary source not among the supplied PDFs; these equations retain their documented structural origin but independent primary-source certification is pending.
+
   open_questions:
     - "The article's Table 1 reports simulated second moments of HP-filtered series. Reproducing them needs a stochastic simulation and a filter, neither of which the harness has, so this entry does not claim them."
     - "The intensive-margin labour FOC is the article's comparison case and belongs as a separate component replacing labour-foc, which would make the indivisibility effect a nesting-style comparison rather than a claim."

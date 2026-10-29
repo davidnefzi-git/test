@@ -278,14 +278,16 @@ parameters:
 equations:
   - id: marginal-cost
     status: original
+    source_check: verified_working_paper
     expr: "mc - (alpha*rk + (1-alpha)*w - a)"
     description: >
       Real marginal cost as the cost-share-weighted average of the two factor prices,
       less productivity. A definition, given the factor prices; with flexible prices it
       becomes the restriction mc = 0 on those prices instead.
-    source: "Smets and Wouters (2007), eq. (10)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (9), PDF p. 15 (marginal cost)"
   - id: factor-demand
     status: original
+    source_check: verified_working_paper
     expr: "rk - (w + n - ks)"
     description: >
       Cost minimisation between capital services and labour. Note `ks`, capital
@@ -294,6 +296,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (11)"
   - id: capital-services
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "ks - (k(-1) + u)"
     description: >
@@ -303,23 +306,26 @@ equations:
     source: "Smets and Wouters (2007), eq. (6)"
   - id: production
     status: original
+    source_check: verified_working_paper
     expr: "y - phi_p*(alpha*ks + (1-alpha)*n + a)"
     description: >
       Production function. phi_p multiplies the whole bracket because output is measured
       net of a fixed cost, so a one-percent rise in inputs raises output by more than one
       percent.
-    source: "Smets and Wouters (2007), eq. (9)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (5), PDF p. 13 (production)"
   - id: resource-constraint
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "y - (c_y*c + i_y*inv + g + rkky*u)"
     description: >
       Goods market clearing. The last term is the resource cost of varying utilisation:
       running capital harder is not free, and omitting the term is a conservation error
       rather than an approximation.
-    source: "Smets and Wouters (2007), eq. (7)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (1), PDF p. 11 (resource constraint)"
   - id: value-of-capital
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#value-of-capital"
     expr: "qk - (-rr - b + (rk_ss/(rk_ss + 1 - delta))*rk(+1) + ((1 - delta)/(rk_ss + 1 - delta))*qk(+1))"
     description: >
@@ -341,6 +347,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (4)"
   - id: capital-accumulation
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv)"
     description: >
@@ -351,6 +358,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (8), at zero adjustment cost"
   - id: euler-no-habit
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "c - (c(+1) + c2_nohabit*(n - n(+1)) - (1/sigma_c)*rr - (1/sigma_c)*b)"
     description: >
@@ -361,6 +369,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (2) at lambda = 0"
   - id: mrs-no-habit
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "mrs - (sigma_l*n + c)"
     description: >
@@ -368,9 +377,10 @@ equations:
       Exposed as a variable rather than written out inside the wage equation: that is
       what lets a wage friction be composed without knowing what the consumption
       specification is.
-    source: "Smets and Wouters (2007), eq. (13) bracket, at lambda = 0"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (12), PDF p. 16 (MRS, zero habit)"
   - id: flex-wage
     status: original
+    source_check: standard_identity
     expr: "w - mrs"
     description: >
       Flexible wages: the real wage equals the marginal rate of substitution. Replaced by
@@ -378,6 +388,7 @@ equations:
     source: "Smets and Wouters (2007), section II, flexible-wage case"
   - id: flex-price-mc
     status: original
+    source_check: standard_identity
     expr: "mc"
     description: >
       Flexible prices: marginal cost is constant, so the markup is. Replaced by a
@@ -385,6 +396,7 @@ equations:
     source: "Smets and Wouters (2007), section II, flexible-price case"
   - id: flex-investment
     status: derived
+    source_check: standard_identity
     derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "qk"
     description: >
@@ -394,6 +406,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (3) at zero adjustment cost"
   - id: fixed-utilisation
     status: derived
+    source_check: standard_identity
     derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "u"
     description: >
@@ -402,11 +415,13 @@ equations:
     source: "Smets and Wouters (2007), eq. (5) at infinite utilisation cost"
   - id: technology
     status: original
+    source_check: verified_working_paper
     expr: "a - rho_a*a(-1) - eps_a"
     description: Total factor productivity, an AR(1) process.
     source: "Smets and Wouters (2007), Table 1B"
   - id: risk-premium
     status: original
+    source_check: verified_working_paper
     expr: "b - rho_b*b(-1) - eps_b"
     description: >
       Risk-premium wedge between the policy rate and the return households require on
@@ -499,11 +514,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article's own numbered equations. The composition
-    core-nk-medium + capital-utilisation + fiscal-block-simple is the flexible-price
-    economy and is cross-checked against an independent transcription of the reference
-    implementation's flexible-price block; nothing from that implementation is
-    reproduced here.
+    Real structural block of Smets–Wouters as stated in ECB Working Paper 722; no claim of final-AER line-by-line verification.
+
   open_questions:
     - "The measurement equations that map the model onto the seven observed series are not implemented, because no estimator is; they are declared in the data block of the smets-wouters-2007 manifest instead."
 

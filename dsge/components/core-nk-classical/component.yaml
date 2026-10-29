@@ -119,38 +119,40 @@ parameters:
 equations:
   - id: euler
     status: original
+    source_check: verified_primary
     expr: "x - x(+1) + (1/sigma)*(i - pi(+1) - rn)"
     description: Dynamic IS curve, from the household Euler equation written in the output gap
-    source: "Gali (2015) ch. 3, dynamic IS curve, eq. (23) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+    source: "Galí (2015), ch. 3, eq. (23), primary source checked; preference shock suppressed."
   - id: natural-rate
     status: original
+    source_check: verified_primary
     expr: "rn + sigma*psi_ya*(1 - rho_a)*a"
     description: >
       Natural rate of interest implied by the technology process:
-      rn = -sigma*psi_ya*(1 - rho_a)*a. The sign is the substance. A positive
-      persistent technology shock raises natural output now and leaves it declining
-      back towards trend, so expected natural output growth is negative and the
-      natural rate FALLS. Writing it with the opposite sign leaves every
-      monetary-shock result untouched, which is how the error survived its first
-      commit here.
-    source: "Gali (2015) ch. 3, natural rate of interest, eq. (24) per the same annotation"
+      rn = -sigma*psi_ya*(1 - rho_a)*a. A positive stationary productivity disturbance raises natural output initially,
+      but its subsequent expected decline lowers the natural real rate.
+    source: "Galí (2015), ch. 3, eq. (24), primary source checked; preference shock suppressed."
   - id: technology
     status: standard
+    source_check: standard_identity
     expr: "a - rho_a*a(-1) - eps_a"
     description: AR(1) technology process
     source: null
   - id: monetary-shock
     status: standard
+    source_check: standard_identity
     expr: "v - rho_v*v(-1) - eps_v"
     description: AR(1) monetary policy shock process
     source: null
   - id: natural-output
     status: original
+    source_check: verified_primary
     expr: "y_nat - psi_ya*a"
     description: Natural level of output implied by the technology process
-    source: "Gali (2015) ch. 3, natural output, eq. (20) per the same annotation"
+    source: "Galí (2015), ch. 3, eq. (20), primary source checked."
   - id: output-gap-definition
     status: original
+    source_check: verified_primary
     expr: "y - y_nat - x"
     description: >
       The output gap is output less its natural level. Carried explicitly because the
@@ -159,6 +161,7 @@ equations:
     source: "Gali (2015) ch. 3, definition of the output gap"
   - id: flex-wage-mc
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/wage-setting.md#marginal-cost-sticky-wage"
     expr: "mc - (sigma + (varphi + alpha)/(1 - alpha))*x"
     description: >
@@ -170,6 +173,7 @@ equations:
     source: "Gali (2015) ch. 3, marginal cost in terms of the output gap"
   - id: flex-price-output
     status: original
+    source_check: verified_primary
     expr: "x"
     description: >
       Flexible-price pricing: price equals marginal cost, output equals its natural
@@ -220,16 +224,9 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the textbook statements, not translated from any replication
-    file. Verified in composition: see models/nk-gali-2015-ch3, whose closed-form golden
-    targets exercise this core under both shocks and under both the classical and the
-    sticky-price closures. Cross-checked additionally against an independent
-    transcription of the chapter's full equation list, taken from a third-party Dynare
-    replication and solved separately: agreement is 3.3e-16 under the monetary shock and
-    1.4e-16 under the technology shock. That cross-check is what revealed the policy
-    rule had been written in the output gap rather than in output.
+    Galí (2015), chapter-3 log-linearised core, omitting the textbook's preference shock.
+
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
     - "Only the log-linearised form is carried. The non-linear equations and a steady-state solver are needed before second order or welfare."
 
 provenance:

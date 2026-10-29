@@ -53,6 +53,7 @@ parameters:
 equations:
   - id: nkpc-rotemberg
     status: derived
+    source_check: pending
     derivation: "docs/theory/price-setting.md#rotemberg-equivalence"
     expr: "pi - beta*pi(+1) - lambda_pr*mc"
     description: Phillips curve implied by a quadratic cost of changing prices, to first order, in real marginal cost
@@ -107,19 +108,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    First-order equivalence with calvo-prices IS tested, in tests/test_levels.py, with
-    phi_rotemberg set from the Calvo slope rather than from the rounded default below;
-    the two models' impulse responses then agree to machine precision. The derivation of
-    the equivalence is in docs/theory/price-setting.md, section 6.
+    First-order Rotemberg price adjustment is documented, but its original 1982 source was not among the supplied PDFs.
 
-    Two earlier statements in this field have been removed because they had become
-    false. One said the equivalence was untested, which it no longer is. The other was
-    parked in `open_questions` with a RESOLVED prefix, which left a resolved item in the
-    field reserved for unresolved ones. Both are recorded here rather than deleted
-    silently, because the risk they created is specific: a reader -- or a language model
-    -- taking `open_questions` as a list of what remains open would have inferred that
-    this component's central property was unestablished, and taking `notes` at face
-    value would have inferred the same thing twice over.
   open_questions:
     - "The non-equivalence beyond first order is the whole point of the comparison and needs the non-linear equations."
 

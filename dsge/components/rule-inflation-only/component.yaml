@@ -45,11 +45,13 @@ parameters:
 equations:
   - id: policy-rule-strict
     status: standard
+    source_check: standard_identity
     expr: "i - phi_pi*pi - v"
     description: The nominal rate responds to inflation alone.
     source: "Taylor (1993)"
   - id: monetary-shock
     status: standard
+    source_check: standard_identity
     expr: "v - rho_v*v(-1) - eps_v"
     description: Monetary policy shock process.
     source: "Standard"
@@ -93,9 +95,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Two equations, both standard. Exercised by the nesting targets of
-    calvo-prices-kimball, price-indexation, calvo-wages-kimball and wage-indexation, and
-    by the regime comparison in the tests of smets-wouters-2007.
+    Simplifying inflation-only rule used to close the nominal block for theoretical comparisons.
+
   open_questions: []
 
 provenance:

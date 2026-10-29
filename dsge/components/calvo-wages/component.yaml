@@ -10,11 +10,11 @@ summary: >
   housing all work this way — so this component is the pattern for everything after it.
 
 citation:
-  authors: [Erceg, Henderson, Levin]
-  year: 2000
-  title: "Optimal Monetary Policy with Staggered Wage and Price Contracts"
-  journal: "Journal of Monetary Economics 46(2), 281-313"
-  doi: 10.1016/S0304-3932(00)00028-3
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapter 6"
+  journal: "Princeton University Press"
+  doi: null
   url: null
 
 variables:
@@ -48,10 +48,7 @@ parameters:
     range: [2.0, 20.0]
     method: calibrated
     source: >
-      Gali (2015) ch. 6, p. 170. Was set to 9.0 by assumption, equal to epsilon_p, until
-      the calibration was checked; it is not innocuous, since epsilon_w enters the slope
-      of the wage Phillips curve through (1 + epsilon_w*varphi), and 4.5 against 9
-      changes lambda_w by a factor of about 1.9.
+      Galí (2015), chapter 6, p. 170; the substitution elasticity is distinct from the goods-market elasticity and determines the wage Phillips-curve slope.
   - name: lambda_w
     description: Coefficient on the wage markup gap in the wage Phillips curve
     default: null
@@ -72,6 +69,7 @@ parameters:
 equations:
   - id: wage-pc
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/wage-setting.md#wage-phillips-curve"
     expr: "pi_w - beta*pi_w(+1) - lambda_w*((sigma + varphi/(1 - alpha))*x - omega_tilde)"
     description: >
@@ -79,9 +77,10 @@ equations:
       the real wage less the marginal rate of substitution, and the gap between the
       marginal rate of substitution and its natural level is (sigma + varphi/(1-alpha))
       times the output gap.
-    source: "Gali (2015) ch. 6, wage Phillips curve, eq. (22) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+    source: "Galí (2015), ch. 6, eqs. (15), (19)-(20); checked against the supplied original chapter. Eq. (22) is the dynamic IS curve."
   - id: real-wage-gap
     status: derived
+    source_check: verified_primary
     derivation: "docs/theory/wage-setting.md#real-wage-gap"
     expr: "omega_tilde - omega_tilde(-1) - pi_w + pi + psi_wa*(a - a(-1))"
     description: >
@@ -90,9 +89,10 @@ equations:
       technology. This is the equation that makes the two frictions interact rather than
       merely coexist, and the lag on omega_tilde is what gives the two-friction model
       its own state.
-    source: "Gali (2015) ch. 6, wage gap, eq. (21) per the same annotation"
+    source: "Galí (2015), ch. 6, eq. (21), primary source checked."
   - id: mc-sticky-wage
     status: derived
+    source_check: verified_primary
     derivation: "docs/theory/wage-setting.md#marginal-cost-sticky-wage"
     expr: "mc - omega_tilde - (alpha/(1 - alpha))*x"
     description: >
@@ -104,10 +104,7 @@ equations:
 
 replaces: [core-nk-classical.flex-wage-mc]
 depends_on: [core-nk-classical]
-# Reciprocal of the declaration in calvo-wages-kimball. A model has one wage-setting
-# mechanism, not two, and both of these provide it; the declaration was one-sided until
-# an audit found it, which means the assembler would have refused the composition for
-# the right reason (a variable provided twice) while the metadata said nothing.
+# Alternative wage-setting mechanisms cannot be selected simultaneously.
 incompatible_with: [calvo-wages-kimball]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
@@ -176,19 +173,10 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the textbook and article statements, not translated from any
-    replication file. Verified in composition by the two closed-form targets of
-    ehl-2000 and by the nesting target above, and then cross-checked: the composition
-    core-nk-classical + calvo-prices + calvo-wages + taylor-rule was compared against an
-    independent transcription of the chapter's full equation list, taken from a
-    third-party Dynare replication and solved separately. The two agree to 4.4e-16 under
-    the monetary shock and 3.3e-16 under the technology shock, over five variables and
-    four periods. The replication was read for verification only; no file from it is
-    reproduced here, and the equations implemented are the book's, not its expression of
-    them.
+    Galí (2015), ch. 6 wage-setting specialisation of EHL-type nominal contracts; not the complete EHL (2000) capital and welfare model.
+
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
-    - "EHL's published welfare losses cannot be targets until a second-order or linear-quadratic treatment exists; the entry's tier reflects that."
+    - "This is Galí's chapter-6 teaching model rather than the full EHL (2000) framework; EHL's capital, subsidy and welfare blocks are omitted."
 
 provenance:
   source_url: null

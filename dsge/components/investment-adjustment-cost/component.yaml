@@ -57,6 +57,7 @@ parameters:
 equations:
   - id: investment-euler
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#investment-euler"
     expr: "gamma_g**2*varphi_i*((1 + beta_bar*gamma_g)*inv - inv(-1) - beta_bar*gamma_g*inv(+1) - (1 + beta_bar*gamma_g)*zi) - qk"
     description: >
@@ -73,6 +74,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (3), rearranged"
   - id: capital-accumulation-adj
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#capital-accumulation"
     expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv + i_kbar*(1 + beta_bar*gamma_g)*gamma_g**2*varphi_i*zi)"
     description: >
@@ -85,6 +87,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (8)"
   - id: investment-shock
     status: original
+    source_check: verified_working_paper
     expr: "zi - rho_zi*zi(-1) - eps_zi"
     description: Investment-specific efficiency, an AR(1) process.
     source: "Smets and Wouters (2007), Table 1B"
@@ -152,9 +155,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article's numbered equations, in a rearranged but
-    algebraically identical form. Verified by the nesting target above and in composition
-    by the golden targets of smets-wouters-2007.
+    Investment Euler and capital accumulation with the working-paper investment-specific shock normalisation.
+
   open_questions:
     - "The article and its replication code disagree on the coefficient of the investment shock in the capital accumulation equation by a factor of (1 + beta_bar*gamma_g), about 1.99 at the posterior mean. The article's version is implemented; the entry carries a target measuring the difference."
 

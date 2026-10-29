@@ -39,13 +39,14 @@ parameters:
 equations:
   - id: utilisation
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "u - ((1 - psi_u)/psi_u)*rk"
     description: >
       The household equates the marginal cost of running capital harder to the rental
       rate it earns. Replaces the core's fixed-utilisation closure, which is the psi = 1
       case: at psi = 1 the coefficient is zero and utilisation does not move at all.
-    source: "Smets and Wouters (2007), eq. (5)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (7), PDF p. 14."
 
 replaces: [core-nk-medium.fixed-utilisation]
 depends_on: [core-nk-medium]
@@ -102,8 +103,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    One equation, written from the article. Verified in composition by the golden targets
-    of smets-wouters-2007 and by the nesting target above.
+    The rental-rate utilisation equation follows ECB Working Paper 722, eq. (7), with its source-specific cost normalisation.
+
   open_questions: []
 
 provenance:

@@ -190,16 +190,13 @@ foreign terms in the natural rate disappear. Every coefficient multiplying $\The
 then unidentified by any numerical check performed at that calibration. The library's
 second calibration — $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists to
 make $\Theta \neq 0$ and $\sigma_\alpha \neq \sigma$, and the entry's foreign-shock
-targets sit there. A mutation test had found every foreign term in this core unverified
-before that calibration was added.
+targets sit there. The second calibration is therefore needed to identify the foreign-output terms in analytical or numerical checks.
 
 **The natural rate.** $rn_t = -\sigma_\alpha\Gamma(1-\rho_a)a_t
 + \alpha\sigma_\alpha(\Theta+\Psi)\,\mathbb{E}_t\Delta y^{*}_{t+1}$ in the article's
 notation; the component's equation is the same relation rearranged to a residual. Note
 the sign on the technology term: a persistent rise in productivity **lowers** the natural
-rate. The closed-economy counterpart of that sign was wrong in an early version of this
-library and no test caught it, because every target then used the monetary shock, under
-which technology is identically zero.
+rate. This sign follows from the expected reversal of a stationary productivity disturbance, and it is already present in Galí and Monacelli (2005), eq. (37).
 
 **Anchor: `openness-composites`.**
 

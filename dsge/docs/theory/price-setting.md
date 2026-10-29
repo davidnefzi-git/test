@@ -6,17 +6,7 @@ The derivations behind `calvo-prices`, `calvo-prices-domestic`, `calvo-prices-ki
 This document is the single source of truth for the algebra. The component files carry
 the equations the solver uses and point here; they do not restate the steps.
 
-**What is established here and what is not.** Sections 1 to 4 are the standard Calvo
-derivation, reproduced because the library's components use its intermediate objects and
-because an equation cannot be transplanted into another environment without them. The
-numbered equations of Galí (2015) chapter 3 cited in the component files were taken from
-the annotations of a third-party Dynare replication, not from the printed edition; the
-relations themselves are not in doubt, the numbering is second-hand, and each component
-records that in `verification.open_questions`. Section 6 derives the first-order
-equivalence between Rotemberg and Calvo, which the library tests numerically. Section 5
-states the Kimball case; its aggregator is given as Smets and Wouters use it, and the
-step from the aggregator to the slope is reproduced only in outline, which is flagged in
-place.
+**Source basis.** The Galí (2015) chapter-3 equations have been checked against the supplied original chapter: eq. (17) is the marginal-cost Phillips curve and eq. (22) its output-gap form. The Smets–Wouters Kimball curvature derivation remains incomplete beyond the outline in §5; verification of Rotemberg's own 1982 paper is pending. First-order equivalence between Calvo and Rotemberg is stated under the given zero-trend-inflation restrictions.
 
 ---
 
@@ -248,12 +238,10 @@ removes the friction. In Rotemberg, $\phi \to 0$ does. A reader who assumes that
 friction parameter goes to zero" has the same meaning in both gets the direction of one
 of them wrong, and `rotemberg-prices` records the direction explicitly for that reason.
 
-Second, the component's slope coefficient was at one point named as though it were a
-slope in the output gap when it is the analogue of $\lambda$, a coefficient on marginal
-cost. The two differ by the factor $\big(\sigma+\frac{\varphi+\alpha}{1-\alpha}\big)$,
-which is about 4.3 at the library's calibration, so the mislabelling made the Calvo
-comparison wrong by that factor. The equation now carries the marginal-cost coefficient
-and the parameter is documented as such.
+Second, the component's slope is a coefficient on marginal cost, not the output
+gap. The two coefficients differ by the factor
+$\big(\sigma+\frac{\varphi+\alpha}{1-\alpha}\big)$. The equation and parameter
+metadata consistently use the marginal-cost coefficient.
 
 **Anchor: `rotemberg-equivalence`.**
 
