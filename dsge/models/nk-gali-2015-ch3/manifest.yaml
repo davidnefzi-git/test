@@ -80,6 +80,6 @@ provenance:
   license: "Own implementation, written from the textbook equations"
   redistributable: true
   permission_note: >
-    No third-party file is reproduced. The equations are standard textbook results and
+    The implementation is written from the primary textbook source. The equations are standard textbook results and
     are implemented here from the published statements, not copied from any replication
     package. Nothing in this entry carries another project's licence.
