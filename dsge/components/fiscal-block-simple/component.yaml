@@ -60,6 +60,7 @@ parameters:
 equations:
   - id: spending
     status: original
+    source_check: verified_working_paper
     expr: "g - rho_g*g(-1) - eps_g - rho_ga*eps_a"
     description: >
       Spending follows an AR(1) driven by its own innovation and by the technology
