@@ -85,8 +85,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    One equation, written from the article. Verified by the nesting target above and by
-    the golden targets of smets-wouters-2007.
+    Smets–Wouters wage indexation to past price inflation, as in ECB Working Paper 722, eq. (13).
+
   open_questions: []
 
 provenance:
