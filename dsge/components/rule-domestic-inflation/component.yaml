@@ -35,6 +35,7 @@ parameters:
 equations:
   - id: policy-rule-ditr
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "i - phi_pi*pi_h"
     description: Interest rate rule in domestic inflation
