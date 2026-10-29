@@ -1,4 +1,4 @@
-"""The medium-scale model, its flexible-price twin, and the gap a mutation test found.
+"""The medium-scale model, its flexible-price twin, and the policy output gap.
 
 Three kinds of check live here rather than in golden/targets.yaml, because a target
 addresses ONE response of ONE composition and these do not:
@@ -172,7 +172,7 @@ def test_the_risk_premium_is_neutral_in_the_twin_and_not_in_the_sticky_economy(f
     assert _path(c, P, Q, "eps_b", "qk")[0] < -0.5
 
 
-# ------------------------------------- the gap a mutation test found, and its closure --
+# --------------------------------------------------- policy output gap and its closure --
 TOGGLE_BASE = ["fiscal-block-simple", "calvo-prices-kimball", "fisher-equation",
                "rule-inflation-only"]
 REAL_FRICTIONS = {
