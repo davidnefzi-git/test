@@ -138,7 +138,7 @@ verification:
     - "The variance decomposition that is the article's headline result needs unconditional moments, which this harness does not compute."
     - "Welfare comparisons across the frictions need a second order, out of reach while equations are supplied log-linearised."
     - "The seven measurement relations are documented in estimation.yaml (AER eq. 15), but no estimator implements them."
-    - "Parameter values are the posterior MEANS of Tables 1A and 1B. Chib and Ramamurthy (2010) show the mode the article reports is not the mode; the means are unaffected by that point, but anyone reproducing the estimation should know it."
+    - "The component defaults reproduce posterior MEANS from AER Tables 1A–1B; posterior MODES, dispersion and quantiles are separately preserved in estimation.yaml."
 
 provenance:
   license: "Own implementation, written from the article's numbered equations"
