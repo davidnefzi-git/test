@@ -316,12 +316,33 @@ def test_model_mechanism_tags_exist(mid):
 
 @pytest.mark.parametrize("mid", sorted(MODELS), ids=lambda m: m)
 def test_model_carries_a_theory_document(mid):
-    """Three of the four canonical models had no theoretical document at all: a manifest
-    naming components and a file of numerical targets. An entry that cannot be read as a
-    model is not a reference for one."""
+    """Every canonical entry must include a substantive theoretical specification."""
     spec = ROOT / "models" / mid / "spec" / "model.md"
     assert spec.exists(), f"{mid}: no spec/model.md"
     assert len(spec.read_text()) > 2000, f"{mid}: spec/model.md is a stub"
+
+
+
+def test_repository_exposes_contribution_and_model_documentation_policy():
+    readme = (ROOT / "README.md").read_text()
+    assert "CONTRIBUTING.md" in readme
+    assert "docs/model-documentation-policy.md" in readme
+    assert (ROOT / "CONTRIBUTING.md").exists()
+    assert (ROOT / "docs" / "model-documentation-policy.md").exists()
+
+
+@pytest.mark.parametrize("mid", sorted(MODELS), ids=lambda m: m)
+def test_declared_estimation_resources_exist(mid):
+    ref = MODELS[mid].get("estimation_reference")
+    if not ref:
+        return
+    base = ROOT / "models" / mid
+    assert (base / ref["specification"]).exists(), (
+        f"{mid}: missing estimation specification {ref['specification']}"
+    )
+    assert (base / ref["interpretation"]).exists(), (
+        f"{mid}: missing estimation interpretation {ref['interpretation']}"
+    )
 
 
 # -------------------------------------------------------- theory documents -----------
