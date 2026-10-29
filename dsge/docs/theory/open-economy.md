@@ -84,7 +84,7 @@ The library sets world inflation to zero, as the article does on p. 724, giving 
 
 ## 3. The real exchange rate
 
-$Q_t \equiv \frac{\mathcal{E}_t P^f_t {P_t}, \qquad q_t = e_t + p^f_t - p_t.$
+$Q_t \equiv \frac{\mathcal{E}_t P^f_t {P_t}}, \qquad q_t = e_t + p^f_t - p_t.$
 
 Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^f_t = p_{H,t} + s_t$,
 
@@ -132,11 +132,11 @@ Four composites carry openness through the model. All are the article's.
 
 $\omega \equiv \sigma\gamma + (1-\alpha)(\sigma\eta - 1), \qquad \sigma_\alpha \equiv \frac{\sigma}{(1-\alpha) + \alpha\,\omega},$
 
-$\Theta \equiv (\sigma\gamma - 1) + (1-\alpha)(\sigma\eta-1), \qquad \Gamma \equiv \frac{1+\varphi}{\sigma_\alpha+\varphi}, \qquad \Psi \equiv, \frac{\Theta \sigma \alpha}{\sigma \alpha+\varphi}.$
+$\Theta \equiv (\sigma \gamma - 1) + (1-\alpha)(\sigma \eta-1), \qquad \Gamma \equiv \frac{1+\varphi}{\sigma \alpha+\varphi}, \qquad \Psi \equiv \frac{\Theta \sigma \alpha}{\sigma \alpha+\varphi}.$
 
 **$\sigma_\alpha$ replaces $\sigma$ in the IS curve.** The open-economy IS curve is $x_t = \mathbb{E}_t x_{t+1} - \frac{1}{\sigma \alpha} (i_t - \mathbb{E}_t \pi_{H,t+1} - rn_t)$: the same shape as the closed-economy curve with the intertemporal elasticity rescaled. At $\alpha = 0$, $\sigma \alpha = \sigma$. The rescaling exists because a change in the real rate now moves the terms of trade as well as the consumption path.
 
-**Natural output.** $y^n_t = \Gamma\,a_t + \alpha\,\Psi y^{f}_t$. Openness enters twice: through $\Gamma$, which is the closed-economy elasticity with $\sigma \alpha$ in place of $\sigma$; and through the foreign term, whose coefficient is proportional to $\Theta$.
+**Natural output.** $y^n_t = \Gamma a_t + \alpha \Psi y^{f}_t$. Openness enters twice: through $\Gamma$, which is the closed-economy elasticity with $\sigma \alpha$ in place of $\sigma$; and through the foreign term, whose coefficient is proportional to $\Theta$.
 
 **$\Theta$ vanishes at the article's baseline.** At $\sigma = \eta = \gamma = 1$, $\Theta = 0$ exactly, so natural output does not respond to world output at all and the foreign terms in the natural rate disappear. Every coefficient multiplying $\Theta$ is then unidentified by any numerical check performed at that calibration. The library's second calibration — $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists to
 make $\Theta \neq 0$ and $\sigma_\alpha \neq \sigma$, and the entry's foreign-shock targets sit there. The second calibration is therefore needed to identify the foreign-output terms in analytical or numerical checks.
