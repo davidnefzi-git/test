@@ -1,0 +1,262 @@
+id: core-soe-gm
+kind: core
+friction: null
+summary: >
+  The small open economy core of Gali and Monacelli (2005): household Euler equation in
+  the open-economy intertemporal elasticity, the natural rate and natural output under
+  openness, international risk sharing, the link between CPI and domestic inflation
+  through the terms of trade, and the terms-of-trade law of motion. Fifteen equations
+  for sixteen variables, so like the closed-economy core it is deliberately not closed
+  until a policy component supplies the sixteenth.
+
+citation:
+  authors: [Gali, Monacelli]
+  year: 2005
+  title: "Monetary Policy and Exchange Rate Volatility in a Small Open Economy"
+  journal: "Review of Economic Studies 72(3), 707-734"
+  doi: 10.1111/j.1467-937X.2005.00349.x
+  url: null
+
+variables:
+  provides: [x, y, y_nat, pi_h, pi, rn, i, s, e, q, y_star, a, c, n, w, nx]
+  requires: []
+
+shocks:
+  - id: eps_a
+    description: Domestic technology shock
+    normalisation: one unit
+    sign_convention: positive raises domestic productivity
+  - id: eps_star
+    description: Foreign output shock
+    normalisation: one unit
+    sign_convention: positive raises world output
+
+parameters:
+  - name: sigma
+    symbol: "σ"
+    description: Inverse elasticity of intertemporal substitution
+    default: 1.0
+    units: null
+    frequency: none
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration (log utility)"
+  - name: beta
+    symbol: "β"
+    description: Discount factor
+    default: 0.99
+    units: null
+    frequency: quarterly
+    range: [0.95, 0.999]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration"
+  - name: varphi
+    symbol: "φ"
+    description: Inverse Frisch elasticity of labour supply
+    default: 3.0
+    units: null
+    frequency: none
+    range: [0.0, 10.0]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration"
+  - name: alpha_open
+    symbol: "α"
+    description: >
+      Degree of openness, the share of imports in consumption. Named alpha_open rather
+      than alpha, which is the article's symbol, because the closed-economy core uses
+      alpha for one minus the labour share. The two cores never compose together, but a
+      reader comparing components would be misled, and the namespace is a shared
+      commitment.
+    default: 0.4
+    units: share
+    frequency: none
+    range: [0.0, 0.9]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration"
+  - name: eta
+    symbol: "η"
+    description: Substitutability between domestic and foreign goods
+    default: 1.0
+    units: null
+    frequency: none
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration"
+  - name: gamma
+    symbol: "γ"
+    description: Substitutability among foreign goods
+    default: 1.0
+    units: null
+    frequency: none
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Gali and Monacelli (2005), baseline calibration"
+  - name: rho_a
+    description: Persistence of the domestic technology process
+    default: 0.9
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Gali and Monacelli (2005), p. 723"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_y_star
+    description: Persistence of the foreign output process
+    default: 0.86
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Gali and Monacelli (2005), p. 723"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: omega_gm
+    description: Composite of openness and the two substitution elasticities
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (27)"
+    formula: "sigma*gamma + (1 - alpha_open)*(sigma*eta - 1)"
+  - name: sigma_a
+    description: >
+      Open-economy intertemporal elasticity. Replaces sigma in the IS curve: openness
+      changes how a given interest rate moves demand, which is the model's first
+      substantive departure from the closed economy.
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (29)"
+    formula: "sigma/((1 - alpha_open) + alpha_open*omega_gm)"
+  - name: Theta_gm
+    description: Composite entering the natural rate and natural output
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (29)"
+    formula: "(sigma*gamma - 1) + (1 - alpha_open)*(sigma*eta - 1)"
+  - name: Gamma_gm
+    description: Elasticity of natural output to domestic technology
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (35)"
+    formula: "(1 + varphi)/(sigma_a + varphi)"
+  - name: Psi_gm
+    description: Elasticity of natural output to foreign output
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali and Monacelli (2005), defined below eq. (35)"
+    formula: "-Theta_gm*sigma_a/(sigma_a + varphi)"
+
+equations:
+  - id: is-curve
+    expr: "x - x(+1) + (1/sigma_a)*(i - pi_h(+1) - rn)"
+    description: Dynamic IS curve, in the open-economy intertemporal elasticity and in DOMESTIC inflation
+    source: "Gali and Monacelli (2005), eq. (37)"
+  - id: natural-rate
+    expr: "rn + sigma_a*Gamma_gm*(1 - rho_a)*a - alpha_open*sigma_a*(Theta_gm + Psi_gm)*(y_star(+1) - y_star)"
+    description: >
+      Natural rate of interest. Two terms: the domestic technology term, negative as in
+      the closed economy, and a foreign term absent there.
+    source: "Gali and Monacelli (2005), equation below eq. (37)"
+  - id: natural-output
+    expr: "y_nat - Gamma_gm*a - alpha_open*Psi_gm*y_star"
+    description: Natural level of output, which now depends on world output as well as domestic technology
+    source: "Gali and Monacelli (2005), eq. (35)"
+  - id: output-gap-definition
+    expr: "x - y + y_nat"
+    description: The output gap is output less its natural level
+    source: "Gali and Monacelli (2005), equation above eq. (35)"
+  - id: risk-sharing
+    expr: "y - y_star - (1/sigma_a)*s"
+    description: >
+      International risk sharing under complete markets, which ties domestic output to
+      world output and the terms of trade. This is a maintained ASSUMPTION rather than a
+      friction: a component introducing incomplete markets would replace it, which is
+      why it is a separate equation rather than folded into the IS curve.
+    source: "Gali and Monacelli (2005), eq. (29)"
+  - id: cpi-domestic-link
+    expr: "pi - pi_h - alpha_open*(s - s(-1))"
+    description: CPI inflation is domestic inflation plus the openness-weighted change in the terms of trade
+    source: "Gali and Monacelli (2005), eq. (14)"
+  - id: terms-of-trade
+    expr: "s - s(-1) - e + e(-1) + pi_h"
+    description: >
+      Law of motion of the terms of trade, with constant world prices so that foreign
+      inflation is zero. This is where the nominal exchange rate enters the system, and
+      it is what makes the terms of trade an endogenous state.
+    source: "Gali and Monacelli (2005), eq. (15) in first differences, with pistar = 0 (p. 724)"
+  - id: real-exchange-rate
+    expr: "q - (1 - alpha_open)*s"
+    description: Real exchange rate implied by the terms of trade under the model's price structure
+    source: "Gali and Monacelli (2005), relation between q and s"
+  - id: employment
+    expr: "y - a - n"
+    description: Production function with labour as the only input
+    source: "Gali and Monacelli (2005), eq. (22)"
+  - id: net-exports
+    expr: "nx - alpha_open*(omega_gm/sigma - 1)*s"
+    description: Net exports as a share of steady-state output
+    source: "Gali and Monacelli (2005), eq. (31)"
+  - id: consumption
+    expr: "y - c - alpha_open*omega_gm/sigma*s"
+    description: Consumption, which differs from output by the terms-of-trade correction
+    source: "Gali and Monacelli (2005), eq. (27)"
+  - id: real-wage
+    expr: "w - sigma*c - varphi*n"
+    description: Labour supply condition
+    source: "Gali and Monacelli (2005), equation above eq. (11)"
+  - id: technology
+    expr: "a - rho_a*a(-1) - eps_a"
+    description: AR(1) domestic technology process
+    source: "Gali and Monacelli (2005), p. 723"
+  - id: foreign-output
+    expr: "y_star - rho_y_star*y_star(-1) - eps_star"
+    description: AR(1) foreign output process
+    source: "Gali and Monacelli (2005), p. 723"
+  - id: flex-price-output
+    expr: "x"
+    description: >
+      Flexible-price pricing: output equals its natural level. The equation a
+      price-setting friction replaces, exactly as in the closed-economy core.
+    source: "Gali and Monacelli (2005), flexible-price allocation"
+
+compatible_cores: []
+incompatible_with: []
+minimum_perturbation_order: 1
+solution_requirement: "First order. The equations are supplied already log-linearised, as the article states them."
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the article's own statements, each carrying its equation
+    number. Cross-checked against an independent transcription of a third-party Dynare
+    replication of the same article, read for verification only: see
+    models/gali-monacelli-2005 for the residuals.
+  open_questions:
+    - "World inflation is set to zero, as the article does on p. 724. A component making it an exogenous process would replace terms-of-trade."
+    - "Complete markets is carried as an equation of the core rather than as a separate assumption component. It should become one when an incomplete-markets alternative is written, since that alternative must replace it."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-19"

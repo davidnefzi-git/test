@@ -1,0 +1,60 @@
+id: fisher-equation
+kind: assumption
+summary: >
+  The real rate the household prices equals the nominal rate the central bank sets less
+  expected inflation. One equation, no parameter, no friction -- and a component rather
+  than a line in the core, for a structural reason: it is the ONLY place the nominal side
+  touches the real block, so a model without it is a model with no nominal side at all.
+  That is exactly the flexible-price twin, which is why removing this component has to be
+  possible.
+
+  It provides no variable. The real rate belongs to the core, which prices it; inflation
+  belongs to the price-setting block, which determines it; the nominal rate belongs to
+  the policy rule, which sets it. This equation only ties the three together, and the
+  assembler's global equation count is what accounts for it.
+
+citation:
+  authors: [Fisher]
+  year: 1896
+  title: "Appreciation and Interest"
+  journal: "Publications of the American Economic Association 11(4), 1-98"
+  doi: null
+  url: null
+
+variables:
+  provides: []
+  requires: [rr, i, pi]
+
+parameters: []
+
+equations:
+  - id: fisher
+    expr: "rr - (i - pi(+1))"
+    description: >
+      Expected inflation, not realised: the real rate relevant to an intertemporal
+      decision taken at t is the nominal rate at t less the inflation expected between t
+      and t+1. Writing pi instead of pi(+1) here is a timing error that leaves the model
+      solvable and shifts every impulse response.
+    source: "Standard"
+
+replaces: []
+depends_on: []
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+verification:
+  reviewed_by: null
+  notes: "One identity. Verified in composition by every nominal target of smets-wouters-2007."
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

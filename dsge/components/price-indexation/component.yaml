@@ -1,0 +1,90 @@
+id: price-indexation
+kind: friction
+friction: Partial indexation of non-reset prices to past inflation
+summary: >
+  A firm that does not reset its price still raises it, by a fraction of last quarter's
+  inflation. The friction adds a lag to the Phillips curve and so makes inflation itself
+  a state variable, which is what gives the model inflation persistence without an
+  implausibly persistent markup shock.
+
+  It replaces the Phillips curve of calvo-prices-kimball rather than adding an equation,
+  because indexation does not add a margin: it changes the one the price-setting block
+  already owns.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: []
+  requires: [pi, mc, mkp]
+
+parameters:
+  - name: iota_p
+    symbol: "ι_p"
+    description: Degree of indexation of non-reset prices to past inflation
+    default: 0.24
+    units: null
+    frequency: none
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.50, 0.15]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+equations:
+  - id: price-pc-indexed
+    expr: "kappa_p_inv*((1 + beta_bar*gamma_g*iota_p)*(pi - mkp) - beta_bar*gamma_g*pi(+1) - iota_p*pi(-1)) - mc"
+    description: >
+      The indexed price Phillips curve, in the same reciprocal-slope form as the equation
+      it replaces, so that the two differ only in the indexation terms and the limit
+      iota_p = 0 returns the replaced equation character for character.
+    source: "Smets and Wouters (2007), eq. (10), rearranged"
+
+replaces: [calvo-prices-kimball.price-pc]
+depends_on: [calvo-prices-kimball]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: iota_p
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost, calvo-prices-kimball, fisher-equation, rule-inflation-only]
+  statement: >
+    At iota_p = 0 the indexed Phillips curve is algebraically the unindexed one, so the
+    limit is exact rather than approximate: the composition must reproduce itself.
+  tolerance: 1.0e-6
+  # First order in iota_p.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: pi
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    One equation, written from the article. Verified by the nesting target above and by
+    the golden targets of smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

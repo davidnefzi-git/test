@@ -1,0 +1,261 @@
+# Canonical variable namespace.
+#
+# WHY THIS FILE EXISTS, AND WHY IT IS NOT taxonomy/families.yaml
+#
+# A family's `common_variables` are outputs declared for cross-model comparison. This
+# file is different: it is the namespace that a MODEL'S OWN EQUATIONS are written in,
+# and it exists because components (taxonomy/../schema/component.schema.json) are
+# written by different people at different times and must still connect.
+#
+# The decisive field is `timing`. Two components can each be internally correct, agree
+# on every variable name, and still produce a model whose dynamics are wrong, because
+# one treats the capital stock as chosen last period and the other as chosen this
+# period. Nothing in a closure check catches that; only a stated convention does.
+#
+# A component may only use variables declared here. `modellib.compose` enforces it, so
+# adding a variable requires a taxonomy/ PR — which is the intent: the namespace is a
+# shared commitment, not a convenience.
+#
+# Convention for the whole file unless a variable says otherwise: log deviation from
+# the non-stochastic steady state; rates are quarterly and NOT annualised.
+#
+# UNITS DEPEND ON THE COMPONENT'S equation_form, and the `units` field below states the
+# log-linear case. A component written in `levels` uses the same names for the same
+# economic objects, but each variable is then the level itself and its steady state is
+# whatever the model implies rather than zero. A composition may not mix the two forms,
+# and the assembler refuses it, so within any one model a variable means one thing. What
+# never changes with the form is `timing`: that is the point of the field.
+
+# --- monetary-dsge core -----------------------------------------------------------
+x:
+  description: Output gap, output less its natural (flexible-price) level
+  units: log deviation
+  timing: contemporaneous
+  common_variable: output_gap
+y:
+  description: Output
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: output
+y_nat:
+  description: Natural level of output, the level that would obtain under flexible prices and wages
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: null
+pi:
+  description: Inflation, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+  common_variable: inflation
+i:
+  description: Nominal policy rate, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+  common_variable: policy_rate
+rn:
+  description: Natural rate of interest
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+c:
+  description: Consumption
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: consumption
+n:
+  description: Hours worked
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: hours
+w:
+  description: Real wage
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: real_wage
+mc:
+  description: Real marginal cost
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+pi_w:
+  description: Nominal wage inflation, quarterly, not annualised
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+omega_tilde:
+  description: Real wage gap, the real wage less its natural (flexible-price, flexible-wage) level
+  units: log deviation
+  timing: >
+    contemporaneous, but an endogenous STATE: it enters its own law of motion with a
+    lag, because the real wage is a ratio of two sticky nominal levels and therefore
+    carries history even when both inflation rates are forward-looking. A component
+    that treats it as purely forward-looking will assemble without error and produce
+    a model with no wage dynamics at all.
+  common_variable: null
+
+# --- capital and investment -------------------------------------------------------
+k:
+  description: Capital stock, END of period t (so k appearing with no lag is chosen at t)
+  units: log deviation from steady state
+  timing: >
+    predetermined. k is the stock carried INTO t+1. A component that needs the stock
+    available for production in period t must therefore write k(-1), never k. This is
+    the convention most often violated when porting a model file, and the reason this
+    field is mandatory.
+  common_variable: null
+ks:
+  description: Capital services, utilisation times the capital stock available in t
+  units: log deviation from steady state
+  timing: contemporaneous (defined from k(-1) and the utilisation rate)
+  common_variable: null
+inv:
+  description: Gross investment
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: investment
+qk:
+  description: Shadow value of installed capital (Tobin's q)
+  units: log deviation
+  timing: >
+    contemporaneous, but FORWARD-looking: it is an asset price and enters its own
+    equation led, never lagged. Named qk and not q because `q` is the real exchange
+    rate below. The two were once both called q, and since YAML keeps only the last
+    of two identical keys, this declaration was silently discarded for a while; the
+    duplicate-key guard in modellib.compose now refuses the file outright.
+  common_variable: null
+u:
+  description: Capital utilisation rate
+  units: log deviation from steady state
+  timing: contemporaneous
+  common_variable: null
+rk:
+  description: Real rental rate of capital services
+  units: log deviation
+  timing: contemporaneous
+  common_variable: null
+
+# --- exogenous processes ----------------------------------------------------------
+a:
+  description: Total factor productivity
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+v:
+  description: Monetary policy shock process
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+g:
+  description: Government purchases, in units of steady-state output
+  units: >
+    share of steady-state output: the log deviation of spending MULTIPLIED by its
+    steady-state share. The declaration said "log deviation" until the resource
+    constraint of core-nk-medium was written, where g appears additively beside
+    c_y*c and i_y*inv; for that to be an identity, g must already carry its share.
+    The difference is a factor of about five at a spending share of 0.18, so a
+    component that reads this as a plain log deviation will report a spending
+    multiplier five times too large and will not fail any test that does not check
+    the resource constraint against output.
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+
+# --- open economy -----------------------------------------------------------------
+pi_h:
+  description: Domestic goods price inflation, quarterly, not annualised
+  units: log deviation
+  timing: >
+    contemporaneous. Distinct from `pi`, which is CPI inflation: in an open economy the
+    two differ by the change in the terms of trade, and a component that sets domestic
+    prices must write pi_h. Conflating them is the open-economy counterpart of
+    conflating output with the output gap.
+  common_variable: null
+s:
+  description: Terms of trade, the price of imports relative to domestically produced goods
+  units: log deviation
+  timing: >
+    contemporaneous, but an endogenous STATE: it enters its own law of motion with a
+    lag, since it accumulates the difference between nominal depreciation and domestic
+    inflation.
+  common_variable: terms_of_trade
+e:
+  description: Nominal exchange rate, domestic currency per unit of foreign currency
+  units: log deviation; a rise is a depreciation
+  timing: contemporaneous, entering the terms-of-trade law of motion with a lag
+  common_variable: nominal_exchange_rate
+q:
+  description: Real exchange rate
+  units: log deviation; a rise is a depreciation
+  timing: contemporaneous
+  common_variable: real_exchange_rate
+y_star:
+  description: Foreign (world) output
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+nx:
+  description: Net exports, as a share of steady-state output
+  units: share of steady-state output
+  timing: contemporaneous
+  common_variable: null
+
+# --- medium-scale spine -----------------------------------------------------------
+rr:
+  description: Real interest rate, the one-period real return the household prices
+  units: log deviation (quarterly, not annualised)
+  timing: >
+    contemporaneous. Distinct from `rn`, the natural rate: `rr` is the real rate that
+    actually obtains, `rn` the one that would obtain under flexible prices. A component
+    that writes `i - pi(+1)` in place of `rr` is making the Fisher equation implicit,
+    which is legal but then no flexible-price twin of the model can be formed, because
+    that twin has no nominal rate and no inflation to subtract.
+  common_variable: null
+mrs:
+  description: Marginal rate of substitution between consumption and leisure
+  units: log deviation
+  timing: >
+    contemporaneous, but it inherits the timing of the consumption specification it is
+    built from: under habit formation the MRS carries c(-1), so a wage block that treats
+    `mrs` as purely contemporaneous will still assemble. Exposing the MRS as a variable
+    rather than writing it out inside the wage equation is what keeps a wage friction
+    independent of the consumption friction.
+  common_variable: null
+b:
+  description: Risk-premium (preference) wedge between the policy rate and the return on assets
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+zi:
+  description: Investment-specific efficiency, the shock to the marginal efficiency of investment
+  units: log deviation
+  timing: predetermined (AR(1) in its own lag)
+  common_variable: null
+mkp:
+  description: Price markup process
+  units: log deviation
+  timing: >
+    predetermined, and ARMA(1,1) rather than AR(1). A first-order system cannot lag a
+    shock, so the MA term requires the auxiliary variable `mkp_aux` below. A component
+    that writes the innovation lagged instead will be rejected by the assembler.
+  common_variable: null
+mkp_aux:
+  description: Auxiliary variable equal to the price-markup innovation, carrying its lag
+  units: log deviation
+  timing: contemporaneous (equal to the innovation in the same period)
+  common_variable: null
+mkw:
+  description: Wage markup process
+  units: log deviation
+  timing: predetermined, ARMA(1,1); see `mkp` for why the auxiliary variable is needed
+  common_variable: null
+mkw_aux:
+  description: Auxiliary variable equal to the wage-markup innovation, carrying its lag
+  units: log deviation
+  timing: contemporaneous (equal to the innovation in the same period)
+  common_variable: null
+
+# --- levels-form additions ---------------------------------------------------------
+prod:
+  description: Labour productivity, output per hour
+  units: level (log deviation in a log-linear component)
+  timing: contemporaneous
+  common_variable: null

@@ -1,0 +1,64 @@
+id: rule-domestic-inflation
+kind: policy
+friction: null
+summary: >
+  Domestic inflation-based Taylor rule (DITR): the policy rate responds to inflation in domestically produced goods. The article's baseline regime.
+
+citation:
+  authors: [Gali, Monacelli]
+  year: 2005
+  title: "Monetary Policy and Exchange Rate Volatility in a Small Open Economy"
+  journal: "Review of Economic Studies 72(3), 707-734"
+  doi: 10.1111/j.1467-937X.2005.00349.x
+  url: null
+
+variables:
+  provides: []
+  requires: [i, pi_h]
+
+parameters: 
+  - name: phi_pi
+    description: Response of the policy rate to inflation
+    default: 1.5
+    units: null
+    frequency: none
+    range: [1.001, 3.0]
+    method: estimated
+    source: "Gali and Monacelli (2005), baseline calibration"
+    prior:
+      family: normal
+      hyperparameters: [1.5, 0.25]
+      bounds: [1.001, null]
+      fixed: false
+      note: "the lower bound enforces determinacy"
+
+equations:
+  - id: policy-rule-ditr
+    expr: "i - phi_pi*pi_h"
+    description: Interest rate rule in domestic inflation
+    source: "Gali and Monacelli (2005), p. 724-725"
+
+depends_on: [core-soe-gm]
+incompatible_with: [rule-cpi-inflation, rule-exchange-rate-peg, rule-optimal-domestic-price-stability]
+compatible_cores: [core-soe-gm]
+minimum_perturbation_order: 1
+solution_requirement: null
+
+verification:
+  reviewed_by: null
+  notes: >
+    One of the four policy regimes the article compares. The four are mutually
+    incompatible by construction: each supplies the single equation that closes the
+    nominal side, so including two would replace nothing and over-determine the system.
+    The assembler refuses the combination on the declared incompatibility, and would
+    refuse it on the equation count in any case.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-19"

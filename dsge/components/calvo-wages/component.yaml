@@ -1,0 +1,159 @@
+id: calvo-wages
+kind: friction
+friction: Staggered nominal wage setting with a constant reset probability
+summary: >
+  Calvo wage setting. The first component in the library that introduces variables and
+  equations together rather than substituting one equation for another: it brings wage
+  inflation and the real wage gap, their two laws of motion, and a new definition of
+  real marginal cost that displaces the core's flexible-wage condition. That is the
+  general shape of a friction block — the financial accelerator, labour search and
+  housing all work this way — so this component is the pattern for everything after it.
+
+citation:
+  authors: [Erceg, Henderson, Levin]
+  year: 2000
+  title: "Optimal Monetary Policy with Staggered Wage and Price Contracts"
+  journal: "Journal of Monetary Economics 46(2), 281-313"
+  doi: 10.1016/S0304-3932(00)00028-3
+  url: null
+
+variables:
+  # Unlike the pricing components, this one DOES provide variables: wage inflation and
+  # the real wage gap exist only once wages are sticky.
+  provides: [pi_w, omega_tilde]
+  requires: [x, pi, mc, a]
+
+parameters:
+  - name: theta_w
+    symbol: "θ_w"
+    description: Probability that a nominal wage is NOT reset in a given quarter
+    default: 0.75
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Gali (2015) ch. 6: theta_w = 3/4, an average wage duration of one year. Equal to theta_p at this calibration, which is a coincidence of the book's choice and not a constraint."
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.1]
+      bounds: [0.0, 0.95]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: epsilon_w
+    symbol: "ε_w"
+    description: Elasticity of substitution across labour types
+    default: 4.5
+    units: null
+    frequency: none
+    range: [2.0, 20.0]
+    method: calibrated
+    source: >
+      Gali (2015) ch. 6, p. 170. Was set to 9.0 by assumption, equal to epsilon_p, until
+      the calibration was checked; it is not innocuous, since epsilon_w enters the slope
+      of the wage Phillips curve through (1 + epsilon_w*varphi), and 4.5 against 9
+      changes lambda_w by a factor of about 1.9.
+  - name: lambda_w
+    description: Coefficient on the wage markup gap in the wage Phillips curve
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali (2015) ch. 6, p. 170, definition of lambda_w"
+    formula: "(1 - theta_w)*(1 - beta*theta_w)/(theta_w*(1 + epsilon_w*varphi))"
+  - name: psi_wa
+    description: Elasticity of the natural real wage to technology
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali (2015) ch. 6, p. 171, natural real wage. Equivalent to (1 - alpha*psi_ya)/(1 - alpha)."
+    formula: "1 - alpha*(psi_ya - 1)/(1 - alpha)"
+
+equations:
+  - id: wage-pc
+    expr: "pi_w - beta*pi_w(+1) - lambda_w*((sigma + varphi/(1 - alpha))*x - omega_tilde)"
+    description: >
+      Wage Phillips curve. The bracket is minus the wage markup gap: the wage markup is
+      the real wage less the marginal rate of substitution, and the gap between the
+      marginal rate of substitution and its natural level is (sigma + varphi/(1-alpha))
+      times the output gap.
+    source: "Gali (2015) ch. 6, wage Phillips curve, eq. (22) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+  - id: real-wage-gap
+    expr: "omega_tilde - omega_tilde(-1) - pi_w + pi + psi_wa*(a - a(-1))"
+    description: >
+      Identity linking the real wage gap to the two inflation rates: the real wage grows
+      at wage inflation less price inflation, and its natural level grows with
+      technology. This is the equation that makes the two frictions interact rather than
+      merely coexist, and the lag on omega_tilde is what gives the two-friction model
+      its own state.
+    source: "Gali (2015) ch. 6, wage gap, eq. (21) per the same annotation; derivation in spec/model.md of ehl-2000"
+  - id: mc-sticky-wage
+    expr: "mc - omega_tilde - (alpha/(1 - alpha))*x"
+    description: >
+      Real marginal cost when wages are sticky: the real wage gap plus the
+      decreasing-returns term in the output gap. Replaces the core's flexible-wage
+      condition, which is the special case obtained when the wage markup gap is held
+      at zero.
+    source: "Gali (2015) ch. 6, p. 171-172 (markup definition); derivation in spec/model.md of ehl-2000"
+
+replaces: [core-nk-classical.flex-wage-mc]
+depends_on: [core-nk-classical]
+incompatible_with: []
+compatible_cores: [core-nk-classical]
+minimum_perturbation_order: 1
+solution_requirement: "First order for dynamics. The welfare losses that EHL report require a second-order or linear-quadratic treatment, which is out of reach while the equations are supplied log-linearised."
+
+nesting_target:
+  parameter: theta_w
+  limit: 0
+  recovers: [core-nk-classical, calvo-prices, taylor-rule]
+  statement: >
+    As theta_w goes to zero every wage is reset each quarter, the wage markup gap is
+    held at zero, and real marginal cost collapses back to
+    (sigma + (varphi + alpha)/(1 - alpha)) times the output gap — the core's
+    flexible-wage condition. The composed model must then reproduce
+    nk-gali-2015-ch3, which is the first time in this library that a nesting limit is
+    another entry whose own golden targets are already verified rather than an
+    abstract special case.
+    No analytic rate is declared: deriving the constant means perturbing the whole
+    three-equation system in theta_w, and it would buy little here, because the exact
+    limiting value is pinned independently by the closed-form target
+    flexible-wage-limit-output-gap on ehl-2000. That target is the stronger check, so
+    this one tests only that the approach is monotone and reaches the limit.
+  tolerance: 1.0e-4
+  # The gap closes linearly in theta_w, so reaching 1e-4 needs theta_w of order 1e-6:
+  # at 1e-4 the residual is still 9.2e-4. Recorded here because the sequence a
+  # component needs is a property of its own convergence rate, not a convention.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_v
+    variable: x
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the textbook and article statements, not translated from any
+    replication file. Verified in composition by the two closed-form targets of
+    ehl-2000 and by the nesting target above, and then cross-checked: the composition
+    core-nk-classical + calvo-prices + calvo-wages + taylor-rule was compared against an
+    independent transcription of the chapter's full equation list, taken from a
+    third-party Dynare replication and solved separately. The two agree to 4.4e-16 under
+    the monetary shock and 3.3e-16 under the technology shock, over five variables and
+    four periods. The replication was read for verification only; no file from it is
+    reproduced here, and the equations implemented are the book's, not its expression of
+    them.
+  open_questions:
+    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
+    - "EHL's published welfare losses cannot be targets until a second-order or linear-quadratic treatment exists; the entry's tier reflects that."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article and textbook statements"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-18"

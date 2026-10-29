@@ -1,0 +1,527 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "econ-model-library/component.schema.json",
+  "title": "Component manifest",
+  "description": "A component is a reusable piece of a model: a core, a friction, a maintained assumption, a policy rule, or a measurement block. It is NOT a model, and schema/manifest.schema.json cannot describe it honestly: a component has no equilibrium, no welfare, no verification tier and nothing to run. The fields that make a composition checkable rather than merely plausible are `variables.provides`, `variables.requires` and `replaces`.",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "citation",
+    "variables",
+    "equations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Must match the folder name under components/."
+    },
+    "kind": {
+      "enum": [
+        "core",
+        "friction",
+        "assumption",
+        "policy",
+        "measurement"
+      ],
+      "description": "core: the skeleton other components mount on; it owns the endogenous variables and is deliberately not closed on its own. friction: introduces a friction, normally by replacing an equation of the core. assumption: a maintained assumption that friction components replace, and which therefore has no friction parameter (complete markets, for instance). policy: supplies the equation that closes the nominal or fiscal side. measurement: maps model variables to observed series; not an economic friction, but the component without which no estimation replicates."
+    },
+    "friction": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "One line naming the friction. Null for kind core, assumption, policy and measurement."
+    },
+    "summary": {
+      "type": "string"
+    },
+    "citation": {
+      "type": "object",
+      "required": [
+        "authors",
+        "year",
+        "title"
+      ],
+      "properties": {
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "year": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "journal": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "doi": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "variables": {
+      "type": "object",
+      "required": [
+        "provides",
+        "requires"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provides": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Endogenous variables this component INTRODUCES. Every name must be declared in taxonomy/variables.yaml. A component that replaces an equation introduces no variable and provides nothing: it supplies a different equation for a slot the core already owns. Two components providing the same variable is a composition error."
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variables used but introduced elsewhere. A composition in which no included component provides one of these is refused."
+        },
+        "requires_shadow": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variables this component needs from a FLEXIBLE-PRICE TWIN of the model rather than from the model itself: Smets-Wouters's policy rule needs flexible-price output. Named by their taxonomy name, without the twin's suffix; the equation writes the suffixed form, y_f, and the assembler checks that the composition declares a shadow supplying it. Declared rather than left implicit so that composing such a component without a twin fails at the closure check, with a message that says what is missing, instead of failing later on an unresolved symbol."
+        }
+      }
+    },
+    "shocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "normalisation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "normalisation": {
+            "type": "string"
+          },
+          "sign_convention": {
+            "type": "string"
+          },
+          "sd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Estimated or calibrated standard deviation of the innovation. Documentation only as far as the solver is concerned -- impulse responses here are to a unit innovation -- but it is part of the model's calibration and an estimation that used the wrong one would be wrong, so it carries a source like any other number."
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "default",
+          "method",
+          "source"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "default": {},
+          "units": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "frequency": {
+            "enum": [
+              "annual",
+              "quarterly",
+              "monthly",
+              "none",
+              null
+            ]
+          },
+          "range": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "method": {
+            "enum": [
+              "calibrated",
+              "estimated",
+              "normalisation",
+              "data",
+              "assumed",
+              "derived"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "description": "Where the number actually came from. No unsourced numbers, per CLAUDE.md."
+          },
+          "formula": {
+            "type": "string",
+            "description": "Required when method is 'derived'."
+          },
+          "prior": {
+            "type": "object",
+            "required": [
+              "family",
+              "hyperparameters"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "family": {
+                "enum": [
+                  "beta",
+                  "gamma",
+                  "inv_gamma",
+                  "normal",
+                  "uniform",
+                  "fixed"
+                ]
+              },
+              "hyperparameters": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 1
+              },
+              "bounds": {
+                "type": "array",
+                "items": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "fixed": {
+                "type": "boolean"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "equations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "expr",
+          "description"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique within the component. Referenced from elsewhere as <component-id>.<equation-id>."
+          },
+          "expr": {
+            "type": "string",
+            "description": "An expression equal to zero. x(+1) is a lead, x(-1) a lag, x the current value. Linear at present: see docs/composition/README.md on what this rules out."
+          },
+          "description": {
+            "type": "string"
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Equation number in the cited work, or null if it cannot be determined; do not guess, per CLAUDE.md."
+          }
+        }
+      }
+    },
+    "replaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fully qualified equation ids this component removes, e.g. core-nk-classical.flex-price-output. Two included components replacing the same equation is a composition error, and is how two alternative specifications of the same mechanism are detected even when neither declares the other incompatible."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Component ids that must also be included. Indexation blocks modify another component's equation rather than standing alone."
+    },
+    "incompatible_with": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "compatible_cores": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "minimum_perturbation_order": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Recursive preferences and stochastic volatility have no effect at first order. A component solved below its required order runs, produces numbers, and means nothing; declaring the order is the only way to make that failure detectable."
+    },
+    "solution_requirement": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nesting_target": {
+      "type": "object",
+      "description": "The verification analogue of reproduces_paper for a component, which has no paper table of its own to reproduce. At the stated limit the component must vanish and the composed model must reproduce the solution of the composition without it.",
+      "required": [
+        "parameter",
+        "limit",
+        "recovers",
+        "tolerance",
+        "probe"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "parameter": {
+          "type": "string"
+        },
+        "limit": {
+          "type": [
+            "number",
+            "string"
+          ],
+          "description": "A number, or 'infinity'."
+        },
+        "recovers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The component ids of the composition whose solution must be recovered, core first."
+        },
+        "statement": {
+          "type": "string",
+          "description": "What the limit means economically, in one or two sentences."
+        },
+        "tolerance": {
+          "type": "number"
+        },
+        "rate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Closed-form expression for the limit of (response - limit)/parameter, when one exists. Convergence alone lets a sign error or a mis-stated timing convention through; the rate does not."
+        },
+        "pathological": {
+          "type": "boolean",
+          "description": "True when the limit is a degenerate case rather than a valid nesting test. soe-closure is the example: removing it reintroduces a unit root, so its limit is a failure case and must be documented as such instead of being tested."
+        },
+        "probe": {
+          "type": "object",
+          "description": "Which response the nesting test measures. Making this part of the manifest, rather than of a hand-written test, is what lets tests/test_components.py run every component's nesting target automatically instead of relying on each contributor to remember.",
+          "required": [
+            "shock",
+            "variable",
+            "sequence"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "shock": {
+              "type": "string"
+            },
+            "variable": {
+              "type": "string",
+              "description": "Must be declared in taxonomy/variables.yaml."
+            },
+            "period": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Horizon of the response, 0 for impact. Defaults to 0."
+            },
+            "sequence": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "description": "Decreasing (or increasing) values of `parameter` approaching `limit`. The response must move monotonically towards the limiting value along this sequence."
+            }
+          }
+        },
+        "with_also": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Components present in the with-block only, because they exist only as a consequence of the component under test. Without sticky prices a model has no inflation, and therefore no Fisher equation and no interest-rate rule: the two sides of the nesting test then cannot be built from the same component list. The limit is still the composition named in `recovers`, which contains none of these."
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewed_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "license",
+        "redistributable"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "license": {
+          "type": "string"
+        },
+        "redistributable": {
+          "type": "boolean"
+        },
+        "permission_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ingested_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ingested_on": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "equation_form": {
+      "enum": [
+        "log-linear-deviations",
+        "levels"
+      ],
+      "default": "log-linear-deviations",
+      "description": "How this component's equations are written. 'log-linear-deviations' (the default, and what every component written before this field existed uses): equations are already linearised about the steady state, every variable is a deviation, and the steady state is zero. 'levels': equations are the model's own non-linear equations, and a steady state must be supplied or solvable, because the coefficients of the first-order solution are the Jacobians evaluated there. A composition may not mix the two: the variables would mean different things in different equations, which no equation count would catch. The assembler refuses it."
+    },
+    "steady_state": {
+      "type": "object",
+      "description": "Required when equation_form is 'levels'. Give `analytic` where the steady state is known in closed form, which is both exact and reviewable; give `guess` for the variables left to a numerical solve. The assembler verifies that the resulting point satisfies every equation of the composition before differentiating, so a wrong steady state is reported rather than silently producing wrong dynamics.",
+      "additionalProperties": false,
+      "properties": {
+        "analytic": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Variable name -> expression in the parameters and in previously listed variables. Resolved in dependency order, like derived parameters."
+        },
+        "guess": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Starting values for variables solved numerically."
+        },
+        "tolerance": {
+          "type": "number",
+          "description": "Residual accepted at the steady state. Default 1e-10."
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

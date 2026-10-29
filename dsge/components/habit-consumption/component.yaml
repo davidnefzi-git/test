@@ -1,0 +1,128 @@
+id: habit-consumption
+kind: friction
+friction: External habit formation in consumption
+summary: >
+  Households care about consumption relative to a habit stock built from past aggregate
+  consumption. The friction makes consumption a state variable, which is what gives a
+  medium-scale model a hump-shaped consumption response instead of the jump a
+  textbook Euler equation produces.
+
+  It provides no variable and introduces no equation of its own: it replaces two of the
+  core's, the Euler equation and the marginal rate of substitution. The second is easy to
+  forget, and forgetting it is not caught by any closure check -- the model assembles,
+  solves, and has habit in its intertemporal margin but not in its labour supply.
+
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+  url: null
+
+variables:
+  provides: []
+  requires: [c, n, rr, b, mrs]
+
+parameters:
+  - name: lambda_h
+    symbol: "λ"
+    description: Degree of external habit formation in consumption
+    default: 0.71
+    units: null
+    frequency: none
+    range: [0.0, 0.99]
+    method: estimated
+    source: >
+      Smets and Wouters (2007), Table 1A, posterior mean. Printed as h in the table and
+      as lambda in the text; named lambda_h here because lambda alone is the markup in
+      this literature.
+    prior:
+      family: beta
+      hyperparameters: [0.70, 0.10]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: c1
+    description: Weight on lagged consumption in the Euler equation
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007), eq. (2): c_1 = (lambda/gamma)/(1 + lambda/gamma)"
+    formula: "(lambda_h/gamma_g)/(1 + lambda_h/gamma_g)"
+  - name: c2
+    description: Weight on expected hours growth in the Euler equation
+    default: null
+    method: derived
+    source: >
+      Smets and Wouters (2007), eq. (2): c_2 = ((sigma_c - 1)*wl_c)/(sigma_c*(1 +
+      lambda/gamma)). Non-zero because preferences are not separable in consumption and
+      hours unless sigma_c = 1.
+    formula: "((sigma_c - 1)*wl_c)/(sigma_c*(1 + lambda_h/gamma_g))"
+  - name: c3
+    description: Interest elasticity of consumption
+    default: null
+    method: derived
+    source: "Smets and Wouters (2007), eq. (2): c_3 = (1 - lambda/gamma)/(sigma_c*(1 + lambda/gamma))"
+    formula: "(1 - lambda_h/gamma_g)/(sigma_c*(1 + lambda_h/gamma_g))"
+
+equations:
+  - id: euler-habit
+    expr: "c - (c1*c(-1) + (1 - c1)*c(+1) + c2*(n - n(+1)) - c3*rr - c3*b)"
+    description: >
+      Consumption Euler equation under habit formation. The wedge enters at minus c_3,
+      inside the same factor as the real rate, per the article's equation (2).
+      At lambda = 0 the coefficients
+      collapse to c1 = 0, c2 = (sigma_c-1)*wl_c/sigma_c and c3 = 1/sigma_c, which is
+      exactly the core's euler-no-habit: that identity is what the nesting target tests.
+    source: "Smets and Wouters (2007), eq. (2)"
+  - id: mrs-habit
+    expr: "mrs - (sigma_l*n + (1/(1 - lambda_h/gamma_g))*c - ((lambda_h/gamma_g)/(1 - lambda_h/gamma_g))*c(-1))"
+    description: >
+      Marginal rate of substitution under habit: it is the gap between consumption and
+      its habit stock, not consumption itself, that the household trades against
+      leisure. The lag on c is what carries habit into wage setting.
+    source: "Smets and Wouters (2007), eq. (13), the bracket multiplying the wage gap"
+
+replaces: [core-nk-medium.euler-no-habit, core-nk-medium.mrs-no-habit]
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: lambda_h
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple]
+  statement: >
+    As lambda goes to zero the habit stock disappears, c1 goes to zero, c3 goes to
+    1/sigma_c, and the marginal rate of substitution loses its lag. Both replaced
+    equations are recovered algebraically, so the limit is exact rather than approximate
+    and the whole flexible-price composition must reproduce itself.
+  tolerance: 1.0e-6
+  # First order in lambda_h, with the constant measured at -0.6324 and flat to four
+  # digits across the sequence. Not declared as a rate expression because the constant
+  # involves the whole system's response and not the parameters alone.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: c
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Both equations written from the article's numbered equations. Verified by the nesting
+    target above and in composition by the golden targets of smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

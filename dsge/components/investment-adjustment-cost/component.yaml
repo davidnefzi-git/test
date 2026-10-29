@@ -1,0 +1,139 @@
+id: investment-adjustment-cost
+kind: friction
+friction: Convex cost of changing the rate of investment
+summary: >
+  Adjusting the FLOW of investment is costly, not adjusting the stock. The distinction
+  matters: a cost in the level of investment gives a model a monotone investment
+  response, whereas a cost in its change gives the hump the data show, and makes the
+  shadow price of installed capital move at all.
+
+  The component also owns the investment-specific efficiency shock, because the shock's
+  coefficients in both equations are proportional to the adjustment cost: at zero
+  adjustment cost the shock has no effect anywhere, so it is not a shock the model has
+  independently of this friction.
+
+citation:
+  authors: [Christiano, Eichenbaum, Evans]
+  year: 2005
+  title: "Nominal Rigidities and the Dynamic Effects of a Shock to Monetary Policy"
+  journal: "Journal of Political Economy 113(1), 1-45"
+  doi: 10.1086/426038
+  url: null
+
+variables:
+  provides: [zi]
+  requires: [inv, qk, k]
+
+parameters:
+  - name: varphi_i
+    symbol: "φ"
+    description: Steady-state elasticity of the investment adjustment cost function
+    default: 5.74
+    units: null
+    frequency: none
+    range: [0.0, 25.0]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: normal
+      hyperparameters: [4.00, 1.50]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_zi
+    symbol: "ρ_i"
+    description: Persistence of the investment-specific efficiency process
+    default: 0.71
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+equations:
+  - id: investment-euler
+    expr: "gamma_g**2*varphi_i*((1 + beta_bar*gamma_g)*inv - inv(-1) - beta_bar*gamma_g*inv(+1) - (1 + beta_bar*gamma_g)*zi) - qk"
+    description: >
+      The investment Euler equation, MULTIPLIED THROUGH by gamma^2*phi.
+
+      The usual way to write it puts 1/(gamma^2*phi) in front of the shadow price, and
+      that form has no limit at phi = 0: the coefficient diverges, the nesting test
+      cannot be run, and the only thing left to check is that the model still solves at
+      some small value. Multiplied through, the same equation reads
+      "the shadow price equals gamma^2*phi times the adjustment term", and at phi = 0 it
+      becomes qk = 0, which is literally the core closure this component replaces. The
+      solution is unchanged -- scaling an equation by a constant cannot change it -- and
+      the limit becomes exact.
+    source: "Smets and Wouters (2007), eq. (3), rearranged"
+  - id: capital-accumulation-adj
+    expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv + i_kbar*(1 + beta_bar*gamma_g)*gamma_g**2*varphi_i*zi)"
+    description: >
+      Capital accumulation with the investment-specific shock, replacing the core's
+      identity. The shock's coefficient carries the factor (1 + beta_bar*gamma_g), per
+      the article's equation (8); the replication code omits that factor, a discrepancy
+      first pointed out by Del Negro and Schorfheide (2012). The article's version is
+      implemented here and the difference is quantified in the entry's verification
+      notes.
+    source: "Smets and Wouters (2007), eq. (8)"
+  - id: investment-shock
+    expr: "zi - rho_zi*zi(-1) - eps_zi"
+    description: Investment-specific efficiency, an AR(1) process.
+    source: "Smets and Wouters (2007), Table 1B"
+
+shocks:
+  - id: eps_zi
+    description: Innovation to the marginal efficiency of investment
+    normalisation: one unit
+    sign_convention: positive raises the efficiency of investment
+    sd: 0.45
+    source: "Smets and Wouters (2007), Table 1B, posterior mean"
+
+replaces: [core-nk-medium.flex-investment, core-nk-medium.capital-accumulation]
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: varphi_i
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption]
+  statement: >
+    As phi goes to zero installed and new capital become perfect substitutes: the shadow
+    price stops moving, the investment-specific shock loses both of its coefficients, and
+    capital accumulation reverts to the core's identity. Both replaced equations are
+    recovered exactly, which is only visible because the investment Euler is written
+    multiplied through by gamma^2*phi.
+  tolerance: 1.0e-5
+  # First order in varphi_i, constant measured at -20.0 and flat across the sequence.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: inv
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-7]
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the article's numbered equations, in a rearranged but
+    algebraically identical form. Verified by the nesting target above and in composition
+    by the golden targets of smets-wouters-2007.
+  open_questions:
+    - "The article and its replication code disagree on the coefficient of the investment shock in the capital accumulation equation by a factor of (1 + beta_bar*gamma_g), about 1.99 at the posterior mean. The article's version is implemented; the entry carries a target measuring the difference."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

@@ -1,0 +1,93 @@
+id: capital-utilisation
+kind: friction
+friction: Costly variation in the rate at which installed capital is used
+summary: >
+  Capital can be worked harder, at a cost. The friction breaks the identity between the
+  capital stock and capital services, which matters more than it sounds: it lets the
+  effective capital input respond within the quarter, while the stock itself cannot,
+  and it is the reason a medium-scale model does not need an implausibly large labour
+  response to match the behaviour of output.
+
+citation:
+  authors: [Christiano, Eichenbaum, Evans]
+  year: 2005
+  title: "Nominal Rigidities and the Dynamic Effects of a Shock to Monetary Policy"
+  journal: "Journal of Political Economy 113(1), 1-45"
+  doi: 10.1086/426038
+  url: null
+
+variables:
+  provides: []
+  requires: [u, rk]
+
+parameters:
+  - name: psi_u
+    symbol: "ψ"
+    description: Curvature of the utilisation cost; one means utilisation cannot be varied, zero means it is free
+    default: 0.54
+    units: null
+    frequency: none
+    range: [0.01, 0.999]
+    method: estimated
+    source: "Smets and Wouters (2007), Table 1A, posterior mean"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.15]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+
+equations:
+  - id: utilisation
+    expr: "u - ((1 - psi_u)/psi_u)*rk"
+    description: >
+      The household equates the marginal cost of running capital harder to the rental
+      rate it earns. Replaces the core's fixed-utilisation closure, which is the psi = 1
+      case: at psi = 1 the coefficient is zero and utilisation does not move at all.
+    source: "Smets and Wouters (2007), eq. (5)"
+
+replaces: [core-nk-medium.fixed-utilisation]
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: psi_u
+  limit: 1
+  recovers: [core-nk-medium, fiscal-block-simple]
+  statement: >
+    As psi goes to one, varying utilisation becomes infinitely costly, the coefficient
+    (1-psi)/psi vanishes, and the utilisation rate is pinned at zero -- the core's own
+    fixed-utilisation closure. This is the first nesting target in the library whose
+    limit is at a parameter value other than zero, which is why run_nesting now divides
+    the residual by the DISTANCE to the limit rather than by the parameter.
+  tolerance: 1.0e-6
+  # No closed-form rate, because the constant is not an expression in parameters: the
+  # limit of u/(psi - 1) is minus the rental-rate response at psi = 1, which is a model
+  # output. Measured at -1.1263 and flat to four digits across the sequence below, so
+  # the convergence is first order, as the algebra says it must be.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: u
+    period: 0
+    sequence: [0.9, 0.99, 0.9999, 0.9999999]
+
+verification:
+  reviewed_by: null
+  notes: >
+    One equation, written from the article. Verified in composition by the golden targets
+    of smets-wouters-2007 and by the nesting target above.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"

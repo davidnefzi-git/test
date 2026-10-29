@@ -1,0 +1,200 @@
+id: core-nk-classical
+kind: core
+friction: null
+summary: >
+  The classical monetary core of the basic New Keynesian model: household Euler
+  equation, the natural rate of interest, two exogenous processes, and the
+  flexible-price pricing condition. Five equations for six variables, so the core is
+  deliberately not closed on its own; the sixth equation is supplied by whichever
+  policy component closes the nominal side.
+
+citation:
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., ch. 3"
+  journal: "Princeton University Press"
+  doi: null
+  url: null
+
+variables:
+  # `provides` lists the endogenous variables this component INTRODUCES. The core owns
+  # all of them: a component that replaces an equation introduces no variable.
+  #
+  # `mc` is here rather than folded into the slope of the Phillips curve on purpose.
+  # Real marginal cost is where the pricing side and the wage side meet, so a model
+  # that hides it inside a reduced-form coefficient cannot have a wage friction added
+  # to it. Exposing the variable is what makes calvo-wages possible without rewriting
+  # calvo-prices: the wage component replaces the marginal-cost equation below, and the
+  # pricing component never changes.
+  # y and y_nat are here because the canonical policy rule responds to OUTPUT, not to
+  # the output gap. Keeping only the gap made the rule a different rule, which is
+  # invisible under a monetary shock and wrong under any other.
+  provides: [x, pi, i, rn, a, v, mc, y, y_nat]
+  requires: []
+
+shocks:
+  - id: eps_a
+    description: Technology shock
+    normalisation: one unit
+    sign_convention: positive raises productivity
+  - id: eps_v
+    description: Monetary policy shock
+    normalisation: one unit
+    sign_convention: positive is contractionary
+
+parameters:
+  - name: sigma
+    symbol: "σ"
+    description: Inverse elasticity of intertemporal substitution
+    default: 1.0
+    units: null
+    frequency: none
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Gali (2015) ch. 3, standard calibration (log utility)"
+  - name: beta
+    symbol: "β"
+    description: Discount factor
+    default: 0.99
+    units: null
+    frequency: quarterly
+    range: [0.95, 0.999]
+    method: calibrated
+    source: "Gali (2015) ch. 3, standard calibration"
+  - name: varphi
+    symbol: "φ"
+    description: Inverse Frisch elasticity of labour supply
+    default: 5.0
+    units: null
+    frequency: none
+    range: [0.0, 10.0]
+    method: calibrated
+    source: "Gali (2015) ch. 3, standard calibration"
+  - name: alpha
+    symbol: "α"
+    description: One minus the labour share in production
+    default: 0.25
+    units: share
+    frequency: none
+    range: [0.0, 0.5]
+    method: calibrated
+    source: "Gali (2015) ch. 3, standard calibration"
+  - name: rho_a
+    description: Persistence of the technology process
+    default: 0.9
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.9; prior from the Smets-Wouters (2007) convention for AR(1) shock persistences"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: rho_v
+    description: Persistence of the monetary policy shock
+    default: 0.5
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.95]
+    method: estimated
+    source: "Gali (2015) ch. 3 uses 0.5; prior from the Smets-Wouters (2007) convention"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: psi_ya
+    description: Elasticity of natural output to technology
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Gali (2015) ch. 3, definition of psi_ya"
+    formula: "(1 + varphi) / (sigma * (1 - alpha) + varphi + alpha)"
+
+equations:
+  - id: euler
+    expr: "x - x(+1) + (1/sigma)*(i - pi(+1) - rn)"
+    description: Dynamic IS curve, from the household Euler equation written in the output gap
+    source: "Gali (2015) ch. 3, dynamic IS curve, eq. (23) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+  - id: natural-rate
+    expr: "rn + sigma*psi_ya*(1 - rho_a)*a"
+    description: >
+      Natural rate of interest implied by the technology process:
+      rn = -sigma*psi_ya*(1 - rho_a)*a. The sign is the substance. A positive
+      persistent technology shock raises natural output now and leaves it declining
+      back towards trend, so expected natural output growth is negative and the
+      natural rate FALLS. Writing it with the opposite sign leaves every
+      monetary-shock result untouched, which is how the error survived its first
+      commit here.
+    source: "Gali (2015) ch. 3, natural rate of interest, eq. (24) per the same annotation"
+  - id: technology
+    expr: "a - rho_a*a(-1) - eps_a"
+    description: AR(1) technology process
+    source: null
+  - id: monetary-shock
+    expr: "v - rho_v*v(-1) - eps_v"
+    description: AR(1) monetary policy shock process
+    source: null
+  - id: natural-output
+    expr: "y_nat - psi_ya*a"
+    description: Natural level of output implied by the technology process
+    source: "Gali (2015) ch. 3, natural output, eq. (20) per the same annotation"
+  - id: output-gap-definition
+    expr: "y - y_nat - x"
+    description: >
+      The output gap is output less its natural level. Carried explicitly because the
+      policy rule is written in output, so a model that holds only the gap cannot state
+      the canonical rule at all.
+    source: "Gali (2015) ch. 3, definition of the output gap"
+  - id: flex-wage-mc
+    expr: "mc - (sigma + (varphi + alpha)/(1 - alpha))*x"
+    description: >
+      Real marginal cost under flexible WAGES: with the wage equal to the marginal rate
+      of substitution at every date, marginal cost is proportional to the output gap.
+      This is the equation a wage friction replaces, and it is separate from the
+      flexible-price condition below, which a price friction replaces. Two frictions,
+      two equations to displace, and no overlap between them.
+    source: "Gali (2015) ch. 3, marginal cost in terms of the output gap"
+  - id: flex-price-output
+    expr: "x"
+    description: >
+      Flexible-price pricing: price equals marginal cost, output equals its natural
+      level, and the output gap is zero. This is the equation a price-setting friction
+      replaces. Keeping it in the core, rather than leaving the core short of an
+      equation, is what makes the nesting test meaningful: remove the friction and this
+      equation comes back, so there is a well-defined model to converge to.
+    source: "Gali (2015) ch. 3, classical monetary model"
+
+compatible_cores: []
+incompatible_with: []
+minimum_perturbation_order: 1
+solution_requirement: "First order. The equations are supplied already log-linearised, so no steady state is solved."
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the textbook statements, not translated from any replication
+    file. Verified in composition: see models/nk-gali-2015-ch3, whose closed-form golden
+    targets exercise this core under both shocks and under both the classical and the
+    sticky-price closures. Cross-checked additionally against an independent
+    transcription of the chapter's full equation list, taken from a third-party Dynare
+    replication and solved separately: agreement is 3.3e-16 under the monetary shock and
+    1.4e-16 under the technology shock. That cross-check is what revealed the policy
+    rule had been written in the output gap rather than in output.
+  open_questions:
+    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
+    - "Only the log-linearised form is carried. The non-linear equations and a steady-state solver are needed before second order or welfare."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the textbook"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude (composition prototype)"
+  ingested_on: "2026-10-15"

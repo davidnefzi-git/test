@@ -1,0 +1,50 @@
+id: rule-exchange-rate-peg
+kind: policy
+friction: null
+summary: >
+  An exchange rate peg: the nominal exchange rate is held fixed and the policy rate is whatever that requires. Carried because it is one of the four regimes the article compares, and because it is the clearest case of a policy block that fixes a variable other than the interest rate.
+
+citation:
+  authors: [Gali, Monacelli]
+  year: 2005
+  title: "Monetary Policy and Exchange Rate Volatility in a Small Open Economy"
+  journal: "Review of Economic Studies 72(3), 707-734"
+  doi: 10.1111/j.1467-937X.2005.00349.x
+  url: null
+
+variables:
+  provides: []
+  requires: [e]
+
+parameters: []
+
+equations:
+  - id: policy-peg
+    expr: "e"
+    description: The nominal exchange rate is held at its steady-state value
+    source: "Gali and Monacelli (2005), p. 724-725"
+
+depends_on: [core-soe-gm]
+incompatible_with: [rule-domestic-inflation, rule-cpi-inflation, rule-optimal-domestic-price-stability]
+compatible_cores: [core-soe-gm]
+minimum_perturbation_order: 1
+solution_requirement: null
+
+verification:
+  reviewed_by: null
+  notes: >
+    One of the four policy regimes the article compares. The four are mutually
+    incompatible by construction: each supplies the single equation that closes the
+    nominal side, so including two would replace nothing and over-determine the system.
+    The assembler refuses the combination on the declared incompatibility, and would
+    refuse it on the equation count in any case.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-19"

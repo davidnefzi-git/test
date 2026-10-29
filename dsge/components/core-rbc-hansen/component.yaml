@@ -1,0 +1,203 @@
+id: core-rbc-hansen
+kind: core
+friction: null
+summary: >
+  The real business cycle core with indivisible labour, written in LEVELS rather than
+  log-linearised: the first component in the library whose equations are the model's own
+  non-linear equations. Nine equations for nine variables, and closed on its own — an
+  RBC core needs no policy block, unlike the New Keynesian cores, whose incompleteness
+  is a property of the monetary side rather than of cores in general.
+
+citation:
+  authors: [Hansen]
+  year: 1985
+  title: "Indivisible Labor and the Business Cycle"
+  journal: "Journal of Monetary Economics 16(3), 309-327"
+  doi: 10.1016/0304-3932(85)90039-X
+  url: null
+
+equation_form: levels
+
+variables:
+  provides: [c, y, n, k, inv, rk, w, a, prod]
+  requires: []
+
+shocks:
+  - id: eps_a
+    description: Technology shock, to the log of total factor productivity
+    normalisation: one unit of the log of productivity
+    sign_convention: positive raises productivity
+
+parameters:
+  - name: beta
+    symbol: "β"
+    description: Discount factor
+    default: 0.99
+    units: null
+    frequency: quarterly
+    range: [0.95, 0.999]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: delta
+    symbol: "δ"
+    description: Depreciation rate of capital
+    default: 0.025
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.1]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: theta
+    symbol: "θ"
+    description: Capital share in production
+    default: 0.36
+    units: share
+    frequency: none
+    range: [0.2, 0.5]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: gamma_a
+    description: >
+      Persistence of the log of productivity. Named gamma_a rather than gamma, the
+      article's symbol, because core-soe-gm uses gamma for substitutability among
+      foreign goods. The two cores never compose, but the namespace is read by people.
+    default: 0.95
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: estimated
+    source: "Hansen (1985), p. 319"
+    prior:
+      family: beta
+      hyperparameters: [0.5, 0.2]
+      bounds: [0.0, 0.999]
+      fixed: false
+      note: "hyperparameters are mean and standard deviation"
+  - name: sigma_eps_a
+    description: Standard deviation of the technology innovation
+    default: 0.00712
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.05]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: A_hansen
+    symbol: "A"
+    description: Weight on leisure in utility
+    default: 2.0
+    units: null
+    frequency: none
+    range: [0.5, 5.0]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: h_0
+    description: Hours of a full-time worker, used to pin the indivisible-labour disutility
+    default: 0.53
+    units: fraction of the time endowment
+    frequency: none
+    range: [0.2, 0.8]
+    method: calibrated
+    source: "Hansen (1985), p. 319"
+  - name: B_hansen
+    symbol: "B"
+    description: >
+      Composite disutility of labour under indivisibility. The whole point of the
+      article: with employment chosen at the extensive margin, the representative
+      household's disutility is this composite rather than the intensive-margin one,
+      which is what raises the volatility of hours.
+    default: null
+    units: null
+    frequency: none
+    method: derived
+    source: "Hansen (1985), footnote 15"
+    formula: "-A_hansen*log(1 - h_0)/h_0"
+
+equations:
+  - id: euler
+    expr: "1/c - beta*(1/c(+1))*(rk(+1) + 1 - delta)"
+    description: Consumption Euler equation
+    source: "Hansen (1985), first-order condition for capital"
+  - id: labour-foc
+    expr: "(1 - theta)*(y/n) - B_hansen*c"
+    description: >
+      Labour first-order condition under indivisible labour. The intensive-margin
+      version would read (1-theta)*(y/n) = A_hansen/(1-n)*c; the indivisible form is
+      what the article is about.
+    source: "Hansen (1985), first-order condition for labour under indivisibility"
+  - id: resource-constraint
+    expr: "c - y - (1 - delta)*k(-1) + k"
+    description: Resource constraint
+    source: "Hansen (1985), resource constraint"
+  - id: capital-accumulation
+    expr: "k - (1 - delta)*k(-1) - inv"
+    description: >
+      Law of motion of capital. Note the timing: k with no lag is the stock carried into
+      next period, and k(-1) is the stock available for production now, exactly as
+      taxonomy/variables.yaml requires. The canonical reference uses the same convention,
+      which is a welcome confirmation of a field that was written on principle.
+    source: "Hansen (1985), capital accumulation"
+  - id: production
+    expr: "y - a*k(-1)**theta*n**(1 - theta)"
+    description: Cobb-Douglas production function, with capital predetermined
+    source: "Hansen (1985), production function"
+  - id: rental-rate
+    expr: "rk - theta*(y/k(-1))"
+    description: Rental rate of capital, the marginal product
+    source: "Hansen (1985), factor prices"
+  - id: real-wage
+    expr: "w - (1 - theta)*(y/n)"
+    description: Real wage, the marginal product of labour
+    source: "Hansen (1985), factor prices"
+  - id: technology
+    expr: "log(a) - gamma_a*log(a(-1)) - eps_a"
+    description: AR(1) in the LOG of productivity, the level of which is one in steady state
+    source: "Hansen (1985), p. 319"
+  - id: productivity
+    expr: "prod - y/n"
+    description: Labour productivity, reported because it is one of the article's moments
+    source: "Hansen (1985), Table 1"
+
+steady_state:
+  note: >
+    Closed form, following the article's footnote 15. Declared analytically rather than
+    solved numerically because it is exact and because a reviewer can check it; the
+    assembler verifies in either case that the point satisfies every equation before
+    differentiating around it.
+  analytic:
+    a: "1"
+    n: "(1 - theta)*(1/beta - (1 - delta))/(B_hansen*(1/beta - (1 - delta) - theta*delta))"
+    rk: "1/beta - (1 - delta)"
+    k: "n*((1/beta - (1 - delta))/(theta*a))**(1/(theta - 1))"
+    inv: "delta*k"
+    y: "a*k**theta*n**(1 - theta)"
+    c: "y - delta*k"
+    w: "(1 - theta)*(y/n)"
+    prod: "y/n"
+  tolerance: 1.0e-12
+
+compatible_cores: []
+incompatible_with: []
+minimum_perturbation_order: 1
+solution_requirement: >
+  First order for the dynamics. Second order would now be reachable in principle, the
+  equations being in levels, but the harness does not implement it.
+
+verification:
+  reviewed_by: null
+  notes: >
+    Equations written from the article. Cross-checked against an independent
+    transcription of a third-party Dynare replication of the same model, solved
+    separately: see models/hansen-1985 for the residuals. The steady state is verified
+    against the model's own equations to 1e-12 before any differentiation.
+  open_questions:
+    - "The article's Table 1 reports simulated second moments of HP-filtered series. Reproducing them needs a stochastic simulation and a filter, neither of which the harness has, so this entry does not claim them."
+    - "The intensive-margin labour FOC is the article's comparison case and belongs as a separate component replacing labour-foc, which would make the indivisibility effect a nesting-style comparison rather than a claim."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-19"

@@ -1,0 +1,103 @@
+id: smets-wouters-2007
+name: Shocks and frictions in US business cycles (Smets and Wouters 2007)
+family: monetary-dsge
+summary: >
+  The canonical estimated medium-scale DSGE model: capital with costly utilisation and
+  costly adjustment of investment, habit formation, Calvo prices and wages with partial
+  indexation under Kimball aggregators, seven structural shocks, and an estimated
+  interest-rate rule. Thirty-seven equations from twelve components.
+
+  The twelfth component is not a friction. The policy rule responds to output less its
+  FLEXIBLE-PRICE counterpart, and that counterpart is the output of a parallel economy.
+  Rather than write that economy out a second time -- eleven more equations with every
+  coefficient repeated, free to drift from the equations they duplicate -- the entry
+  declares a flexible-price twin, composed from a subset of its own components, so that
+  every equation the two economies share is stored exactly once. See
+  docs/composition/README.md section 2.2d.
+
+composition:
+  core: core-nk-medium
+  blocks:
+    - capital-utilisation
+    - fiscal-block-simple
+    - habit-consumption
+    - investment-adjustment-cost
+    - calvo-prices-kimball
+    - price-indexation
+    - calvo-wages-kimball
+    - wage-indexation
+    - fisher-equation
+    - taylor-rule-sw
+  shadow:
+    components:
+      - core-nk-medium
+      - capital-utilisation
+      - fiscal-block-simple
+      - habit-consumption
+      - investment-adjustment-cost
+    suffix: _f
+    shared: [a, b, g, zi]
+    drop:
+      - core-nk-medium.technology
+      - core-nk-medium.risk-premium
+      - fiscal-block-simple.spending
+      - investment-adjustment-cost.investment-shock
+
+verification:
+  tier: composed
+  notes: >
+    The DYNAMICS are reproduced, at the posterior means of Tables 1A and 1B. The
+    estimation is not: there is no Bayesian sampler here, so the tier is `composed` and
+    not `estimation_replicated`.
+
+    Verified in three layers.
+
+    Closed forms. The sharpest is a neutrality result: in the flexible-price twin a
+    risk-premium shock moves nothing at all, because the equilibrium real rate falls by
+    exactly the width of the premium. That holds only if the wedge enters the Euler
+    equation at -c_3 and the capital arbitrage equation at -1, so one target pins two
+    coefficients.
+
+    An independent implementation. Both economies were compared against a separate
+    transcription of a third-party Dynare replication of the same article, in its own
+    notation, with its own parameterisation path and its own equation forms, solved
+    separately. Agreement is at machine precision -- the worst residual being 2.8e-13
+    over seven shocks, thirty-three variables and eight periods -- once two documented
+    differences are accounted for. Both are differences between the ARTICLE and that
+    replication rather than errors in either, and this entry follows the article in both:
+    the risk-premium wedge's sign and scale, and the factor (1 + beta_bar*gamma) on the
+    investment shock in the capital accumulation equation, which Del Negro and
+    Schorfheide (2012) showed the replication omits.
+
+    Mutation. Every equation of the twelve components perturbed in turn: eighty-nine
+    mutants, eighty-five killed, four provably unkillable (three sign flips on an
+    equation that is a single identifier, where a homogeneous equation times minus one
+    has the same solution set, and one scaling of a parameter that is deliberately zero).
+    The five real survivors were the same gap five times, and closing it needed a new
+    kind of test -- see spec/model.md.
+
+    And the defect that none of those layers caught on its own. The risk-premium wedge
+    was first implemented with the wrong SIGN, so that a wider premium raised
+    consumption. The cross-check agreed to 1e-13 before the correction and after it,
+    because it fits a scale factor for that one shock and a fitted factor absorbs a sign.
+    The closed form did not catch it either: the twin's neutrality is a cancellation
+    between two coefficients, and it holds whichever sign the pair carries so long as
+    they carry the same one. What caught it was reading the impulse response against the
+    article's own sentence. Where a cross-check fits a normalisation it verifies
+    structure, not orientation -- and that is exactly where the risk of misreading the
+    article is highest, since a factor has to be fitted only when the two sources
+    disagree about it.
+  open_questions:
+    - "The estimation is not reproduced: no Bayesian sampler, and the authors' data are not redistributable."
+    - "The variance decomposition that is the article's headline result needs unconditional moments, which this harness does not compute."
+    - "Welfare comparisons across the frictions need a second order, out of reach while equations are supplied log-linearised."
+    - "The seven measurement equations are not implemented, because no estimator reads them."
+    - "Parameter values are the posterior MEANS of Tables 1A and 1B. Chib and Ramamurthy (2010) show the mode the article reports is not the mode; the means are unaffected by that point, but anyone reproducing the estimation should know it."
+
+provenance:
+  license: "Own implementation, written from the article's numbered equations"
+  permission_note: >
+    No third-party file is reproduced. A GPL-3.0 Dynare replication of this article was
+    read for verification only, and the differences between it and the article are
+    documented above rather than silently adopted. The authors' estimation data are not
+    present in any form.

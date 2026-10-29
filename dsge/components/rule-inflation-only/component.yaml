@@ -1,0 +1,86 @@
+id: rule-inflation-only
+kind: policy
+summary: >
+  A policy rule that responds to inflation and nothing else. It exists for the nesting
+  tests of the medium-scale family: the flexible-price limit of a price-setting friction
+  has to be taken with SOME rule in place, and taylor-rule-sw cannot serve, because its
+  output gap is measured against a flexible-price twin that the limit is busy collapsing
+  onto.
+
+  Useful in its own right as the simplest determinate closure of the nominal side, and as
+  the baseline a richer rule is compared against.
+
+citation:
+  authors: [Taylor]
+  year: 1993
+  title: "Discretion versus Policy Rules in Practice"
+  journal: "Carnegie-Rochester Conference Series on Public Policy 39, 195-214"
+  doi: 10.1016/0167-2231(93)90009-L
+  url: null
+
+variables:
+  provides: [i, v]
+  requires: [pi]
+
+parameters:
+  - name: phi_pi
+    symbol: "φ_π"
+    description: Response of the nominal rate to inflation
+    default: 1.5
+    units: null
+    frequency: none
+    range: [1.01, 5.0]
+    method: calibrated
+    source: "Taylor (1993); a conventional value, not estimated here"
+  - name: rho_v
+    symbol: "ρ_v"
+    description: Persistence of the monetary policy shock
+    default: 0.0
+    units: null
+    frequency: quarterly
+    range: [0.0, 0.99]
+    method: calibrated
+    source: "Set to zero: the shock is white noise under this rule, so that a nesting test's convergence is not confounded by the shock's own dynamics"
+
+equations:
+  - id: policy-rule-strict
+    expr: "i - phi_pi*pi - v"
+    description: The nominal rate responds to inflation alone.
+    source: "Taylor (1993)"
+  - id: monetary-shock
+    expr: "v - rho_v*v(-1) - eps_v"
+    description: Monetary policy shock process.
+    source: "Standard"
+
+shocks:
+  - id: eps_v
+    description: Innovation to the policy rate
+    normalisation: one unit
+    sign_convention: positive raises the policy rate
+    sd: null
+    source: null
+
+replaces: []
+depends_on: [core-nk-medium, fisher-equation]
+incompatible_with: [taylor-rule-sw]
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+verification:
+  reviewed_by: null
+  notes: >
+    Two equations, both standard. Exercised by the nesting targets of
+    calvo-prices-kimball, price-indexation, calvo-wages-kimball and wage-indexation, and
+    by the regime comparison in the tests of smets-wouters-2007.
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"
