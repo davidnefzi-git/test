@@ -248,12 +248,10 @@ removes the friction. In Rotemberg, $\phi \to 0$ does. A reader who assumes that
 friction parameter goes to zero" has the same meaning in both gets the direction of one
 of them wrong, and `rotemberg-prices` records the direction explicitly for that reason.
 
-Second, the component's slope coefficient was at one point named as though it were a
-slope in the output gap when it is the analogue of $\lambda$, a coefficient on marginal
-cost. The two differ by the factor $\big(\sigma+\frac{\varphi+\alpha}{1-\alpha}\big)$,
-which is about 4.3 at the library's calibration, so the mislabelling made the Calvo
-comparison wrong by that factor. The equation now carries the marginal-cost coefficient
-and the parameter is documented as such.
+Second, the component's slope is a coefficient on marginal cost, not the output
+gap. The two coefficients differ by the factor
+$\big(\sigma+\frac{\varphi+\alpha}{1-\alpha}\big)$. The equation and parameter
+metadata consistently use the marginal-cost coefficient.
 
 **Anchor: `rotemberg-equivalence`.**
 
