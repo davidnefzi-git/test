@@ -54,6 +54,7 @@ parameters:
 equations:
   - id: policy-rule
     status: original
+    source_check: verified_primary
     expr: "i - phi_pi*pi - phi_y*y - v"
     description: >
       Interest rate rule, responding to inflation and to output, with the monetary shock
