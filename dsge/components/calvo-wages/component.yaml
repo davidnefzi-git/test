@@ -48,10 +48,7 @@ parameters:
     range: [2.0, 20.0]
     method: calibrated
     source: >
-      Gali (2015) ch. 6, p. 170. Was set to 9.0 by assumption, equal to epsilon_p, until
-      the calibration was checked; it is not innocuous, since epsilon_w enters the slope
-      of the wage Phillips curve through (1 + epsilon_w*varphi), and 4.5 against 9
-      changes lambda_w by a factor of about 1.9.
+      Galí (2015), chapter 6, p. 170; the substitution elasticity is distinct from the goods-market elasticity and determines the wage Phillips-curve slope.
   - name: lambda_w
     description: Coefficient on the wage markup gap in the wage Phillips curve
     default: null
@@ -107,10 +104,7 @@ equations:
 
 replaces: [core-nk-classical.flex-wage-mc]
 depends_on: [core-nk-classical]
-# Reciprocal of the declaration in calvo-wages-kimball. A model has one wage-setting
-# mechanism, not two, and both of these provide it; the declaration was one-sided until
-# an audit found it, which means the assembler would have refused the composition for
-# the right reason (a variable provided twice) while the metadata said nothing.
+# Alternative wage-setting mechanisms cannot be selected simultaneously.
 incompatible_with: [calvo-wages-kimball]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
