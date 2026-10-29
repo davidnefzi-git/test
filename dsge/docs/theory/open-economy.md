@@ -79,7 +79,7 @@ gap.
 **The law of motion of the terms of trade.** With the law of one price,
 $p_{F,t} = e_t + p^{*}_t$, so
 
-$s_t = e_t + p^{*}_t - p_{H,t} \quad \Longrightarrow \quad \Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
+$s_t = e_t + p^{t} - p_{H,t} \quad \Longrightarrow \quad \Delta s_t = \Delta e_t + \pi^{t} - \pi_{H,t}.$
 
 The library sets world inflation to zero, as the article does on p. 724, giving
 `terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in
@@ -92,7 +92,7 @@ with non-zero world inflation must restore $\pi^{*}_t$ here.
 
 ## 3. The real exchange rate
 
-$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t} {P_t}, \qquad q_t = e_t + p^{*}_t - p_t .$
+$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t} {P_t}, \qquad q_t = e_t + p^{*}_t - p_t.$
 
 Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^{*}_t = p_{H,t} + s_t$,
 
