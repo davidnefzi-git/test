@@ -37,6 +37,7 @@ parameters:
 equations:
   - id: wage-pc-indexed
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/wage-setting.md#smets-wouters-wage-curve"
     expr: "kappa_w_inv*((1 + beta_bar*gamma_g)*w - w(-1) - beta_bar*gamma_g*w(+1) - iota_w*pi(-1) + (1 + beta_bar*gamma_g*iota_w)*pi - beta_bar*gamma_g*pi(+1) - (1 + beta_bar*gamma_g)*mkw) - (mrs - w)"
     description: >
