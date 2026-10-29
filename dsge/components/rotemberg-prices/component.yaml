@@ -53,6 +53,7 @@ parameters:
 equations:
   - id: nkpc-rotemberg
     status: derived
+    source_check: pending
     derivation: "docs/theory/price-setting.md#rotemberg-equivalence"
     expr: "pi - beta*pi(+1) - lambda_pr*mc"
     description: Phillips curve implied by a quadratic cost of changing prices, to first order, in real marginal cost
