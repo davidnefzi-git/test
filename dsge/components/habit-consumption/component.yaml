@@ -67,6 +67,7 @@ parameters:
 equations:
   - id: euler-habit
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "c - (c1*c(-1) + (1 - c1)*c(+1) + c2*(n - n(+1)) - c3*rr - c3*b)"
     description: >
@@ -78,6 +79,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (2)"
   - id: mrs-habit
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "mrs - (sigma_l*n + (1/(1 - lambda_h/gamma_g))*c - ((lambda_h/gamma_g)/(1 - lambda_h/gamma_g))*c(-1))"
     description: >
