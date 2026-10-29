@@ -121,7 +121,7 @@ equations:
     status: original
     expr: "x - x(+1) + (1/sigma)*(i - pi(+1) - rn)"
     description: Dynamic IS curve, from the household Euler equation written in the output gap
-    source: "Gali (2015) ch. 3, dynamic IS curve, eq. (23) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+    source: "Gali (2015), ch. 3, eq. (23); checked against the supplied chapter (PDF p. 13). The preference-shock term is suppressed in this composition."
   - id: natural-rate
     status: original
     expr: "rn + sigma*psi_ya*(1 - rho_a)*a"
@@ -133,7 +133,7 @@ equations:
       natural rate FALLS. Writing it with the opposite sign leaves every
       monetary-shock result untouched, which is how the error survived its first
       commit here.
-    source: "Gali (2015) ch. 3, natural rate of interest, eq. (24) per the same annotation"
+    source: "Gali (2015), ch. 3, eq. (24); checked against the supplied chapter (PDF p. 13). The preference-shock term is suppressed."
   - id: technology
     status: standard
     expr: "a - rho_a*a(-1) - eps_a"
@@ -148,7 +148,7 @@ equations:
     status: original
     expr: "y_nat - psi_ya*a"
     description: Natural level of output implied by the technology process
-    source: "Gali (2015) ch. 3, natural output, eq. (20) per the same annotation"
+    source: "Gali (2015), ch. 3, eq. (20); checked against the supplied chapter (PDF p. 12)."
   - id: output-gap-definition
     status: original
     expr: "y - y_nat - x"
@@ -229,7 +229,6 @@ verification:
     1.4e-16 under the technology shock. That cross-check is what revealed the policy
     rule had been written in the output gap rather than in output.
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
     - "Only the log-linearised form is carried. The non-linear equations and a steady-state solver are needed before second order or welfare."
 
 provenance:
