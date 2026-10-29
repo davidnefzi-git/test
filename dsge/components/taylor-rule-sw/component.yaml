@@ -105,6 +105,7 @@ parameters:
 equations:
   - id: policy-rule
     status: original
+    source_check: verified_working_paper
     expr: "i - (rho_i*i(-1) + (1 - rho_i)*(r_pi*pi + r_y*(y - y_f)) + r_dy*((y - y_f) - (y(-1) - y_f(-1))) + v)"
     description: >
       The estimated rule. `y_f` is flexible-price output, supplied by the entry's shadow
@@ -113,6 +114,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (14)"
   - id: monetary-shock
     status: original
+    source_check: verified_working_paper
     expr: "v - rho_v*v(-1) - eps_v"
     description: Monetary policy shock process.
     source: "Smets and Wouters (2007), Table 1B"
