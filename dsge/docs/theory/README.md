@@ -15,6 +15,8 @@ them, and no derivation is maintained in two places.
 | [`consumption-and-capital.md`](consumption-and-capital.md) | habit preferences, the Euler equation and the marginal rate of substitution, utilisation, investment adjustment costs, Tobin's q, accumulation, trend growth, and the core's five closures | `habit-consumption`, `capital-utilisation`, `investment-adjustment-cost`, `core-nk-medium` |
 | [`open-economy.md`](open-economy.md) | relative prices and the two inflation rates, the real exchange rate, international risk sharing, openness in the IS curve and in natural output, the four monetary regimes | `core-soe-gm`, `calvo-prices-domestic`, the four `rule-*` components of that family |
 
+| [`source-editions.md`](source-editions.md) | Supplied publication editions, checked equation numbering, scientific provenance boundaries and explicit source limitations | All canonical entries |
+
 Each document ends with a table headed **what a transplant requires**. That table is the
 part written for reuse rather than for reading: it says which steps of the derivation
 fail when the environment changes, so that an equation is not carried into a model whose
