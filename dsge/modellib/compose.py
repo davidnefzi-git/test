@@ -37,7 +37,7 @@ LEAD, LAG, NOW = "_tp1", "_tm1", "_t"
 
 
 # Memoised solutions, keyed by equations and parameters; see Composition.solve for why
-# the equations are in the key. Process-local, so a mutation test in a fresh process
+# the equations are in the key. Process-local, so an isolated verification run
 # never sees another process's entries.
 _SOLVE_CACHE: dict[tuple, tuple] = {}
 
