@@ -30,6 +30,7 @@ parameters: []
 equations:
   - id: fisher
     status: standard
+    source_check: standard_identity
     expr: "rr - (i - pi(+1))"
     description: >
       Expected inflation, not realised: the real rate relevant to an intertemporal
