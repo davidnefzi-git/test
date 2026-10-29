@@ -529,18 +529,6 @@
             "null"
           ]
         },
-        "ingested_by": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "ingested_on": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
       }
     },
     "equation_form": {
