@@ -235,5 +235,3 @@ provenance:
   license: "Own implementation, written from the textbook"
   redistributable: true
   permission_note: null
-  ingested_by: "Claude (composition prototype)"
-  ingested_on: "2026-10-15"
