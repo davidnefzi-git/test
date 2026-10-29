@@ -34,6 +34,8 @@ parameters:
 
 equations:
   - id: policy-rule-citr
+    status: original
+    derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "i - phi_pi*pi"
     description: Interest rate rule in CPI inflation
     source: "Gali and Monacelli (2005), p. 724-725"
@@ -43,6 +45,28 @@ incompatible_with: [rule-domestic-inflation, rule-exchange-rate-peg, rule-optima
 compatible_cores: [core-soe-gm]
 minimum_perturbation_order: 1
 solution_requirement: null
+
+assumptions:
+  - id: cpi-not-domestic-inflation
+    status: canonical
+    embodied_in: [policy-rule-citr]
+    statement: >
+      The rule responds to CPI inflation, which differs from domestic-goods inflation by
+      the change in the terms of trade. The two rules are different rules with different
+      equilibria, which is what the article's comparison is about.
+    substituting: >
+      rule-domestic-inflation is the alternative; the two provide the same variable and
+      cannot be composed together.
+  - id: price-level-not-pinned
+    status: canonical
+    embodied_in: [policy-rule-citr]
+    statement: >
+      A rule in an inflation RATE pins the rate and not the price level, so the solution
+      carries a unit root: the price level wanders, and with it the nominal exchange rate
+      and the level of the terms of trade.
+    substituting: >
+      rule-exchange-rate-peg pins the price level and removes the root. Anything computing
+      unconditional moments must detrend first.
 
 verification:
   reviewed_by: null

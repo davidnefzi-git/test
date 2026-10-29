@@ -95,6 +95,8 @@ parameters:
 
 equations:
   - id: wage-pc
+    status: derived
+    derivation: "docs/theory/wage-setting.md#smets-wouters-wage-curve"
     expr: "kappa_w_inv*((1 + beta_bar*gamma_g)*w - w(-1) - beta_bar*gamma_g*w(+1) + pi - beta_bar*gamma_g*pi(+1) - (1 + beta_bar*gamma_g)*mkw) - (mrs - w)"
     description: >
       The wage Phillips curve, multiplied through by (1 + beta_bar*gamma) and then by the
@@ -105,10 +107,12 @@ equations:
       substitution, with the sign that makes a positive gap push wages down.
     source: "Smets and Wouters (2007), eq. (13) at zero indexation, rearranged"
   - id: wage-markup-process
+    status: original
     expr: "mkw - rho_w*mkw(-1) - mkw_aux + mu_w*mkw_aux(-1)"
     description: The wage markup follows an ARMA(1,1).
     source: "Smets and Wouters (2007), Table 1B"
   - id: wage-markup-innovation
+    status: standard
     expr: "mkw_aux - eps_w"
     description: >
       Auxiliary variable carrying the lag of the innovation; see
@@ -149,6 +153,30 @@ nesting_target:
     variable: w
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: markup-against-a-supplied-mrs
+    status: library
+    embodied_in: [wage-pc]
+    statement: >
+      The wage markup is measured against the marginal rate of substitution that the core
+      supplies as a variable, rather than against the household first-order condition
+      substituted in place.
+    substituting: >
+      Algebraically identical at the article's own consumption specification, and
+      deliberately different in form: the substituted version makes this block depend on
+      the consumption block, so a model written that way cannot have its consumption
+      specification changed without editing its wage equation.
+  - id: kimball-labour-aggregator
+    status: canonical
+    embodied_in: [wage-pc]
+    statement: >
+      Labour services are aggregated by a Kimball aggregator with curvature curv_w, which
+      is a curvature and not an elasticity of substitution.
+    substituting: >
+      Galli's epsilon_w in calvo-wages is an elasticity of substitution with a different
+      default; conflating the two changes the slope by roughly a factor of two, which is
+      why the two components use different names.
 
 verification:
   reviewed_by: null

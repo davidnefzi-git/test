@@ -29,6 +29,7 @@ parameters: []
 
 equations:
   - id: fisher
+    status: standard
     expr: "rr - (i - pi(+1))"
     description: >
       Expected inflation, not realised: the real rate relevant to an intertemporal
@@ -44,6 +45,17 @@ compatible_cores: [core-nk-medium]
 minimum_perturbation_order: 1
 equation_form: log-linear-deviations
 solution_requirement: "First order."
+
+assumptions:
+  - id: ex-ante-real-rate
+    status: canonical
+    embodied_in: [fisher]
+    statement: >
+      The real rate relevant to a decision taken at t is the nominal rate at t less the
+      inflation EXPECTED between t and t+1, not realised inflation.
+    substituting: >
+      Writing realised inflation leaves the model solvable and shifts every impulse
+      response. There is nothing to substitute here: the equation is the definition.
 
 verification:
   reviewed_by: null

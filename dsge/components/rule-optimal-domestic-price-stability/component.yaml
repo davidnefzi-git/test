@@ -20,6 +20,8 @@ parameters: []
 
 equations:
   - id: policy-optimal
+    status: original
+    derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "pi_h"
     description: Domestic inflation is held at zero at every date
     source: "Gali and Monacelli (2005), p. 724-725"
@@ -29,6 +31,17 @@ incompatible_with: [rule-domestic-inflation, rule-cpi-inflation, rule-exchange-r
 compatible_cores: [core-soe-gm]
 minimum_perturbation_order: 1
 solution_requirement: null
+
+assumptions:
+  - id: optimal-in-this-model-only
+    status: canonical
+    embodied_in: [policy-optimal]
+    statement: >
+      Complete domestic price stability is optimal in the article's small open economy
+      with complete markets and the law of one price. It is not a general result.
+    substituting: >
+      Under incomplete markets or incomplete pass-through it is not optimal, and the
+      library cannot rank regimes by welfare in any case: that needs a second order.
 
 verification:
   reviewed_by: null

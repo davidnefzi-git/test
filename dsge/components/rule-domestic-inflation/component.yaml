@@ -34,6 +34,8 @@ parameters:
 
 equations:
   - id: policy-rule-ditr
+    status: original
+    derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "i - phi_pi*pi_h"
     description: Interest rate rule in domestic inflation
     source: "Gali and Monacelli (2005), p. 724-725"
@@ -43,6 +45,23 @@ incompatible_with: [rule-cpi-inflation, rule-exchange-rate-peg, rule-optimal-dom
 compatible_cores: [core-soe-gm]
 minimum_perturbation_order: 1
 solution_requirement: null
+
+assumptions:
+  - id: domestic-not-cpi-inflation
+    status: canonical
+    embodied_in: [policy-rule-ditr]
+    statement: >
+      The rule responds to domestic-goods inflation. See rule-cpi-inflation for the
+      distinction and why it matters.
+    substituting: >
+      rule-cpi-inflation is the alternative.
+  - id: price-level-not-pinned
+    status: canonical
+    embodied_in: [policy-rule-ditr]
+    statement: >
+      As for rule-cpi-inflation: the solution carries a unit root.
+    substituting: >
+      rule-exchange-rate-peg removes it.
 
 verification:
   reviewed_by: null

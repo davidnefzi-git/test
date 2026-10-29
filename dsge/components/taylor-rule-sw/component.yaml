@@ -104,6 +104,7 @@ parameters:
 
 equations:
   - id: policy-rule
+    status: original
     expr: "i - (rho_i*i(-1) + (1 - rho_i)*(r_pi*pi + r_y*(y - y_f)) + r_dy*((y - y_f) - (y(-1) - y_f(-1))) + v)"
     description: >
       The estimated rule. `y_f` is flexible-price output, supplied by the entry's shadow
@@ -111,6 +112,7 @@ equations:
       output gap of a model with no capital.
     source: "Smets and Wouters (2007), eq. (14)"
   - id: monetary-shock
+    status: original
     expr: "v - rho_v*v(-1) - eps_v"
     description: Monetary policy shock process.
     source: "Smets and Wouters (2007), Table 1B"
@@ -130,6 +132,28 @@ compatible_cores: [core-nk-medium]
 minimum_perturbation_order: 1
 equation_form: log-linear-deviations
 solution_requirement: "First order. The rule requires a flexible-price twin of the model, declared as a shadow composition by the entry."
+
+assumptions:
+  - id: gap-against-a-flexible-price-twin
+    status: canonical
+    embodied_in: [policy-rule]
+    statement: >
+      The output gap the rule responds to is output less output in a parallel flexible-
+      price economy, not output less a trend and not the output gap of a model without
+      capital.
+    substituting: >
+      That twin is composed from the entry's own components rather than written out again,
+      which is why this component declares requires_shadow. A rule written against a
+      detrended output measure is a different rule.
+  - id: smoothing-on-the-levels-only
+    status: canonical
+    embodied_in: [policy-rule]
+    statement: >
+      The partial-adjustment coefficient multiplies the level terms in inflation and the
+      gap, but NOT the term in the change of the gap.
+    substituting: >
+      This is the detail most often transcribed wrongly, and it is pinned by the entry's
+      policy-rate target.
 
 verification:
   reviewed_by: null

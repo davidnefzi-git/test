@@ -94,6 +94,8 @@ parameters:
 
 equations:
   - id: price-pc
+    status: derived
+    derivation: "docs/theory/price-setting.md#multiplied-through"
     expr: "kappa_p_inv*(pi - beta_bar*gamma_g*pi(+1) - mkp) - mc"
     description: >
       The price Phillips curve, multiplied through by the reciprocal of its slope.
@@ -105,6 +107,7 @@ equations:
       replaces, equation for equation. The solution is identical either way.
     source: "Smets and Wouters (2007), eq. (10) at zero indexation, rearranged"
   - id: price-markup-process
+    status: original
     expr: "mkp - rho_p*mkp(-1) - mkp_aux + mu_p*mkp_aux(-1)"
     description: >
       The price markup follows an ARMA(1,1) and not an AR(1); the moving-average term is
@@ -112,6 +115,7 @@ equations:
       innovation variance.
     source: "Smets and Wouters (2007), Table 1B"
   - id: price-markup-innovation
+    status: standard
     expr: "mkp_aux - eps_p"
     description: >
       The auxiliary variable exists because a first-order system cannot lag a shock: the
@@ -158,6 +162,37 @@ nesting_target:
     variable: y
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: kimball-demand
+    status: canonical
+    embodied_in: [price-pc]
+    statement: >
+      Varieties are aggregated by a Kimball aggregator, so a firm's demand elasticity
+      rises with its relative price and reset prices respond less to marginal cost.
+    substituting: >
+      Reverting to Dixit-Stiglitz removes the curvature factor from the slope; calvo-
+      prices is that case, in the no-growth parameterisation.
+  - id: curvature-not-identified
+    status: library
+    embodied_in: [price-pc]
+    statement: >
+      The Kimball curvature and the reset probability are not separately identified from
+      aggregate data. The curvature is fixed at the article's value and the probability
+      estimated.
+    substituting: >
+      Any exercise treating both as free is not identified by the data this model is
+      fitted to, whatever the optimiser reports.
+  - id: arma-markup-process
+    status: canonical
+    embodied_in: [price-markup-process, price-markup-innovation]
+    statement: >
+      The markup disturbance is ARMA(1,1), not AR(1). A first-order system cannot lag a
+      shock, so the moving-average term requires an auxiliary variable equal to the
+      innovation.
+    substituting: >
+      Dropping the auxiliary variable silently turns the process into an AR(1) and changes
+      the inflation dynamics the model was fitted to.
 
 verification:
   reviewed_by: null

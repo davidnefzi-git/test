@@ -114,10 +114,12 @@ parameters:
 
 equations:
   - id: euler
+    status: original
     expr: "1/c - beta*(1/c(+1))*(rk(+1) + 1 - delta)"
     description: Consumption Euler equation
     source: "Hansen (1985), first-order condition for capital"
   - id: labour-foc
+    status: original
     expr: "(1 - theta)*(y/n) - B_hansen*c"
     description: >
       Labour first-order condition under indivisible labour. The intensive-margin
@@ -125,10 +127,12 @@ equations:
       what the article is about.
     source: "Hansen (1985), first-order condition for labour under indivisibility"
   - id: resource-constraint
+    status: original
     expr: "c - y - (1 - delta)*k(-1) + k"
     description: Resource constraint
     source: "Hansen (1985), resource constraint"
   - id: capital-accumulation
+    status: original
     expr: "k - (1 - delta)*k(-1) - inv"
     description: >
       Law of motion of capital. Note the timing: k with no lag is the stock carried into
@@ -137,22 +141,27 @@ equations:
       which is a welcome confirmation of a field that was written on principle.
     source: "Hansen (1985), capital accumulation"
   - id: production
+    status: original
     expr: "y - a*k(-1)**theta*n**(1 - theta)"
     description: Cobb-Douglas production function, with capital predetermined
     source: "Hansen (1985), production function"
   - id: rental-rate
+    status: original
     expr: "rk - theta*(y/k(-1))"
     description: Rental rate of capital, the marginal product
     source: "Hansen (1985), factor prices"
   - id: real-wage
+    status: original
     expr: "w - (1 - theta)*(y/n)"
     description: Real wage, the marginal product of labour
     source: "Hansen (1985), factor prices"
   - id: technology
+    status: original
     expr: "log(a) - gamma_a*log(a(-1)) - eps_a"
     description: AR(1) in the LOG of productivity, the level of which is one in steady state
     source: "Hansen (1985), p. 319"
   - id: productivity
+    status: original
     expr: "prod - y/n"
     description: Labour productivity, reported because it is one of the article's moments
     source: "Hansen (1985), Table 1"
@@ -181,6 +190,38 @@ minimum_perturbation_order: 1
 solution_requirement: >
   First order for the dynamics. Second order would now be reachable in principle, the
   equations being in levels, but the harness does not implement it.
+
+assumptions:
+  - id: indivisible-labour
+    status: canonical
+    embodied_in: [labour-foc]
+    statement: >
+      Households choose whether to work a fixed shift, not how many hours, and insure the
+      resulting employment lottery. The aggregate labour supply elasticity is therefore
+      not the individual Frisch elasticity, and the first-order condition is the one that
+      lottery implies.
+    substituting: >
+      The divisible-labour case replaces this condition by the usual intratemporal margin
+      and changes the elasticity, which is the comparison the article is about. The
+      library does not yet carry the divisible variant as a component.
+  - id: no-nominal-side
+    status: canonical
+    embodied_in: [euler, resource-constraint, production, real-wage, rental-rate]
+    statement: >
+      There is no money, no price setting and no monetary policy. Every price in the model
+      is relative.
+    substituting: >
+      A nominal block cannot be mounted on this core: it is written in levels and the
+      library's nominal components are written in log deviations, which the assembler
+      refuses to mix. A nominal RBC core would be a separate component.
+  - id: complete-markets
+    status: canonical
+    embodied_in: [euler]
+    statement: >
+      A representative household prices all claims, so one Euler equation closes the
+      intertemporal margin.
+    substituting: >
+      As for core-nk-classical.
 
 verification:
   reviewed_by: null

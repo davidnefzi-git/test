@@ -125,7 +125,7 @@ targets:
   source: "Nesting target declared in components/rotemberg-prices/component.yaml"
   composition: [core-nk-classical, rotemberg-prices, taylor-rule]
   recovers: [core-nk-classical, taylor-rule]
-  parameter: phi_p
+  parameter: phi_rotemberg
   sequence: [1.0, 0.1, 0.01, 1.0e-3]
   shock: eps_v
   variable: x

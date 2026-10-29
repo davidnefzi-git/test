@@ -38,6 +38,8 @@ parameters:
 
 equations:
   - id: utilisation
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "u - ((1 - psi_u)/psi_u)*rk"
     description: >
       The household equates the marginal cost of running capital harder to the rental
@@ -75,6 +77,27 @@ nesting_target:
     variable: u
     period: 0
     sequence: [0.9, 0.99, 0.9999, 0.9999999]
+
+assumptions:
+  - id: utilisation-cost-normalisation
+    status: canonical
+    embodied_in: [utilisation]
+    statement: >
+      psi is defined so that it lies in the unit interval and so that psi equal to one is
+      the infinitely costly case: LARGER psi means LESS variation in utilisation. The
+      normalisation is the article's, not a result.
+    substituting: >
+      A reader who reads psi as a curvature gets the limit backwards. The direction is
+      recorded in the nesting target as well as here.
+  - id: utilisation-is-a-resource-cost
+    status: canonical
+    embodied_in: [utilisation]
+    statement: >
+      Running capital harder consumes resources, so a utilisation term belongs in the
+      resource constraint of any core this block is mounted on.
+    substituting: >
+      Omitting that term is a conservation error, not an approximation: the model still
+      solves and no longer adds up. core-nk-medium carries it.
 
 verification:
   reviewed_by: null

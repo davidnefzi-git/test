@@ -41,6 +41,8 @@ parameters:
 
 equations:
   - id: price-pc-indexed
+    status: derived
+    derivation: "docs/theory/price-setting.md#indexed-phillips-curve"
     expr: "kappa_p_inv*((1 + beta_bar*gamma_g*iota_p)*(pi - mkp) - beta_bar*gamma_g*pi(+1) - iota_p*pi(-1)) - mc"
     description: >
       The indexed price Phillips curve, in the same reciprocal-slope form as the equation
@@ -72,6 +74,18 @@ nesting_target:
     variable: pi
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: indexation-to-past-price-inflation
+    status: canonical
+    embodied_in: [price-pc-indexed]
+    statement: >
+      Prices that are not reset are raised by a fraction of LAST PERIOD'S inflation, which
+      makes inflation itself a state variable.
+    substituting: >
+      Indexation to the steady-state rate, or to a weighted average, changes the lag
+      structure; at zero indexation the equation is the unindexed one term for term, which
+      is what makes the nesting limit exact.
 
 verification:
   reviewed_by: null

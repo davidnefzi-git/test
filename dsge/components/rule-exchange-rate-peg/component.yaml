@@ -20,6 +20,8 @@ parameters: []
 
 equations:
   - id: policy-peg
+    status: original
+    derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "e"
     description: The nominal exchange rate is held at its steady-state value
     source: "Gali and Monacelli (2005), p. 724-725"
@@ -29,6 +31,16 @@ incompatible_with: [rule-domestic-inflation, rule-cpi-inflation, rule-optimal-do
 compatible_cores: [core-soe-gm]
 minimum_perturbation_order: 1
 solution_requirement: null
+
+assumptions:
+  - id: exchange-rate-pins-the-price-level
+    status: canonical
+    embodied_in: [policy-peg]
+    statement: >
+      Fixing the nominal exchange rate pins the domestic price level through the law of
+      one price, so this is the only regime in the family whose solution is stationary.
+    substituting: >
+      The three inflation-based regimes all leave a unit root.
 
 verification:
   reviewed_by: null

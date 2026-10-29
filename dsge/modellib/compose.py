@@ -233,6 +233,25 @@ class Composition:
                         f"component '{cid}' declares depends_on '{dep}', which is not included"
                     )
 
+        # `compatible_cores` was declarative until this check existed, and it was not
+        # decorative: it is the only place several components record which core supplies
+        # the parameters their equations use. price-indexation's beta_bar, gamma_g and
+        # kappa_p_inv are declared by core-nk-medium and reachable from that component
+        # ONLY through this field, since its depends_on names calvo-prices-kimball. A
+        # field that carries a real dependency and is enforced nowhere is worse than an
+        # absent one: it reads as a contract and is not.
+        for cid, c in comps.items():
+            allowed = c.get("compatible_cores") or []
+            if allowed and self.core_id not in allowed:
+                raise CompositionError(
+                    f"component '{cid}' declares compatible_cores "
+                    f"{', '.join(allowed)} and this composition's core is "
+                    f"'{self.core_id}'. "
+                    f"Either the component works with this core, in which case add it to "
+                    f"compatible_cores, or it does not, in which case the composition is "
+                    f"not well posed."
+                )
+
         for cid, c in comps.items():
             for other in c.get("incompatible_with") or []:
                 if other in comps:

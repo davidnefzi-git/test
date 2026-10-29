@@ -17,7 +17,15 @@ citation:
 
 variables:
   provides: []
-  requires: [x, pi]
+  # `mc` and `pi`, not `x` and `pi`. The equation below was once written in the output
+  # gap, and the declaration was never updated when it was rewritten in marginal cost:
+  # `mc` was used and undeclared, `x` was declared and unused. Both halves of that
+  # mistake matter. An undeclared requirement defeats the composition check, which
+  # verifies that everything a component requires is provided -- so this block could be
+  # mounted on a core providing no marginal cost, and the error would surface only at
+  # matrix assembly, as an unresolved symbol. A stale requirement is the other way
+  # round: it asserts a dependency the equations do not have.
+  requires: [pi, mc]
 
 parameters:
   - name: theta_p
@@ -76,6 +84,8 @@ parameters:
 
 equations:
   - id: nkpc
+    status: original
+    derivation: "docs/theory/price-setting.md#calvo-phillips-curve"
     expr: "pi - beta*pi(+1) - lambda_p*mc"
     description: >
       New Keynesian Phillips curve, in real marginal cost. Composed with the core's
@@ -112,6 +122,37 @@ nesting_target:
     period: 0
     sequence: [0.1, 0.01, 1.0e-3, 1.0e-4]
 
+assumptions:
+  - id: dixit-stiglitz-demand
+    status: canonical
+    embodied_in: [nkpc]
+    statement: >
+      Varieties are aggregated with a constant elasticity of substitution, so a firm's
+      demand elasticity does not depend on its relative price.
+    substituting: >
+      Under a Kimball aggregator the elasticity rises with the relative price and the
+      slope gains a curvature factor; calvo-prices-kimball is that case. Strategic
+      complementarity in pricing would change the slope again.
+  - id: constant-reset-hazard
+    status: canonical
+    embodied_in: [nkpc]
+    statement: >
+      A price is reset with a probability that is constant and independent of how long it
+      has stood, which is what makes the price index a simple convex combination and the
+      curve a two-term difference equation.
+    substituting: >
+      Menu costs or state-dependent pricing break the aggregation step entirely; the
+      resulting curve is not this one with a different parameter.
+  - id: zero-inflation-steady-state
+    status: canonical
+    embodied_in: [nkpc]
+    statement: >
+      The curve approximates around a steady state with zero inflation, so relative price
+      dispersion is second order.
+    substituting: >
+      At trend inflation the curve acquires extra terms and the slope is no longer
+      lambda_p. docs/theory/price-setting.md section 7.
+
 verification:
   reviewed_by: null
   notes: >
@@ -121,7 +162,14 @@ verification:
     analytically implied constant.
   open_questions:
     - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
-    - "Indexation to past inflation is a separate component (not yet written) that will depend_on this one."
+    - >
+      Indexation to past inflation exists as `price-indexation`, but it depends on
+      `calvo-prices-kimball` rather than on this component: it was written for the
+      medium-scale family, whose Phillips curve carries trend growth and a Kimball
+      slope. An indexation block for THIS component, with Galli's parameterisation,
+      does not exist. The open question is whether one is worth having or whether the
+      two pricing blocks should be unified -- see docs/theory/price-setting.md, which
+      derives both from the same primitives.
 
 provenance:
   source_url: null

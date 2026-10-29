@@ -66,6 +66,8 @@ parameters:
 
 equations:
   - id: euler-habit
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "c - (c1*c(-1) + (1 - c1)*c(+1) + c2*(n - n(+1)) - c3*rr - c3*b)"
     description: >
       Consumption Euler equation under habit formation. The wedge enters at minus c_3,
@@ -75,6 +77,8 @@ equations:
       exactly the core's euler-no-habit: that identity is what the nesting target tests.
     source: "Smets and Wouters (2007), eq. (2)"
   - id: mrs-habit
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#habit-euler"
     expr: "mrs - (sigma_l*n + (1/(1 - lambda_h/gamma_g))*c - ((lambda_h/gamma_g)/(1 - lambda_h/gamma_g))*c(-1))"
     description: >
       Marginal rate of substitution under habit: it is the gap between consumption and
@@ -110,6 +114,27 @@ nesting_target:
     variable: c
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: external-habit
+    status: canonical
+    embodied_in: [euler-habit, mrs-habit]
+    statement: >
+      The habit stock is aggregate past consumption, which the household takes as given.
+      It does not internalise the effect of its own consumption on its future habit.
+    substituting: >
+      Internal habit gives the Euler equation a second lead and is not a
+      reparameterisation of c1, c2 and c3. A component implementing it would replace these
+      equations, not recalibrate them. docs/theory/consumption-and-capital.md section 1.
+  - id: non-separable-preferences
+    status: canonical
+    embodied_in: [euler-habit]
+    statement: >
+      Consumption and hours are non-separable unless sigma_c equals one, which is why the
+      Euler equation carries a term in expected hours growth even at zero habit.
+    substituting: >
+      Separable preferences remove that term from the equation and from the core's closure
+      alike; the closure would then no longer be the zero-habit limit.
 
 verification:
   reviewed_by: null

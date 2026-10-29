@@ -71,6 +71,8 @@ parameters:
 
 equations:
   - id: wage-pc
+    status: original
+    derivation: "docs/theory/wage-setting.md#wage-phillips-curve"
     expr: "pi_w - beta*pi_w(+1) - lambda_w*((sigma + varphi/(1 - alpha))*x - omega_tilde)"
     description: >
       Wage Phillips curve. The bracket is minus the wage markup gap: the wage markup is
@@ -79,6 +81,8 @@ equations:
       times the output gap.
     source: "Gali (2015) ch. 6, wage Phillips curve, eq. (22) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
   - id: real-wage-gap
+    status: derived
+    derivation: "docs/theory/wage-setting.md#real-wage-gap"
     expr: "omega_tilde - omega_tilde(-1) - pi_w + pi + psi_wa*(a - a(-1))"
     description: >
       Identity linking the real wage gap to the two inflation rates: the real wage grows
@@ -86,19 +90,25 @@ equations:
       technology. This is the equation that makes the two frictions interact rather than
       merely coexist, and the lag on omega_tilde is what gives the two-friction model
       its own state.
-    source: "Gali (2015) ch. 6, wage gap, eq. (21) per the same annotation; derivation in spec/model.md of ehl-2000"
+    source: "Gali (2015) ch. 6, wage gap, eq. (21) per the same annotation"
   - id: mc-sticky-wage
+    status: derived
+    derivation: "docs/theory/wage-setting.md#marginal-cost-sticky-wage"
     expr: "mc - omega_tilde - (alpha/(1 - alpha))*x"
     description: >
       Real marginal cost when wages are sticky: the real wage gap plus the
       decreasing-returns term in the output gap. Replaces the core's flexible-wage
       condition, which is the special case obtained when the wage markup gap is held
       at zero.
-    source: "Gali (2015) ch. 6, p. 171-172 (markup definition); derivation in spec/model.md of ehl-2000"
+    source: "Gali (2015) ch. 6, p. 171-172 (markup definition)"
 
 replaces: [core-nk-classical.flex-wage-mc]
 depends_on: [core-nk-classical]
-incompatible_with: []
+# Reciprocal of the declaration in calvo-wages-kimball. A model has one wage-setting
+# mechanism, not two, and both of these provide it; the declaration was one-sided until
+# an audit found it, which means the assembler would have refused the composition for
+# the right reason (a variable provided twice) while the metadata said nothing.
+incompatible_with: [calvo-wages-kimball]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
 solution_requirement: "First order for dynamics. The welfare losses that EHL report require a second-order or linear-quadratic treatment, which is out of reach while the equations are supplied log-linearised."
@@ -131,6 +141,37 @@ nesting_target:
     variable: x
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: monopolistic-labour-supply
+    status: canonical
+    embodied_in: [wage-pc, mc-sticky-wage]
+    statement: >
+      Households supply differentiated labour services and set wages as monopolistic
+      competitors. Unemployment plays no part: the wage markup is a gap between the real
+      wage and a marginal rate of substitution.
+    substituting: >
+      A search-and-matching block is not a substitute for this one. It is a different
+      theory of the same object, and composing the two would put two wage-setting
+      mechanisms in one model.
+  - id: constant-reset-hazard
+    status: canonical
+    embodied_in: [wage-pc]
+    statement: >
+      Wages are reset with a constant, history-independent probability, as prices are in
+      calvo-prices.
+    substituting: >
+      As for prices: contract structures other than Calvo's break the aggregation step.
+  - id: real-wage-carries-history
+    status: canonical
+    embodied_in: [real-wage-gap]
+    statement: >
+      The real wage is a ratio of two sticky nominal levels, so the wage markup gap is an
+      endogenous state and enters its own law of motion with a lag.
+    substituting: >
+      A component treating the gap as purely contemporaneous assembles cleanly and
+      produces a model with no wage dynamics at all. taxonomy/variables.yaml records the
+      timing for that reason.
 
 verification:
   reviewed_by: null

@@ -277,6 +277,7 @@ parameters:
 
 equations:
   - id: marginal-cost
+    status: original
     expr: "mc - (alpha*rk + (1-alpha)*w - a)"
     description: >
       Real marginal cost as the cost-share-weighted average of the two factor prices,
@@ -284,6 +285,7 @@ equations:
       becomes the restriction mc = 0 on those prices instead.
     source: "Smets and Wouters (2007), eq. (10)"
   - id: factor-demand
+    status: original
     expr: "rk - (w + n - ks)"
     description: >
       Cost minimisation between capital services and labour. Note `ks`, capital
@@ -291,6 +293,8 @@ equations:
       `k` here is the most common way to get a medium-scale model subtly wrong.
     source: "Smets and Wouters (2007), eq. (11)"
   - id: capital-services
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "ks - (k(-1) + u)"
     description: >
       Capital services are the utilisation rate times the stock available this period.
@@ -298,6 +302,7 @@ equations:
       stock carried INTO the next period.
     source: "Smets and Wouters (2007), eq. (6)"
   - id: production
+    status: original
     expr: "y - phi_p*(alpha*ks + (1-alpha)*n + a)"
     description: >
       Production function. phi_p multiplies the whole bracket because output is measured
@@ -305,6 +310,8 @@ equations:
       percent.
     source: "Smets and Wouters (2007), eq. (9)"
   - id: resource-constraint
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "y - (c_y*c + i_y*inv + g + rkky*u)"
     description: >
       Goods market clearing. The last term is the resource cost of varying utilisation:
@@ -312,6 +319,8 @@ equations:
       rather than an approximation.
     source: "Smets and Wouters (2007), eq. (7)"
   - id: value-of-capital
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#value-of-capital"
     expr: "qk - (-rr - b + (rk_ss/(rk_ss + 1 - delta))*rk(+1) + ((1 - delta)/(rk_ss + 1 - delta))*qk(+1))"
     description: >
       Arbitrage for the value of installed capital: its shadow price today is the
@@ -331,6 +340,8 @@ equations:
       the core its habit-free closure.
     source: "Smets and Wouters (2007), eq. (4)"
   - id: capital-accumulation
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv)"
     description: >
       Capital accumulation, an identity rather than a friction, which is why it sits in
@@ -339,6 +350,8 @@ equations:
       adjustment cost.
     source: "Smets and Wouters (2007), eq. (8), at zero adjustment cost"
   - id: euler-no-habit
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "c - (c(+1) + c2_nohabit*(n - n(+1)) - (1/sigma_c)*rr - (1/sigma_c)*b)"
     description: >
       Consumption Euler equation without habit: the closure the habit-consumption
@@ -347,6 +360,8 @@ equations:
       rate, which is where the article puts it.
     source: "Smets and Wouters (2007), eq. (2) at lambda = 0"
   - id: mrs-no-habit
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "mrs - (sigma_l*n + c)"
     description: >
       Marginal rate of substitution between consumption and leisure, without habit.
@@ -355,18 +370,22 @@ equations:
       specification is.
     source: "Smets and Wouters (2007), eq. (13) bracket, at lambda = 0"
   - id: flex-wage
+    status: original
     expr: "w - mrs"
     description: >
       Flexible wages: the real wage equals the marginal rate of substitution. Replaced by
       a wage-setting friction.
     source: "Smets and Wouters (2007), section II, flexible-wage case"
   - id: flex-price-mc
+    status: original
     expr: "mc"
     description: >
       Flexible prices: marginal cost is constant, so the markup is. Replaced by a
       price-setting friction.
     source: "Smets and Wouters (2007), section II, flexible-price case"
   - id: flex-investment
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "qk"
     description: >
       No adjustment cost: installed capital and new capital are perfect substitutes, so
@@ -374,16 +393,20 @@ equations:
       Euler equation.
     source: "Smets and Wouters (2007), eq. (3) at zero adjustment cost"
   - id: fixed-utilisation
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#core-closures"
     expr: "u"
     description: >
       Utilisation held fixed, so that capital services and the stock coincide. Replaced
       by the capital-utilisation component.
     source: "Smets and Wouters (2007), eq. (5) at infinite utilisation cost"
   - id: technology
+    status: original
     expr: "a - rho_a*a(-1) - eps_a"
     description: Total factor productivity, an AR(1) process.
     source: "Smets and Wouters (2007), Table 1B"
   - id: risk-premium
+    status: original
     expr: "b - rho_b*b(-1) - eps_b"
     description: >
       Risk-premium wedge between the policy rate and the return households require on
@@ -423,6 +446,55 @@ compatible_cores: []
 minimum_perturbation_order: 1
 equation_form: log-linear-deviations
 solution_requirement: "First order. Welfare comparisons across the frictions this core carries need a second order, which the harness does not yet provide."
+
+assumptions:
+  - id: household-owned-capital
+    status: canonical
+    embodied_in: [value-of-capital, capital-accumulation, capital-services]
+    statement: >
+      Households own the capital stock, choose its utilisation and rent services to firms,
+      so the arbitrage condition for installed capital sits in the household's problem and
+      is discounted at the household's rate.
+    substituting: >
+      Under firm-owned capital the arbitrage condition moves to the firm's problem. Its
+      form survives; the discount factor need not, and a financial friction between the
+      two sides would then enter here rather than through the risk-premium wedge.
+  - id: balanced-growth-path
+    status: canonical
+    embodied_in: [capital-accumulation, resource-constraint, euler-no-habit]
+    statement: >
+      Output, consumption, investment, capital and the real wage grow at a common
+      deterministic gross rate gamma. Variables are deviations from that path, so the
+      effective discount factor is beta*gamma^(1-sigma_c) and the steady-state ratios
+      carry gamma.
+    substituting: >
+      Equations carried into a model without trend growth must have beta_bar*gamma
+      replaced by beta and the ratios recomputed; the coefficients are not dimensionless.
+      A stochastic trend invalidates the stationarisation outright. See
+      docs/theory/consumption-and-capital.md section 5.
+  - id: real-rate-formulation
+    status: library
+    embodied_in: [value-of-capital, euler-no-habit]
+    statement: >
+      The intertemporal margins are written in terms of a real rate rr, supplied by a
+      separate one-equation component, rather than in terms of i and expected inflation
+      directly.
+    substituting: >
+      Nothing economic turns on it, and it is what makes a flexible-price twin of the
+      model expressible at all: that twin has no nominal rate and no inflation to
+      subtract. A reader comparing this core with the article's own statement will find
+      the article writes r - pi(+1) inline.
+  - id: fixed-costs-in-production
+    status: canonical
+    embodied_in: [production, marginal-cost]
+    statement: >
+      Output is measured net of a fixed cost, so phi_p multiplies the whole production
+      bundle and equals the steady-state gross price markup. The capital exponent alpha is
+      therefore a production-function parameter and not a capital income share.
+    substituting: >
+      Removing the fixed cost sets phi_p to one, which changes the Kimball slope of the
+      price Phillips curve as well as the production function: the same parameter appears
+      in both.
 
 verification:
   reviewed_by: null

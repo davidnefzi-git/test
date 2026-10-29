@@ -44,10 +44,12 @@ parameters:
 
 equations:
   - id: policy-rule-strict
+    status: standard
     expr: "i - phi_pi*pi - v"
     description: The nominal rate responds to inflation alone.
     source: "Taylor (1993)"
   - id: monetary-shock
+    status: standard
     expr: "v - rho_v*v(-1) - eps_v"
     description: Monetary policy shock process.
     source: "Standard"
@@ -67,6 +69,26 @@ compatible_cores: [core-nk-medium]
 minimum_perturbation_order: 1
 equation_form: log-linear-deviations
 solution_requirement: "First order."
+
+assumptions:
+  - id: not-an-optimal-rule
+    status: library
+    embodied_in: [policy-rule-strict]
+    statement: >
+      The rule is a description of central-bank behaviour, not the solution of an
+      optimisation problem, and the library makes no welfare claim for it.
+    substituting: >
+      The optimal rule in this library is rule-optimal-domestic-price-stability, and it is
+      optimal in the open-economy model only.
+  - id: white-noise-policy-shock
+    status: library
+    embodied_in: [policy-rule-strict, monetary-shock]
+    statement: >
+      The persistence of the policy shock is set to zero so that a nesting test's
+      convergence is not confounded by the shock's own dynamics.
+    substituting: >
+      A non-zero value is perfectly admissible economically; it would make the nesting
+      tests of the four nominal frictions harder to read.
 
 verification:
   reviewed_by: null

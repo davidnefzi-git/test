@@ -56,6 +56,8 @@ parameters:
 
 equations:
   - id: investment-euler
+    status: derived
+    derivation: "docs/theory/consumption-and-capital.md#investment-euler"
     expr: "gamma_g**2*varphi_i*((1 + beta_bar*gamma_g)*inv - inv(-1) - beta_bar*gamma_g*inv(+1) - (1 + beta_bar*gamma_g)*zi) - qk"
     description: >
       The investment Euler equation, MULTIPLIED THROUGH by gamma^2*phi.
@@ -70,6 +72,8 @@ equations:
       the limit becomes exact.
     source: "Smets and Wouters (2007), eq. (3), rearranged"
   - id: capital-accumulation-adj
+    status: original
+    derivation: "docs/theory/consumption-and-capital.md#capital-accumulation"
     expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv + i_kbar*(1 + beta_bar*gamma_g)*gamma_g**2*varphi_i*zi)"
     description: >
       Capital accumulation with the investment-specific shock, replacing the core's
@@ -80,6 +84,7 @@ equations:
       notes.
     source: "Smets and Wouters (2007), eq. (8)"
   - id: investment-shock
+    status: original
     expr: "zi - rho_zi*zi(-1) - eps_zi"
     description: Investment-specific efficiency, an AR(1) process.
     source: "Smets and Wouters (2007), Table 1B"
@@ -119,6 +124,30 @@ nesting_target:
     variable: inv
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-7]
+
+assumptions:
+  - id: cost-in-the-flow-of-investment
+    status: canonical
+    embodied_in: [investment-euler]
+    statement: >
+      The adjustment cost is a function of the CHANGE in investment, not of its level.
+      This is what gives the hump-shaped response and what makes the shadow price of
+      installed capital move at all.
+    substituting: >
+      A cost in the level gives a monotone response and a nearly constant shadow price. It
+      is a different friction, not a recalibration.
+  - id: shock-normalised-to-the-euler-equation
+    status: canonical
+    embodied_in: [investment-euler, capital-accumulation-adj, investment-shock]
+    statement: >
+      The investment-specific shock is normalised to enter the investment Euler equation
+      with coefficient one, which fixes its coefficient in the accumulation equation at
+      i_kbar*(1+beta_bar*gamma)*gamma^2*varphi_i.
+    substituting: >
+      At zero adjustment cost the shock has no effect anywhere, which is why it belongs to
+      this component and not to the core. The widely used replication of the article omits
+      the (1+beta_bar*gamma) factor; the library follows the article and measures the
+      difference. docs/theory/consumption-and-capital.md section 4.3.
 
 verification:
   reviewed_by: null

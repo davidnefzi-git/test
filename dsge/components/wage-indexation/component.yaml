@@ -36,6 +36,8 @@ parameters:
 
 equations:
   - id: wage-pc-indexed
+    status: derived
+    derivation: "docs/theory/wage-setting.md#smets-wouters-wage-curve"
     expr: "kappa_w_inv*((1 + beta_bar*gamma_g)*w - w(-1) - beta_bar*gamma_g*w(+1) - iota_w*pi(-1) + (1 + beta_bar*gamma_g*iota_w)*pi - beta_bar*gamma_g*pi(+1) - (1 + beta_bar*gamma_g)*mkw) - (mrs - w)"
     description: >
       The indexed wage Phillips curve. It differs from the equation it replaces in
@@ -67,6 +69,17 @@ nesting_target:
     variable: w
     period: 0
     sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: indexation-to-past-price-inflation
+    status: canonical
+    embodied_in: [wage-pc-indexed]
+    statement: >
+      Wages that are not renegotiated are raised by a fraction of last period's PRICE
+      inflation, not wage inflation.
+    substituting: >
+      Indexation to wage inflation or to productivity changes which lag enters; at zero
+      indexation the equation is the unindexed one term for term.
 
 verification:
   reviewed_by: null

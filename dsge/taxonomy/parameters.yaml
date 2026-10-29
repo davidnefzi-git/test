@@ -1,0 +1,99 @@
+# Parameter symbols declared by more than one component.
+#
+# WHY THIS FILE EXISTS
+#
+# A component declares its own parameters, and several components legitimately declare
+# the same symbol: beta is a discount factor in all four cores and means the same thing
+# in each. But nothing stopped a symbol from naming two unrelated objects. `phi_p` named
+# the fixed-cost share in core-nk-medium, default 1.6, and the Rotemberg adjustment cost
+# in rotemberg-prices, default 372.79. The assembler refuses to compose two components
+# that declare the same parameter, so a medium-scale core with Rotemberg pricing -- a
+# perfectly sensible model -- failed with "parameter declared by two components", a
+# message that reads like a bug rather than a name clash. And a reader of the library
+# had no way to tell which object a given `phi_p` was.
+#
+# The Rotemberg parameter is now `phi_rotemberg`. This file is what keeps the problem
+# from recurring: a symbol may be declared by several components only if it is listed
+# here with the meaning they share. `tests/test_knowledge_base.py` checks both
+# directions -- every multiply-declared symbol is listed, and every listing is real.
+#
+# This is a registry of SHARED symbols, not of all parameters. A parameter declared by
+# one component is documented in that component and does not belong here.
+
+alpha:
+  meaning: >
+    Exponent on the non-labour factor in the production function, so that labour's
+    exponent is one minus it.
+  note: >
+    The economic reading differs between families and the mathematical role does not.
+    In core-nk-classical there is no capital, so alpha is a decreasing-returns parameter
+    and the component describes it as one minus the labour share. In core-nk-medium it
+    multiplies capital services, so the component describes it as a capital share -- and
+    adds that it is not a capital INCOME share, because the fixed cost drives a wedge
+    between the two. A reader carrying a formula between the two families should read
+    the component's own description, not this line.
+  declared_by: [core-nk-classical, core-nk-medium]
+
+beta:
+  meaning: Quarterly subjective discount factor of the representative household.
+  note: >
+    In the medium-scale family beta is a deep parameter and the effective discount
+    factor in the equations is beta_bar*gamma = beta*gamma^(1-sigma_c), because the
+    economy grows. Substituting beta for that product in a medium-scale equation is an
+    error of about 0.2 percent per period, compounding through every forward-looking
+    term. See docs/theory/consumption-and-capital.md section 5.
+  declared_by: [core-nk-classical, core-nk-medium, core-rbc-hansen, core-soe-gm]
+
+delta:
+  meaning: Quarterly depreciation rate of physical capital.
+  note: null
+  declared_by: [core-nk-medium, core-rbc-hansen]
+
+phi_pi:
+  meaning: >
+    Response of the policy rate to inflation in an interest-rate rule, with no partial
+    adjustment.
+  note: >
+    Which inflation differs by component and the difference is economic, not notational:
+    rule-cpi-inflation responds to CPI inflation and rule-domestic-inflation to
+    domestic-goods inflation, and in an open economy the two are different rules with
+    different equilibria. taylor-rule-sw does not declare phi_pi: its rule has partial
+    adjustment and its long-run coefficient is named r_pi.
+  declared_by: [rule-cpi-inflation, rule-domestic-inflation, rule-inflation-only, taylor-rule]
+
+rho_a:
+  meaning: First-order autocorrelation of the technology process.
+  note: >
+    In core-soe-gm it is domestic technology specifically, the foreign process having
+    its own coefficient.
+  declared_by: [core-nk-classical, core-nk-medium, core-soe-gm]
+
+rho_v:
+  meaning: First-order autocorrelation of the monetary policy shock process.
+  note: >
+    rule-inflation-only sets it to zero deliberately, so that a nesting test's
+    convergence is not confounded by the shock's own dynamics. That is a library choice
+    and the component says so.
+  declared_by: [core-nk-classical, rule-inflation-only, taylor-rule-sw]
+
+sigma:
+  meaning: Inverse of the elasticity of intertemporal substitution.
+  note: >
+    In core-soe-gm, sigma is NOT the elasticity that appears in the IS curve: openness
+    replaces it by sigma_a = sigma/((1-alpha_open) + alpha_open*omega). The two coincide
+    only in the closed economy. The medium-scale family names its own version sigma_c
+    and it is a utility-function parameter rather than a measured elasticity once habit
+    is present.
+  declared_by: [core-nk-classical, core-soe-gm]
+
+theta_p:
+  meaning: Probability that a price is NOT reset in a given quarter.
+  note: >
+    calvo-prices-domestic applies it to domestic-goods prices only, import prices
+    following the law of one price.
+  declared_by: [calvo-prices, calvo-prices-domestic]
+
+varphi:
+  meaning: Inverse Frisch elasticity of labour supply.
+  note: null
+  declared_by: [core-nk-classical, core-soe-gm]

@@ -20,14 +20,14 @@ variables:
   requires: [pi, mc]
 
 parameters:
-  - name: phi_p
+  - name: phi_rotemberg
     description: Price adjustment cost parameter
     default: 372.79
     units: null
     frequency: none
     range: [0.0, 500.0]
     method: calibrated
-    source: "Chosen so that the coefficient on marginal cost matches the Calvo calibration at theta_p = 0.75, epsilon_p = 9: phi_p = (epsilon_r - 1)/lambda_p, rounded"
+    source: "Chosen so that the coefficient on marginal cost matches the Calvo calibration at theta_p = 0.75, epsilon_p = 9: phi_rotemberg = (epsilon_r - 1)/lambda_p, rounded"
   - name: epsilon_r
     description: Elasticity of substitution across goods, declared by this component rather than borrowed
     default: 9.0
@@ -48,10 +48,12 @@ parameters:
     frequency: none
     method: derived
     source: "Rotemberg (1982); the first-order mapping to the Calvo coefficient is the subject of Born and Pfeifer on Calvo versus Rotemberg"
-    formula: "(epsilon_r - 1) / phi_p"
+    formula: "(epsilon_r - 1) / phi_rotemberg"
 
 equations:
   - id: nkpc-rotemberg
+    status: derived
+    derivation: "docs/theory/price-setting.md#rotemberg-equivalence"
     expr: "pi - beta*pi(+1) - lambda_pr*mc"
     description: Phillips curve implied by a quadratic cost of changing prices, to first order, in real marginal cost
     source: null
@@ -64,11 +66,11 @@ minimum_perturbation_order: 1
 solution_requirement: "First order reproduces Calvo. The difference between the two appears only at second order and above, so that comparison is out of reach until the non-linear equations are carried."
 
 nesting_target:
-  parameter: phi_p
+  parameter: phi_rotemberg
   limit: 0
   recovers: [core-nk-classical, taylor-rule]
   statement: >
-    A zero adjustment cost, not an infinite one, is the frictionless limit: as phi_p
+    A zero adjustment cost, not an infinite one, is the frictionless limit: as phi_rotemberg
     goes to zero the Phillips curve becomes vertical and the output gap returns to zero.
     Recorded explicitly because the direction of the limit differs from Calvo's and
     cannot be inferred from the fact that a component is a price friction.
@@ -81,14 +83,44 @@ nesting_target:
     period: 0
     sequence: [1.0, 0.1, 0.01, 1.0e-3]
 
+assumptions:
+  - id: representative-firm-no-dispersion
+    status: canonical
+    embodied_in: [nkpc-rotemberg]
+    statement: >
+      A single firm changes its price every period at a convex cost, so there is no
+      distribution of relative prices. Calvo's staggering produces one.
+    substituting: >
+      This is why the two are equivalent only to first order: the adjustment cost is a
+      resource cost, the dispersion is an allocative distortion, and the difference is
+      second order. docs/theory/price-setting.md section 6.
+  - id: frictionless-limit-at-zero
+    status: canonical
+    embodied_in: [nkpc-rotemberg]
+    statement: >
+      The frictionless limit is a ZERO adjustment cost, the opposite direction to Calvo's,
+      whose frictionless limit is a zero reset probability.
+    substituting: >
+      A reader assuming that the friction parameter goes to zero in both gets one of them
+      backwards.
+
 verification:
   reviewed_by: null
   notes: >
-    First-order equivalence with calvo-prices is asserted by the literature and is not
-    tested here, because testing it requires matching phi_p to the Calvo slope exactly
-    and the default given is rounded. Treat the default as indicative.
+    First-order equivalence with calvo-prices IS tested, in tests/test_levels.py, with
+    phi_rotemberg set from the Calvo slope rather than from the rounded default below;
+    the two models' impulse responses then agree to machine precision. The derivation of
+    the equivalence is in docs/theory/price-setting.md, section 6.
+
+    Two earlier statements in this field have been removed because they had become
+    false. One said the equivalence was untested, which it no longer is. The other was
+    parked in `open_questions` with a RESOLVED prefix, which left a resolved item in the
+    field reserved for unresolved ones. Both are recorded here rather than deleted
+    silently, because the risk they created is specific: a reader -- or a language model
+    -- taking `open_questions` as a list of what remains open would have inferred that
+    this component's central property was unestablished, and taking `notes` at face
+    value would have inferred the same thing twice over.
   open_questions:
-    - "RESOLVED: the first-order equivalence with calvo-prices is now tested, with phi_p set from the Calvo slope rather than from the rounded default below. The default is kept as an indicative value and the test does not rely on it. A mutation test had shown that the nesting limit alone does not pin this coefficient, since the limit sends it to infinity."
     - "The non-equivalence beyond first order is the whole point of the comparison and needs the non-linear equations."
 
 provenance:

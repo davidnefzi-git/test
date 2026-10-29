@@ -92,17 +92,17 @@ def test_the_technology_process_decays_at_its_own_persistence(rbc):
 def test_calvo_and_rotemberg_coincide_at_first_order():
     """Pins the Rotemberg coefficient, which the nesting limit alone does not.
 
-    Driving phi_p to zero sends lambda_pr to infinity, so scaling lambda_pr leaves the
+    Driving phi_rotemberg to zero sends lambda_pr to infinity, so scaling lambda_pr leaves the
     limit unchanged and the nesting target passes either way. The first-order
-    equivalence the literature asserts is the check that bites: set phi_p from the Calvo
+    equivalence the literature asserts is the check that bites: set phi_rotemberg from the Calvo
     parameters rather than from a rounded default, and the two compositions must agree
     exactly. This also settles the open question recorded in the component.
     """
     calvo = Composition("core-nk-classical", ["calvo-prices", "taylor-rule"])
     rot = Composition("core-nk-classical", ["rotemberg-prices", "taylor-rule"])
     Pc, Qc, pc = calvo.solve()
-    phi_p = (9.0 - 1.0) / pc["lambda_p"]          # epsilon_r - 1 over the Calvo slope
-    Pr, Qr, pr = rot.solve({"phi_p": phi_p})
+    phi_rotemberg = (9.0 - 1.0) / pc["lambda_p"]          # epsilon_r - 1 over the Calvo slope
+    Pr, Qr, pr = rot.solve({"phi_rotemberg": phi_rotemberg})
     assert pr["lambda_pr"] == pytest.approx(pc["lambda_p"], rel=1e-12)
     for shock in ("eps_v", "eps_a"):
         c = irf(Pc, Qc, calvo.shock_index(shock), 6)

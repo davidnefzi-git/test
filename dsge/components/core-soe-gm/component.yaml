@@ -165,24 +165,33 @@ parameters:
 
 equations:
   - id: is-curve
+    status: original
+    derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "x - x(+1) + (1/sigma_a)*(i - pi_h(+1) - rn)"
     description: Dynamic IS curve, in the open-economy intertemporal elasticity and in DOMESTIC inflation
     source: "Gali and Monacelli (2005), eq. (37)"
   - id: natural-rate
+    status: original
+    derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "rn + sigma_a*Gamma_gm*(1 - rho_a)*a - alpha_open*sigma_a*(Theta_gm + Psi_gm)*(y_star(+1) - y_star)"
     description: >
       Natural rate of interest. Two terms: the domestic technology term, negative as in
       the closed economy, and a foreign term absent there.
     source: "Gali and Monacelli (2005), equation below eq. (37)"
   - id: natural-output
+    status: original
+    derivation: "docs/theory/open-economy.md#openness-composites"
     expr: "y_nat - Gamma_gm*a - alpha_open*Psi_gm*y_star"
     description: Natural level of output, which now depends on world output as well as domestic technology
     source: "Gali and Monacelli (2005), eq. (35)"
   - id: output-gap-definition
+    status: original
     expr: "x - y + y_nat"
     description: The output gap is output less its natural level
     source: "Gali and Monacelli (2005), equation above eq. (35)"
   - id: risk-sharing
+    status: original
+    derivation: "docs/theory/open-economy.md#risk-sharing"
     expr: "y - y_star - (1/sigma_a)*s"
     description: >
       International risk sharing under complete markets, which ties domestic output to
@@ -191,10 +200,14 @@ equations:
       why it is a separate equation rather than folded into the IS curve.
     source: "Gali and Monacelli (2005), eq. (29)"
   - id: cpi-domestic-link
+    status: original
+    derivation: "docs/theory/open-economy.md#relative-prices"
     expr: "pi - pi_h - alpha_open*(s - s(-1))"
     description: CPI inflation is domestic inflation plus the openness-weighted change in the terms of trade
     source: "Gali and Monacelli (2005), eq. (14)"
   - id: terms-of-trade
+    status: original
+    derivation: "docs/theory/open-economy.md#relative-prices"
     expr: "s - s(-1) - e + e(-1) + pi_h"
     description: >
       Law of motion of the terms of trade, with constant world prices so that foreign
@@ -202,34 +215,43 @@ equations:
       it is what makes the terms of trade an endogenous state.
     source: "Gali and Monacelli (2005), eq. (15) in first differences, with pistar = 0 (p. 724)"
   - id: real-exchange-rate
+    status: derived
+    derivation: "docs/theory/open-economy.md#real-exchange-rate"
     expr: "q - (1 - alpha_open)*s"
     description: Real exchange rate implied by the terms of trade under the model's price structure
     source: "Gali and Monacelli (2005), relation between q and s"
   - id: employment
+    status: original
     expr: "y - a - n"
     description: Production function with labour as the only input
     source: "Gali and Monacelli (2005), eq. (22)"
   - id: net-exports
+    status: original
     expr: "nx - alpha_open*(omega_gm/sigma - 1)*s"
     description: Net exports as a share of steady-state output
     source: "Gali and Monacelli (2005), eq. (31)"
   - id: consumption
+    status: original
     expr: "y - c - alpha_open*omega_gm/sigma*s"
     description: Consumption, which differs from output by the terms-of-trade correction
     source: "Gali and Monacelli (2005), eq. (27)"
   - id: real-wage
+    status: original
     expr: "w - sigma*c - varphi*n"
     description: Labour supply condition
     source: "Gali and Monacelli (2005), equation above eq. (11)"
   - id: technology
+    status: original
     expr: "a - rho_a*a(-1) - eps_a"
     description: AR(1) domestic technology process
     source: "Gali and Monacelli (2005), p. 723"
   - id: foreign-output
+    status: original
     expr: "y_star - rho_y_star*y_star(-1) - eps_star"
     description: AR(1) foreign output process
     source: "Gali and Monacelli (2005), p. 723"
   - id: flex-price-output
+    status: original
     expr: "x"
     description: >
       Flexible-price pricing: output equals its natural level. The equation a
@@ -240,6 +262,64 @@ compatible_cores: []
 incompatible_with: []
 minimum_perturbation_order: 1
 solution_requirement: "First order. The equations are supplied already log-linearised, as the article states them."
+
+assumptions:
+  - id: complete-international-markets
+    status: canonical
+    embodied_in: [risk-sharing, consumption]
+    statement: >
+      Households trade a full set of state-contingent claims internationally, so marginal
+      utilities are equalised across countries state by state and domestic output is tied
+      to world output and the terms of trade. Net foreign assets and the current account
+      are degenerate and are not reported.
+    substituting: >
+      Four coupled changes, not one substitution: the risk-sharing equation gives way to a
+      current-account identity plus a debt-elastic premium or a portfolio condition; net
+      foreign assets become a state; the consumption-output relation acquires a wealth
+      term; and a stationarity device is needed, since the model otherwise has a unit root
+      in net foreign assets. docs/theory/open-economy.md section 4.
+  - id: law-of-one-price
+    status: canonical
+    embodied_in: [terms-of-trade, cpi-domestic-link, real-exchange-rate]
+    statement: >
+      Each good sells for the same price everywhere once converted at the nominal exchange
+      rate, so import prices are the world price plus the exchange rate and pass-through
+      is complete and immediate.
+    substituting: >
+      Under local-currency pricing or incomplete pass-through the import-price equation,
+      the CPI link and the proportionality between the real exchange rate and the terms of
+      trade all fail together. The real exchange rate ceases to be a function of the terms
+      of trade alone.
+  - id: small-open-economy
+    status: canonical
+    embodied_in: [foreign-output, risk-sharing]
+    statement: >
+      The domestic economy is of measure zero in the world: world output, world prices and
+      the world interest rate are exogenous to it, and domestic variables do not enter
+      world aggregates.
+    substituting: >
+      A two-country model makes world output endogenous, which changes the risk-sharing
+      condition's form as well as replacing the exogenous process.
+  - id: zero-world-inflation
+    status: canonical
+    embodied_in: [terms-of-trade]
+    statement: >
+      World inflation is zero, as the article sets it, so the terms of trade move with
+      nominal depreciation less domestic inflation alone.
+    substituting: >
+      A model with non-zero world inflation must restore the world inflation term in the
+      terms-of-trade law of motion. This is a simplification of the environment, not an
+      identity.
+  - id: symmetric-preferences-across-countries
+    status: canonical
+    embodied_in: [real-exchange-rate]
+    statement: >
+      Consumption baskets have the same form in every country, which together with the law
+      of one price is what makes the real exchange rate proportional to the terms of trade
+      with factor one minus openness.
+    substituting: >
+      Home bias asymmetries break the proportionality even when the law of one price
+      holds.
 
 verification:
   reviewed_by: null

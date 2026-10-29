@@ -53,6 +53,7 @@ parameters:
 
 equations:
   - id: policy-rule
+    status: original
     expr: "i - phi_pi*pi - phi_y*y - v"
     description: >
       Interest rate rule, responding to inflation and to output, with the monetary shock
@@ -67,6 +68,17 @@ incompatible_with: []
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
 solution_requirement: null
+
+assumptions:
+  - id: not-an-optimal-rule
+    status: library
+    embodied_in: [policy-rule]
+    statement: >
+      A description of behaviour, not an optimum. The rule responds to the output gap and
+      to inflation with fixed coefficients.
+    substituting: >
+      Any welfare ranking of rules requires a second-order treatment, which the library
+      does not have.
 
 verification:
   reviewed_by: null

@@ -267,7 +267,8 @@
         "required": [
           "id",
           "expr",
-          "description"
+          "description",
+          "status"
         ],
         "additionalProperties": false,
         "properties": {
@@ -288,8 +289,53 @@
               "null"
             ],
             "description": "Equation number in the cited work, or null if it cannot be determined; do not guess, per CLAUDE.md."
+          },
+          "status": {
+            "enum": [
+              "original",
+              "derived",
+              "adapted",
+              "standard",
+              "unverified"
+            ],
+            "description": "The equation's scientific status with respect to the cited work, which `source` alone cannot express because it is free text.\n  original   attested in the cited publication, at the section or equation number given in `source`.\n  derived    obtained mathematically from relations in that publication; `derivation` must point at where the steps are written out.\n  adapted    the publication's assumptions or conventions are deliberately changed; `derivation` must point at the statement of what was changed and why.\n  standard   a textbook relation or accounting identity not specific to the cited work -- a Fisher equation, an AR(1) shock process, a resource constraint.\n  unverified the source or the correspondence with it is not established. An honest label, not a failure: it marks what a reader must check before relying on the equation.\nA reader of this library must never have to infer the difference from prose: presenting an adaptation as an original equation is the error this field exists to prevent."
+          },
+          "derivation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Where the derivation or the adaptation is written out, as a path and anchor relative to the repository root, e.g. 'docs/theory/price-setting.md#calvo-phillips-curve'. Required when `status` is 'derived' or 'adapted'. The target is the single source of truth for the algebra: the same steps are not restated in this file."
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "derived",
+                    "adapted"
+                  ]
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "derivation"
+              ],
+              "properties": {
+                "derivation": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "replaces": {
@@ -520,6 +566,52 @@
         },
         "note": {
           "type": "string"
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "description": "The economic assumptions this component MAINTAINS, as opposed to the friction it introduces. A composition check establishes that the equation count closes and that no variable is provided twice; it cannot establish that two blocks rest on the same view of the economy. Two components can agree on every variable name and still disagree about whether markets are complete, how expectations are formed, or what an asset return is. This field is where that disagreement becomes visible.\nList only assumptions that bear on composition: those a different component might contradict, or that a reader must grant before transplanting the equations. Do not list the model's whole content.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement",
+          "embodied_in"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Short slug, unique within the component, e.g. 'complete-markets'."
+          },
+          "statement": {
+            "type": "string",
+            "description": "What is assumed, in one or two sentences, in terms a reader can check against the equations."
+          },
+          "embodied_in": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Ids of this component's equations in which the assumption is operative. An assumption embodied in no equation is either not an assumption of this component or an equation that is missing."
+          },
+          "substituting": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "What replacing this assumption would require, when that is known. Replacing complete markets by incomplete markets is not a syntactic substitution: it changes several equilibrium conditions at once, and saying so is more useful than a compatibility flag that implies the swap is free. Null when the consequences have not been worked out."
+          },
+          "status": {
+            "enum": [
+              "canonical",
+              "library"
+            ],
+            "description": "canonical: the assumption is the cited work's own. library: it is introduced by this representation and is not in the source."
+          }
         }
       }
     }
