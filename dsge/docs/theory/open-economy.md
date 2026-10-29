@@ -24,8 +24,8 @@ object.
 **Consumption.** The domestic household consumes a bundle of domestic and imported
 goods,
 
-$$C_t = \left[(1-\alpha)^{1/\eta} C_{H,t}^{(\eta-1)/\eta}
-+ \alpha^{1/\eta} C_{F,t}^{(\eta-1)/\eta}\right]^{\eta/(\eta-1)},$$
+$C_t = \left[(1-\alpha)^{1/\eta} C_{H,t}^{(\eta-1)/\eta}
++ \alpha^{1/\eta} C_{F,t}^{(\eta-1)/\eta}\right]^{\eta/(\eta-1)},$
 
 with $\alpha$ the share of imports — the **degree of openness** — and $\eta$ the
 elasticity of substitution between domestic and foreign goods. Imports are themselves a
@@ -59,16 +59,16 @@ distinct objects (§2).
 
 **The terms of trade** are the price of imports relative to domestically produced goods,
 
-$$S_t \equiv \frac{P_{F,t}}{P_{H,t}},
-\qquad s_t = p_{F,t} - p_{H,t}.$$
+$S_t \equiv \frac{P_{F,t}}{P_{H,t}},
+\qquad s_t = p_{F,t} - p_{H,t}.$
 
 **The CPI.** To a first-order approximation around the symmetric steady state,
 
-$$p_t = (1-\alpha)\,p_{H,t} + \alpha\,p_{F,t} = p_{H,t} + \alpha\, s_t,$$
+$p_t = (1-\alpha)\,p_{H,t} + \alpha\,p_{F,t} = p_{H,t} + \alpha\, s_t,$
 
 and differencing,
 
-$$\boxed{\;\pi_t = \pi_{H,t} + \alpha\,\Delta s_t\;}$$
+$\pi_t = \pi_{H,t} + \alpha\,\Delta s_t$
 
 which is the component's `cpi-domestic-link`. **This is the single most consequential
 distinction in the block.** CPI inflation and domestic inflation differ by the change in
@@ -81,9 +81,9 @@ gap.
 **The law of motion of the terms of trade.** With the law of one price,
 $p_{F,t} = e_t + p^{*}_t$, so
 
-$$s_t = e_t + p^{*}_t - p_{H,t}
+$s_t = e_t + p^{*}_t - p_{H,t}
 \quad\Longrightarrow\quad
-\Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$$
+\Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
 
 The library sets world inflation to zero, as the article does on p. 724, giving
 `terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in
