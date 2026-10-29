@@ -155,9 +155,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article's numbered equations, in a rearranged but
-    algebraically identical form. Verified by the nesting target above and in composition
-    by the golden targets of smets-wouters-2007.
+    Investment Euler and capital accumulation with the working-paper investment-specific shock normalisation.
+
   open_questions:
     - "The article and its replication code disagree on the coefficient of the investment shock in the capital accumulation equation by a factor of (1 + beta_bar*gamma_g), about 1.99 at the posterior mean. The article's version is implemented; the entry carries a target measuring the difference."
 
