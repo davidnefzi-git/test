@@ -206,7 +206,7 @@
           },
           "source": {
             "type": "string",
-            "description": "Where the number actually came from. No unsourced numbers, per CLAUDE.md."
+            "description": "Where the number actually came from. Published or calibrated values must have a traceable source."
           },
           "formula": {
             "type": "string",
@@ -289,7 +289,7 @@
               "string",
               "null"
             ],
-            "description": "Equation number in the cited work, or null if it cannot be determined; do not guess, per CLAUDE.md."
+            "description": "Equation number in the cited work, or null if it cannot be determined. Do not guess references."
           },
           "source_check": {
             "enum": [
