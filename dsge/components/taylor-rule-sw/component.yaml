@@ -160,9 +160,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Written from the article's equation (14). The placement of (1 - rho) on the level
-    terms but not on the difference term is the detail most often transcribed wrongly,
-    and it is pinned by the cross-check recorded in smets-wouters-2007.
+    Smets–Wouters ECB Working Paper 722, eq. (14); the output gap is defined relative to the flexible-price counterpart.
+
   open_questions: []
 
 provenance:
