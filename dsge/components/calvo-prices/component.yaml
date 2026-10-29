@@ -93,7 +93,7 @@ equations:
       kappa = lambda_p*(sigma + (varphi + alpha)/(1 - alpha)); composed with
       calvo-wages instead, the same equation delivers the two-friction model without
       being touched.
-    source: "Gali (2015) ch. 3, inflation dynamics, eq. (22) per the annotation of a third-party Dynare replication; the marginal-cost form is ch. 6 eq. (18)"
+    source: "Gali (2015), ch. 3, eqs. (17), (21)-(22), and ch. 6, eq. (18); checked against both supplied chapters. The component uses the marginal-cost form."
 
 replaces: [core-nk-classical.flex-price-output]
 depends_on: [core-nk-classical]
@@ -161,7 +161,6 @@ verification:
     classical value of zero, and the ratio of the response to theta_p converges to the
     analytically implied constant.
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
     - >
       Indexation to past inflation exists as `price-indexation`, but it depends on
       `calvo-prices-kimball` rather than on this component: it was written for the
