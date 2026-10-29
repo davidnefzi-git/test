@@ -1,5 +1,13 @@
 # Smets and Wouters (2007), as composed here
 
+**Source edition.** The primary PDF supplied for verification is ECB Working Paper
+No. 722 (February 2007), 57 PDF pages, including a model appendix. The model
+entry cites the American Economic Review 2007 publication. The working paper is a
+separate version and must not be treated as proof that every AER equation,
+parameter-table entry or page reference is identical. Claims of exact AER
+correspondence require checking the AER version itself.
+
+
 ## What the entry is and is not
 
 It is the model's **dynamics**, at the posterior means of Tables 1A and 1B, assembled
