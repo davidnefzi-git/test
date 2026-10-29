@@ -108,7 +108,7 @@ depends_on: [core-nk-classical]
 incompatible_with: [calvo-wages-kimball]
 compatible_cores: [core-nk-classical]
 minimum_perturbation_order: 1
-solution_requirement: "First order for dynamics. The welfare losses that EHL report require a second-order or linear-quadratic treatment, which is out of reach while the equations are supplied log-linearised."
+solution_requirement: "First order for dynamics. Welfare analysis requiring a second-order or linear-quadratic treatment is outside this component."
 
 nesting_target:
   parameter: theta_w
@@ -125,7 +125,7 @@ nesting_target:
     No analytic rate is declared: deriving the constant means perturbing the whole
     three-equation system in theta_w, and it would buy little here, because the exact
     limiting value is pinned independently by the closed-form target
-    flexible-wage-limit-output-gap on ehl-2000. That target is the stronger check, so
+    flexible-wage-limit-output-gap on nk-gali-2015-ch6. That target is the stronger check, so
     this one tests only that the approach is monotone and reaches the limit.
   tolerance: 1.0e-4
   # The gap closes linearly in theta_w, so reaching 1e-4 needs theta_w of order 1e-6:
@@ -173,15 +173,14 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Galí (2015), ch. 6 wage-setting specialisation of EHL-type nominal contracts; not the complete EHL (2000) capital and welfare model.
+    Galí (2015), chapter 6 wage-setting block.
 
   open_questions:
-    - "This is Galí's chapter-6 teaching model rather than the full EHL (2000) framework; EHL's capital, subsidy and welfare blocks are omitted."
 
 provenance:
   source_url: null
   repository: null
-  license: "Own implementation, written from the article and textbook statements"
+  license: "Own implementation from Galí (2015), chapter 6"
   redistributable: true
   permission_note: null
   ingested_by: "Claude"
