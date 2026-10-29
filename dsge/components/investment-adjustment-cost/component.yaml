@@ -57,6 +57,7 @@ parameters:
 equations:
   - id: investment-euler
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#investment-euler"
     expr: "gamma_g**2*varphi_i*((1 + beta_bar*gamma_g)*inv - inv(-1) - beta_bar*gamma_g*inv(+1) - (1 + beta_bar*gamma_g)*zi) - qk"
     description: >
@@ -73,6 +74,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (3), rearranged"
   - id: capital-accumulation-adj
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#capital-accumulation"
     expr: "k - ((1 - i_kbar)*k(-1) + i_kbar*inv + i_kbar*(1 + beta_bar*gamma_g)*gamma_g**2*varphi_i*zi)"
     description: >
@@ -85,6 +87,7 @@ equations:
     source: "Smets and Wouters (2007), eq. (8)"
   - id: investment-shock
     status: original
+    source_check: verified_working_paper
     expr: "zi - rho_zi*zi(-1) - eps_zi"
     description: Investment-specific efficiency, an AR(1) process.
     source: "Smets and Wouters (2007), Table 1B"
