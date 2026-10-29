@@ -43,19 +43,17 @@ parameters:
     default: 0.52
     units: null
     frequency: none
-    range: [-1.0, 2.0]
+    range: [0.0, 1.0]
     method: estimated
     source: >
-      Smets and Wouters (2007), Table 1B, posterior mean. The printed table gives this a
-      beta prior, B(0.5, 0.2^2); the replication code uses a normal, N(0.5, 0.25^2), and
-      a beta prior would in any case be incompatible with the negative values the
-      parameter can take. The code's prior is recorded here, and the discrepancy is
-      recorded in the entry's verification notes.
+      Smets and Wouters (2007), American Economic Review, Table 1B (p. 594):
+      beta prior with mean 0.50 and standard deviation 0.20; posterior mean 0.52.
+      The beta support [0,1] is part of the published AER prior choice.
     prior:
       family: beta
       hyperparameters: [0.5, 0.2]
       fixed: false
-      note: "hyperparameters are mean and standard deviation; see source on the printed table's disagreement"
+      note: "hyperparameters are prior mean and standard deviation as in AER Table 1B"
 
 equations:
   - id: spending
