@@ -121,7 +121,7 @@ targets:
     The Rotemberg block's own limit, with its analytic rate. The limit runs the other
     way from Calvo's — a zero adjustment cost, not an infinite one, is the frictionless
     case — and the rate is what pins the coefficient: the limit alone is insensitive to
-    scaling it, as a mutation test showed.
+    scaling it.
   source: "Nesting target declared in components/rotemberg-prices/component.yaml"
   composition: [core-nk-classical, rotemberg-prices, taylor-rule]
   recovers: [core-nk-classical, taylor-rule]
