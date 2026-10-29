@@ -79,7 +79,7 @@ gap.
 **The law of motion of the terms of trade.** With the law of one price,
 $p_{F,t} = e_t + p^{*}_t$, so
 
-$s_t = e_t + p^{*}_t - p_{H,t} \quad\Longrightarrow\quad \Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
+$s_t = e_t + p^{*}_t - p_{H,t} \quad \Longrightarrow \quad \Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
 
 The library sets world inflation to zero, as the article does on p. 724, giving
 `terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in
@@ -92,7 +92,7 @@ with non-zero world inflation must restore $\pi^{*}_t$ here.
 
 ## 3. The real exchange rate
 
-$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t}{P_t}, \qquad q_t = e_t + p^{*}_t - p_t .$
+$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t} {P_t}, \qquad q_t = e_t + p^{*}_t - p_t .$
 
 Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^{*}_t = p_{H,t} + s_t$,
 
@@ -130,7 +130,7 @@ asset market.
 **The library's form.** Combining that condition with the goods-market clearing relation
 and the definition of $\sigma_\alpha$ below yields the article's equation (29),
 
-$y_t = y^{*}_t + \frac{1}{\sigma_\alpha}\,s_t$
+$y_t = y^{*}_t + \frac{1}{\sigma \alpha}\,s_t$
 
 which is what `core-soe-gm.risk-sharing` states. Domestic output is tied to world output
 and the terms of trade, with no role for net foreign assets, no current-account dynamics
@@ -161,7 +161,7 @@ Four composites carry openness through the model. All are the article's.
 
 $\omega \equiv \sigma\gamma + (1-\alpha)(\sigma\eta - 1), \qquad \sigma_\alpha \equiv \frac{\sigma}{(1-\alpha) + \alpha\,\omega},$
 
-$\Theta \equiv (\sigma\gamma - 1) + (1-\alpha)(\sigma\eta-1), \qquad \Gamma \equiv \frac{1+\varphi}{\sigma_\alpha+\varphi}, \qquad \Psi \equiv -\,\frac{\Theta\,\sigma_\alpha}{\sigma_\alpha+\varphi}.$
+$\Theta \equiv (\sigma\gamma - 1) + (1-\alpha)(\sigma\eta-1), \qquad \Gamma \equiv \frac{1+\varphi}{\sigma_\alpha+\varphi}, \qquad \Psi \equiv, \frac{\Theta \sigma \alpha}{\sigma \alpha+\varphi}.$
 
 **$\sigma_\alpha$ replaces $\sigma$ in the IS curve.** The open-economy IS curve is
 $x_t = \mathbb{E}_t x_{t+1} - \frac{1}{\sigma_\alpha}(i_t - \mathbb{E}_t\pi_{H,t+1} - rn_t)$: the same shape as the closed-economy curve with the intertemporal elasticity
