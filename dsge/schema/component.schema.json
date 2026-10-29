@@ -298,7 +298,7 @@
               "pending",
               "standard_identity"
             ],
-            "description": "Independent from status/origin: verified_primary means the mathematical relation was checked directly against the declared original supplied source; verified_working_paper means the equation was checked against the ECB 2007 working-paper version but not independently certified against final AER; pending means no direct source-to-equation comparison has been completed; standard_identity is a generic definition or algebraic identity, not a paper-specific claim. The version and pinpoint reference remain in source."
+            "description": "Independent from status/origin: verified_primary means the mathematical relation was checked directly against the declared primary source; verified_working_paper means the equation was checked against the ECB 2007 working-paper version but not independently certified against final AER; pending means no direct source-to-equation comparison has been completed; standard_identity is a generic definition or algebraic identity, not a paper-specific claim. The version and pinpoint reference remain in source."
           },
           "status": {
             "enum": [
