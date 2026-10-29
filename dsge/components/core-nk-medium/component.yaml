@@ -283,7 +283,7 @@ equations:
       Real marginal cost as the cost-share-weighted average of the two factor prices,
       less productivity. A definition, given the factor prices; with flexible prices it
       becomes the restriction mc = 0 on those prices instead.
-    source: "Smets and Wouters (2007), eq. (10)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (9), PDF p. 15 (price markup / marginal cost)"
   - id: factor-demand
     status: original
     expr: "rk - (w + n - ks)"
@@ -308,7 +308,7 @@ equations:
       Production function. phi_p multiplies the whole bracket because output is measured
       net of a fixed cost, so a one-percent rise in inputs raises output by more than one
       percent.
-    source: "Smets and Wouters (2007), eq. (9)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (5), PDF p. 13 (production)"
   - id: resource-constraint
     status: original
     derivation: "docs/theory/consumption-and-capital.md#utilisation"
@@ -317,7 +317,7 @@ equations:
       Goods market clearing. The last term is the resource cost of varying utilisation:
       running capital harder is not free, and omitting the term is a conservation error
       rather than an approximation.
-    source: "Smets and Wouters (2007), eq. (7)"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (1), PDF p. 11 (resource constraint)"
   - id: value-of-capital
     status: original
     derivation: "docs/theory/consumption-and-capital.md#value-of-capital"
@@ -368,7 +368,7 @@ equations:
       Exposed as a variable rather than written out inside the wage equation: that is
       what lets a wage friction be composed without knowing what the consumption
       specification is.
-    source: "Smets and Wouters (2007), eq. (13) bracket, at lambda = 0"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (12) at zero external habit, PDF p. 16"
   - id: flex-wage
     status: original
     expr: "w - mrs"
