@@ -71,7 +71,7 @@ def test_the_identities_that_determine_output_hold(shock):
 
     Under the technology shock alone foreign output is identically zero, so the term
     alpha_open*Psi_gm*y_star in natural-output multiplies zero and any coefficient on it
-    passes. A mutation test caught exactly that.
+    passes. This test checks that distinction explicitly.
     """
     r, p = _irf("rule-domestic-inflation", shock=shock, horizon=4, overrides=OPEN)
     driver = "a" if shock == "eps_a" else "y_star"
@@ -95,7 +95,7 @@ def test_the_identities_that_determine_output_hold(shock):
 def test_each_regime_satisfies_its_own_rule_period_by_period(rule):
     """Each policy component as the residual of its own equation.
 
-    A mutation test found the CPI rule unverified: the regime comparison checks the
+    The CPI rule requires its own direct verification:
     ORDERING of output gaps, and scaling phi_pi preserves an ordering while changing the
     model. An ordering is a weak check on a coefficient; the residual is exact.
     """
