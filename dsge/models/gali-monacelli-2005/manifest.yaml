@@ -7,6 +7,57 @@ summary: >
 composition:
   core: core-soe-gm
   blocks: [calvo-prices-domestic, rule-domestic-inflation]
+citation:
+  authors: [Gali, Monacelli]
+  year: 2005
+  title: "Monetary Policy and Exchange Rate Volatility in a Small Open Economy"
+  journal: "Review of Economic Studies 72(3), 707-734"
+  doi: 10.1111/j.1467-937X.2005.00349.x
+
+economics:
+  question: >
+    How do alternative monetary policy regimes perform in a small open economy, and how
+    much exchange rate volatility does each imply?
+  time: dynamic-stochastic
+  uncertainty: aggregate
+  open_economy: true
+  agents: [representative household, monopolistically competitive domestic firms, central bank, rest of the world]
+  equilibrium: >
+    Small open economy with complete international asset markets and the law of one
+    price, log-linearised about the symmetric zero-inflation steady state. World output,
+    world prices and the world interest rate are exogenous.
+  frictions: [staggered domestic price setting]
+  mechanisms: [nominal-rigidity, terms-of-trade]
+  policy_instruments: [nominal interest rate, nominal exchange rate]
+  calibration_region: null
+
+common_variable_map:
+  # Six of the family's nine. Net foreign assets and the current account are degenerate
+  # under complete markets -- the assumption is declared in core-soe-gm, which also says
+  # what replacing it would require -- and import price pass-through is complete and
+  # immediate under the law of one price, so there is nothing to report.
+  output_gap: x
+  inflation: pi
+  policy_rate: i
+  real_exchange_rate: q
+  nominal_exchange_rate: e
+  terms_of_trade: s
+
+shocks:
+  - id: eps_a
+    description: Domestic technology shock
+    normalisation: one unit, positive raises domestic productivity
+  - id: eps_star
+    description: Foreign output shock
+    normalisation: one unit, positive raises world output
+
+provenance:
+  license: "Own implementation, written from the article"
+  permission_note: >
+    No third-party file is reproduced. Equation numbers are the article's own, recorded
+    in the component files and cross-read against a third party's annotations, which
+    agree. docs/theory/open-economy.md derives the relations the components use.
+
 verification:
   tier: composed
   notes: >

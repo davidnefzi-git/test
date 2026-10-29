@@ -7,6 +7,53 @@ summary: >
 composition:
   core: core-nk-classical
   blocks: [calvo-prices, calvo-wages, taylor-rule]
+citation:
+  authors: [Erceg, Henderson, Levin]
+  year: 2000
+  title: "Optimal Monetary Policy with Staggered Wage and Price Contracts"
+  journal: "Journal of Monetary Economics 46(2), 281-313"
+  doi: 10.1016/S0304-3932(00)00028-3
+
+economics:
+  question: >
+    How does monetary transmission change when wages as well as prices are set in
+    staggered contracts, and what does the central bank then face?
+  time: dynamic-stochastic
+  uncertainty: aggregate
+  open_economy: false
+  agents: [representative household supplying differentiated labour, monopolistically competitive firms, central bank]
+  equilibrium: >
+    Symmetric monopolistically competitive equilibrium in both goods and labour markets,
+    log-linearised about the zero-inflation steady state.
+  frictions: [staggered price setting, staggered nominal wage setting]
+  mechanisms: [nominal-rigidity, real-rigidity]
+  policy_instruments: [nominal interest rate]
+  calibration_region: null
+
+common_variable_map:
+  # Four of the family's nine. The model has no capital and no separate consumption
+  # aggregate, and it carries the real wage GAP (omega_tilde) rather than the level of
+  # the real wage, so `real_wage` would be a different object under the same name.
+  output_gap: x
+  inflation: pi
+  policy_rate: i
+  output: y
+
+shocks:
+  - id: eps_v
+    description: Monetary policy shock
+    normalisation: one unit, positive is contractionary
+  - id: eps_a
+    description: Technology shock
+    normalisation: one unit, positive raises productivity
+
+provenance:
+  license: "Own implementation, written from the article and textbook statements"
+  permission_note: >
+    No third-party file is reproduced. The equations are implemented from the published
+    statements; two of the three are derived, and docs/theory/wage-setting.md gives the
+    derivations in full.
+
 verification:
   tier: composed
   notes: >

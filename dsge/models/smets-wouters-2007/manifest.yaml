@@ -43,6 +43,80 @@ composition:
       - fiscal-block-simple.spending
       - investment-adjustment-cost.investment-shock
 
+citation:
+  authors: [Smets, Wouters]
+  year: 2007
+  title: "Shocks and Frictions in US Business Cycles: A Bayesian DSGE Approach"
+  journal: "American Economic Review 97(3), 586-606"
+  doi: 10.1257/aer.97.3.586
+
+economics:
+  question: >
+    How much of US business cycle fluctuation is accounted for by each of seven
+    structural shocks, once a medium-scale model with nominal and real frictions is
+    estimated on the data?
+  time: dynamic-stochastic
+  uncertainty: aggregate
+  open_economy: false
+  agents: [representative household, monopolistically competitive firms, monopolistically competitive labour suppliers, central bank, government]
+  equilibrium: >
+    Closed economy with a balanced growth path, log-linearised about the deterministic
+    steady state. Growth bears on the coefficients and not only on the data: the
+    effective discount factor throughout is beta*gamma^(1-sigma_c), not beta.
+  frictions:
+    - staggered price setting with partial indexation
+    - staggered wage setting with partial indexation
+    - external habit formation in consumption
+    - costly adjustment of the rate of investment
+    - costly variation in capital utilisation
+    - fixed costs in production
+  mechanisms: [nominal-rigidity, real-rigidity, capital-accumulation, monetary-transmission]
+  policy_instruments: [nominal interest rate]
+  calibration_region: "United States"
+
+common_variable_map:
+  # Eight of the family's nine; only a credit spread is missing, and it would need a
+  # financial friction the library does not carry.
+  #
+  # output_gap is an EXPRESSION and not a variable name. In this model the gap is not a
+  # variable at all: it is output less its counterpart in the flexible-price twin. The
+  # alternative would have been to report no output gap for the family's most-used
+  # model.
+  output: y
+  output_gap: "y - y_f"
+  inflation: pi
+  policy_rate: i
+  consumption: c
+  investment: inv
+  hours: n
+  real_wage: w
+
+shocks:
+  - id: eps_a
+    description: Innovation to total factor productivity
+    normalisation: one unit, positive raises productivity
+  - id: eps_b
+    description: Innovation to the risk-premium wedge
+    normalisation: >
+      one unit, positive widens the premium and so lowers consumption and the value of
+      installed capital. This is the article's sign; a widely used replication uses the
+      opposite one, folded into a rescaling of the wedge.
+  - id: eps_g
+    description: Innovation to exogenous spending
+    normalisation: one unit of steady-state output, positive raises spending
+  - id: eps_zi
+    description: Innovation to the marginal efficiency of investment
+    normalisation: one unit, positive raises the efficiency of investment
+  - id: eps_v
+    description: Innovation to the policy rate
+    normalisation: one unit, positive is contractionary
+  - id: eps_p
+    description: Innovation to the price markup
+    normalisation: one unit, positive raises the markup and so raises inflation
+  - id: eps_w
+    description: Innovation to the wage markup
+    normalisation: one unit, positive raises the markup and so raises the wage
+
 verification:
   tier: composed
   notes: >

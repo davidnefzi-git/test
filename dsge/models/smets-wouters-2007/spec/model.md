@@ -178,7 +178,7 @@ What caught it was reading the impulse response against the article's own senten
 positive shock to this wedge increases the required return on assets and reduces current
 consumption."*
 
-The lesson is recorded in the targets file and generalised in `docs/decisions.md`: where
+The lesson is recorded in the targets file and generalised in `docs/audit-2026-10.md`: where
 a cross-check fits a normalisation it verifies **structure**, not **orientation** -- and
 that is exactly where the risk of misreading the article is highest, since a convention
 has to be fitted only when the two sources disagree about it. Every shock in this entry
