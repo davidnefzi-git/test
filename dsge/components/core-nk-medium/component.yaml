@@ -514,7 +514,7 @@ verification:
     Real structural block of Smets–Wouters as stated in ECB Working Paper 722; no claim of final-AER line-by-line verification.
 
   open_questions:
-    - "The measurement equations that map the model onto the seven observed series are not implemented, because no estimator is; they are declared in the data block of the smets-wouters-2007 manifest instead."
+    - "The seven observation equations are documented from AER eq. (15) in models/smets-wouters-2007/estimation.yaml; they are not implemented by the structural solver."
 
 provenance:
   source_url: null
