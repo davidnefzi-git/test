@@ -84,9 +84,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Verified in composition. A violation of the Taylor principle is reported by the
-    solver as a failure to find a stable solution rather than returning a plausible
-    wrong answer; tests/test_composition.py checks that.
+    Galí (2015) chapter-3 monetary policy rule, using output rather than the output gap.
+
   open_questions:
     - "A gap-based rule (responding to x rather than y) is a legitimate alternative specification and should exist as a separate component, taylor-rule-gap, rather than being confused with this one. It was this confusion that the cross-check caught."
     - "An inertial variant (rho_r on the lagged rate) and an exchange-rate-based variant belong as separate components, not as parameters of this one."
