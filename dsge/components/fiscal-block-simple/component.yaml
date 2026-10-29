@@ -109,8 +109,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    One equation, written from the article's shock specification. Verified in composition
-    by the spending-shock golden targets of smets-wouters-2007.
+    The AR(1) spending process includes an innovation loading on technology, as stated in ECB Working Paper 722.
+
   open_questions: []
 
 provenance:
