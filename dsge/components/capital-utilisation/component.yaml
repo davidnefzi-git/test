@@ -39,6 +39,7 @@ parameters:
 equations:
   - id: utilisation
     status: original
+    source_check: verified_working_paper
     derivation: "docs/theory/consumption-and-capital.md#utilisation"
     expr: "u - ((1 - psi_u)/psi_u)*rk"
     description: >
@@ -48,69 +49,3 @@ equations:
     source: "Smets and Wouters (2007), ECB WP 722, eq. (7), PDF p. 14"
 
 replaces: [core-nk-medium.fixed-utilisation]
-depends_on: [core-nk-medium]
-incompatible_with: []
-compatible_cores: [core-nk-medium]
-minimum_perturbation_order: 1
-equation_form: log-linear-deviations
-solution_requirement: "First order."
-
-nesting_target:
-  parameter: psi_u
-  limit: 1
-  recovers: [core-nk-medium, fiscal-block-simple]
-  statement: >
-    As psi goes to one, varying utilisation becomes infinitely costly, the coefficient
-    (1-psi)/psi vanishes, and the utilisation rate is pinned at zero -- the core's own
-    fixed-utilisation closure. This is the first nesting target in the library whose
-    limit is at a parameter value other than zero, which is why run_nesting now divides
-    the residual by the DISTANCE to the limit rather than by the parameter.
-  tolerance: 1.0e-6
-  # No closed-form rate, because the constant is not an expression in parameters: the
-  # limit of u/(psi - 1) is minus the rental-rate response at psi = 1, which is a model
-  # output. Measured at -1.1263 and flat to four digits across the sequence below, so
-  # the convergence is first order, as the algebra says it must be.
-  rate: null
-  pathological: false
-  probe:
-    shock: eps_a
-    variable: u
-    period: 0
-    sequence: [0.9, 0.99, 0.9999, 0.9999999]
-
-assumptions:
-  - id: utilisation-cost-normalisation
-    status: canonical
-    embodied_in: [utilisation]
-    statement: >
-      psi is defined so that it lies in the unit interval and so that psi equal to one is
-      the infinitely costly case: LARGER psi means LESS variation in utilisation. The
-      normalisation is the article's, not a result.
-    substituting: >
-      A reader who reads psi as a curvature gets the limit backwards. The direction is
-      recorded in the nesting target as well as here.
-  - id: utilisation-is-a-resource-cost
-    status: canonical
-    embodied_in: [utilisation]
-    statement: >
-      Running capital harder consumes resources, so a utilisation term belongs in the
-      resource constraint of any core this block is mounted on.
-    substituting: >
-      Omitting that term is a conservation error, not an approximation: the model still
-      solves and no longer adds up. core-nk-medium carries it.
-
-verification:
-  reviewed_by: null
-  notes: >
-    One equation, written from the article. Verified in composition by the golden targets
-    of smets-wouters-2007 and by the nesting target above.
-  open_questions: []
-
-provenance:
-  source_url: null
-  repository: null
-  license: "Own implementation, written from the article's equations"
-  redistributable: true
-  permission_note: null
-  ingested_by: "Claude"
-  ingested_on: "2026-10-26"
