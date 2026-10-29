@@ -235,10 +235,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Equations written from the article. Cross-checked against an independent
-    transcription of a third-party Dynare replication of the same model, solved
-    separately: see models/hansen-1985 for the residuals. The steady state is verified
-    against the model's own equations to 1e-12 before any differentiation.
+    Hansen (1985) is a separate primary source not among the supplied PDFs; these equations retain their documented structural origin but independent primary-source certification is pending.
+
   open_questions:
     - "The article's Table 1 reports simulated second moments of HP-filtered series. Reproducing them needs a stochastic simulation and a filter, neither of which the harness has, so this entry does not claim them."
     - "The intensive-margin labour FOC is the article's comparison case and belongs as a separate component replacing labour-foc, which would make the indivisibility effect a nesting-style comparison rather than a claim."
