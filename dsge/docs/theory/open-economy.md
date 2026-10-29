@@ -24,8 +24,7 @@ object.
 **Consumption.** The domestic household consumes a bundle of domestic and imported
 goods,
 
-$C_t = \left[(1-\alpha)^{1/\eta} C_{H,t}^{(\eta-1)/\eta}
-+ \alpha^{1/\eta} C_{F,t}^{(\eta-1)/\eta}\right]^{\eta/(\eta-1)},$
+$C_t = \left[(1-\alpha)^{1/\eta} C_{H,t}^{(\eta-1)/\eta} + \alpha^{1/\eta} C_{F,t}^{(\eta-1)/\eta}\right]^{\eta/(\eta-1)},$
 
 with $\alpha$ the share of imports — the **degree of openness** — and $\eta$ the
 elasticity of substitution between domestic and foreign goods. Imports are themselves a
@@ -59,8 +58,7 @@ distinct objects (§2).
 
 **The terms of trade** are the price of imports relative to domestically produced goods,
 
-$S_t \equiv \frac{P_{F,t}}{P_{H,t}},
-\qquad s_t = p_{F,t} - p_{H,t}.$
+$S_t \equiv \frac{P_{F,t}}{P_{H,t}}, \qquad s_t = p_{F,t} - p_{H,t}.$
 
 **The CPI.** To a first-order approximation around the symmetric steady state,
 
@@ -81,9 +79,7 @@ gap.
 **The law of motion of the terms of trade.** With the law of one price,
 $p_{F,t} = e_t + p^{*}_t$, so
 
-$s_t = e_t + p^{*}_t - p_{H,t}
-\quad\Longrightarrow\quad
-\Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
+$s_t = e_t + p^{*}_t - p_{H,t} \quad\Longrightarrow\quad \Delta s_t = \Delta e_t + \pi^{*}_t - \pi_{H,t}.$
 
 The library sets world inflation to zero, as the article does on p. 724, giving
 `terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in
@@ -96,12 +92,11 @@ with non-zero world inflation must restore $\pi^{*}_t$ here.
 
 ## 3. The real exchange rate
 
-$$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t}{P_t},
-\qquad q_t = e_t + p^{*}_t - p_t .$$
+$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t}{P_t}, \qquad q_t = e_t + p^{*}_t - p_t .$
 
 Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^{*}_t = p_{H,t} + s_t$,
 
-$$\boxed{\;q_t = (1-\alpha)\,s_t\;}$$
+$q_t = (1-\alpha)\,s_t$
 
 the component's `real-exchange-rate`. The real exchange rate is not an independent state:
 under the law of one price and symmetric preferences it is proportional to the terms of
@@ -126,7 +121,7 @@ replace.
 **The condition.** With complete international asset markets and the law of one price,
 equating marginal utilities of consumption across countries state by state gives
 
-$$c_t = c^{*}_t + \frac{1}{\sigma}\,q_t .$$
+$c_t = c^{*}_t + \frac{1}{\sigma}\,q_t .$
 
 Domestic consumption moves with world consumption up to the real exchange rate: a real
 depreciation makes domestic goods cheap, and the household is compensated through the
@@ -135,7 +130,7 @@ asset market.
 **The library's form.** Combining that condition with the goods-market clearing relation
 and the definition of $\sigma_\alpha$ below yields the article's equation (29),
 
-$$\boxed{\;y_t = y^{*}_t + \frac{1}{\sigma_\alpha}\,s_t\;}$$
+$y_t = y^{*}_t + \frac{1}{\sigma_\alpha}\,s_t$
 
 which is what `core-soe-gm.risk-sharing` states. Domestic output is tied to world output
 and the terms of trade, with no role for net foreign assets, no current-account dynamics
@@ -164,39 +159,20 @@ library marks it as such.
 
 Four composites carry openness through the model. All are the article's.
 
-$$\omega \equiv \sigma\gamma + (1-\alpha)(\sigma\eta - 1),
-\qquad
-\sigma_\alpha \equiv \frac{\sigma}{(1-\alpha) + \alpha\,\omega},$$
+$\omega \equiv \sigma\gamma + (1-\alpha)(\sigma\eta - 1), \qquad \sigma_\alpha \equiv \frac{\sigma}{(1-\alpha) + \alpha\,\omega},$
 
-$$\Theta \equiv (\sigma\gamma - 1) + (1-\alpha)(\sigma\eta-1),
-\qquad
-\Gamma \equiv \frac{1+\varphi}{\sigma_\alpha+\varphi},
-\qquad
-\Psi \equiv -\,\frac{\Theta\,\sigma_\alpha}{\sigma_\alpha+\varphi}.$$
+$\Theta \equiv (\sigma\gamma - 1) + (1-\alpha)(\sigma\eta-1), \qquad \Gamma \equiv \frac{1+\varphi}{\sigma_\alpha+\varphi}, \qquad \Psi \equiv -\,\frac{\Theta\,\sigma_\alpha}{\sigma_\alpha+\varphi}.$
 
 **$\sigma_\alpha$ replaces $\sigma$ in the IS curve.** The open-economy IS curve is
-$x_t = \mathbb{E}_t x_{t+1} - \frac{1}{\sigma_\alpha}(i_t - \mathbb{E}_t\pi_{H,t+1} -
-rn_t)$: the same shape as the closed-economy curve with the intertemporal elasticity
-rescaled. At $\alpha = 0$, $\sigma_\alpha = \sigma$. The rescaling exists because a
-change in the real rate now moves the terms of trade as well as the consumption path.
+$x_t = \mathbb{E}_t x_{t+1} - \frac{1}{\sigma_\alpha}(i_t - \mathbb{E}_t\pi_{H,t+1} - rn_t)$: the same shape as the closed-economy curve with the intertemporal elasticity
+rescaled. At $\alpha = 0$, $\sigma_\alpha = \sigma$. The rescaling exists because a change in the real rate now moves the terms of trade as well as the consumption path.
 
-**Natural output.** $y^n_t = \Gamma\,a_t + \alpha\,\Psi\,y^{*}_t$. Openness enters twice:
-through $\Gamma$, which is the closed-economy elasticity with $\sigma_\alpha$ in place of
-$\sigma$; and through the foreign term, whose coefficient is proportional to $\Theta$.
+**Natural output.** $y^n_t = \Gamma\,a_t + \alpha\,\Psi\,y^{*}_t$. Openness enters twice: through $\Gamma$, which is the closed-economy elasticity with $\sigma_\alpha$ in place of $\sigma$; and through the foreign term, whose coefficient is proportional to $\Theta$.
 
-**$\Theta$ vanishes at the article's baseline.** At $\sigma = \eta = \gamma = 1$,
-$\Theta = 0$ exactly, so natural output does not respond to world output at all and the
-foreign terms in the natural rate disappear. Every coefficient multiplying $\Theta$ is
-then unidentified by any numerical check performed at that calibration. The library's
-second calibration — $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists to
-make $\Theta \neq 0$ and $\sigma_\alpha \neq \sigma$, and the entry's foreign-shock
-targets sit there. The second calibration is therefore needed to identify the foreign-output terms in analytical or numerical checks.
+**$\Theta$ vanishes at the article's baseline.** At $\sigma = \eta = \gamma = 1$, $\Theta = 0$ exactly, so natural output does not respond to world output at all and the foreign terms in the natural rate disappear. Every coefficient multiplying $\Theta$ is then unidentified by any numerical check performed at that calibration. The library's second calibration — $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists to
+make $\Theta \neq 0$ and $\sigma_\alpha \neq \sigma$, and the entry's foreign-shock targets sit there. The second calibration is therefore needed to identify the foreign-output terms in analytical or numerical checks.
 
-**The natural rate.** $rn_t = -\sigma_\alpha\Gamma(1-\rho_a)a_t
-+ \alpha\sigma_\alpha(\Theta+\Psi)\,\mathbb{E}_t\Delta y^{*}_{t+1}$ in the article's
-notation; the component's equation is the same relation rearranged to a residual. Note
-the sign on the technology term: a persistent rise in productivity **lowers** the natural
-rate. This sign follows from the expected reversal of a stationary productivity disturbance, and it is already present in Galí and Monacelli (2005), eq. (37).
+**The natural rate.** $rn_t = -\sigma_\alpha\Gamma(1-\rho_a)a_t + \alpha\sigma_\alpha(\Theta+\Psi)\,\mathbb{E}_t\Delta y^{*}_{t+1}$ in the article's notation; the component's equation is the same relation rearranged to a residual. Note the sign on the technology term: a persistent rise in productivity **lowers** the natural rate. This sign follows from the expected reversal of a stationary productivity disturbance, and it is already present in Galí and Monacelli (2005), eq. (37).
 
 **Anchor: `openness-composites`.**
 
@@ -206,15 +182,9 @@ rate. This sign follows from the expected reversal of a stationary productivity 
 
 Domestic-goods inflation follows a Calvo curve in domestic marginal cost,
 
-$$\pi_{H,t} = \beta\,\mathbb{E}_t \pi_{H,t+1} + \kappa_\alpha\, x_t,
-\qquad
-\kappa_\alpha = \lambda\,(\sigma_\alpha + \varphi),$$
+$\pi_{H,t} = \beta\,\mathbb{E}_t \pi_{H,t+1} + \kappa_\alpha\, x_t, \qquad \kappa_\alpha = \lambda\,(\sigma_\alpha + \varphi),$
 
-with $\lambda$ as in `price-setting.md` §3. The slope involves $\sigma_\alpha$, so
-**openness flattens or steepens the Phillips curve** depending on the substitution
-elasticities: the same nominal rigidity has different real consequences in an open
-economy. This is why `calvo-prices-domestic` is a distinct component from
-`calvo-prices` rather than the same block with a different calibration.
+with $\lambda$ as in `price-setting.md` §3. The slope involves $\sigma_\alpha$, so **openness flattens or steepens the Phillips curve** depending on the substitution elasticities: the same nominal rigidity has different real consequences in an open economy. This is why `calvo-prices-domestic` is a distinct component from `calvo-prices` rather than the same block with a different calibration.
 
 **Anchor: `domestic-phillips-curve`.**
 
@@ -222,8 +192,7 @@ economy. This is why `calvo-prices-domestic` is a distinct component from
 
 ## 7. The four monetary regimes
 
-The article compares four closures of the nominal side, and the library makes each a
-component so that the comparison is a matter of swapping one block:
+The article compares four closures of the nominal side, and the library makes each a component so that the comparison is a matter of swapping one block:
 
 | component | rule | pins |
 |---|---|---|
