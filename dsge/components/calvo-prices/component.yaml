@@ -8,11 +8,11 @@ summary: >
   pattern.
 
 citation:
-  authors: [Calvo]
-  year: 1983
-  title: "Staggered Prices in a Utility-Maximizing Framework"
-  journal: "Journal of Monetary Economics 12(3), 383-398"
-  doi: 10.1016/0304-3932(83)90060-0
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapters 3 and 6"
+  journal: "Princeton University Press"
+  doi: null
   url: null
 
 variables:
