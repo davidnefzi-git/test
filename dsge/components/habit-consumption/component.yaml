@@ -141,8 +141,8 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Both equations written from the article's numbered equations. Verified by the nesting
-    target above and in composition by the golden targets of smets-wouters-2007.
+    External habit Euler equation and marginal rate of substitution, corresponding to ECB Working Paper 722, eqs. (2) and (12).
+
   open_questions: []
 
 provenance:
