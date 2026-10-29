@@ -60,7 +60,9 @@ assumptions:
 
 verification:
   reviewed_by: null
-  notes: "One identity. Verified in composition by every nominal target of smets-wouters-2007."
+  notes: >
+    Ex-ante Fisher relation; a definition of the real rate in the linearised monetary economy.
+
   open_questions: []
 
 provenance:
