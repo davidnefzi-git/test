@@ -7,10 +7,9 @@ The component files carry the equations the solver uses and point here. This doc
 the single source of truth for the algebra.
 
 **What is established here.** Sections 1 to 3 present the Galí (2015, chapter 6) formulation of staggered wages, based on the mechanism of Erceg, Henderson and Levin (2000),
-reproduced because the library's components use its intermediate objects. Sections 4 and
-5 derive two relations the components label `derived`; both are short and both are given
-in full, because until now they pointed at a document that did not exist. Section 6
-states the Smets–Wouters form and what distinguishes it.
+and the relevant source relations are derived below. Sections 4 and 5 demonstrate
+the real-wage-gap identity and the marginal-cost relation explicitly. Section 6
+states the Smets–Wouters variant and its distinct parameterisation.
 
 ---
 
