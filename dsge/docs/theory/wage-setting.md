@@ -4,7 +4,7 @@ The derivations behind `calvo-wages`, `calvo-wages-kimball` and `wage-indexation
 
 The component files carry the equations the solver uses and point here. This document is the single source of truth for the algebra.
 
-**What is established here.** Sections 1 to 3 present the Galí (2015, chapter 6) formulation of staggered wages, based on the mechanism of Erceg, Henderson and Levin (2000), and the relevant source relations are derived below. Sections 4 and 5 demonstrate the real-wage-gap identity and the marginal-cost relation explicitly. Section 6 states the Smets–Wouters variant and its distinct parameterisation.
+**What is established here.** Sections 1 to 3 present the Galí (2015, chapter 6) formulation of staggered wages, and the relevant source relations are derived below. Sections 4 and 5 demonstrate the real-wage-gap identity and the marginal-cost relation explicitly. Section 6 states the Smets–Wouters variant and its distinct parameterisation.
 
 ---
 
@@ -26,7 +26,7 @@ $$ MRS_t(j) = \frac{-U_{N(j)}}{U_C} = C_t N_t(j)^{\varphi} $$
 
 In log deviations, and at the symmetric allocation, $mrs_t = \sigma c_t + \varphi n_t$, which is the natural real wage when wages are flexible.
 
-**Wage rigidity.** Each period a wage can be reset with probability $1-\theta_w$, independently of history. The structure is Calvo's, applied to wages rather than prices, which is the content of Erceg, Henderson and Levin (2000).
+**Wage rigidity.** Each period a wage can be reset with probability $1-\theta_w$, independently of history. The structure is Calvo's, applied to differentiated labour services.
 
 ---
 
@@ -116,7 +116,7 @@ Under flexible prices marginal cost is constant, $mc^n_t = 0$, which pins the na
 
 $$ mc_t = \underbrace{w_t - w^n_t}_{\tilde\omega_t} + \frac{\alpha(y_t - y^n_t)}{1-\alpha} = \tilde\omega_t + \frac{\alpha}{1-\alpha} x_t \qquad\square $$
 
-**What this equation replaces, and why.** It displaces the core's flexible-wage condition, which is the special case $\tilde\omega_t = 0$: $mc_t = \big(\sigma + \frac{\varphi+\alpha}{1-\alpha}\big)x_t$. Exposing $mc$ as a variable of the core, rather than folding the flexible-wage substitution into the Phillips curve's slope, is what allows the price block to be composed with or without a wage friction without being touched. The library did not start that way: the pricing component originally wrote its curve in the output gap, which silently assumed flexible wages and made the wage friction uncomposable.
+**What this equation replaces, and why.** It displaces the core's flexible-wage condition, which is the special case $\tilde\omega_t = 0$: $mc_t = \big(\sigma + \frac{\varphi+\alpha}{1-\alpha}\big)x_t$. Exposing $mc$ as a variable of the core, rather than folding the flexible-wage substitution into the Phillips curve's slope, is what allows the price block to be composed with or without a wage friction without being touched. This representation keeps the price-setting block valid when the wage-setting mechanism is changed.
 
 **Anchor: `marginal-cost-sticky-wage`.**
 
@@ -134,7 +134,7 @@ Note that $\varepsilon_w$ here is a **curvature**, not an elasticity of substitu
 
 **Indexation.** Non-reset wages rise by a fraction $\iota_w$ of last period's **price** inflation. The resulting curve carries $\pi_{t-1}$ and a modified coefficient on $\pi_t$; at $\iota_w = 0$ it is the unindexed one, term for term.
 
-**The level of the real wage, not wage inflation.** The Smets–Wouters form is written in $w_t$ rather than in $\pi^w_t$, and measures the markup against the marginal rate of substitution the core supplies as a variable. That is a deliberate departure from the reference implementation, which substitutes the household's first-order condition — habit terms and all — into the wage equation. The substituted form makes the wage block depend on the consumption block: a model written that way cannot have its consumption specification changed without editing its wage equation. The library's form is algebraically identical at the article's own consumption specification, and the cross-check recorded in `models/smets-wouters-2007/spec/model.md` confirms it numerically against an implementation that does substitute it in.
+**The level of the real wage, not wage inflation.** The Smets–Wouters form is written in $w_t$ rather than in $\pi^w_t$, and measures the markup against the marginal rate of substitution the core supplies as a variable. Keeping `mrs` explicit prevents the wage-setting block from depending on a particular consumption specification. Under the Smets–Wouters consumption block, substituting the household first-order condition yields the same wage equation.
 
 **Multiplied through.** As with the price curve, the equation is scaled by $\kappa_w^{-1}(1+\bar\beta\gamma)$ so that the limit $\xi_w \to 0$ is the core's flexible-wage closure exactly. `price-setting.md` §4.1 gives the argument; the symbolic check is in the entry's tests.
 
@@ -158,6 +158,5 @@ The last row is the important one. These components describe monopolistic wage s
 
 ## References
 
-- Erceg, C., D. Henderson and A. Levin (2000). Optimal monetary policy with staggered wage and price contracts. *Journal of Monetary Economics* 46(2), 281–313.
 - Galí, J. (2015). *Monetary Policy, Inflation, and the Business Cycle*, 2nd ed., chapter 6.
 - Smets, F. and R. Wouters (2007). Shocks and frictions in US business cycles. *American Economic Review* 97(3), 586–606.

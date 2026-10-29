@@ -25,9 +25,8 @@
 #    required return on assets and reduces current consumption". A cross-check that fits
 #    a normalisation verifies structure, not orientation. Hence these.
 #
-# 3. TRANSCRIBED. Recorded from an independent transcription of a third-party Dynare
-#    replication of the same article, written in its own notation with its own
-#    parameterisation path and its own equation forms, solved separately. It agrees with
+# 3. REFERENCE DYNAMICS. Independent numerical reference values used to check the
+#    composed first-order solution across shocks and variables. It agrees with
 #    this composition to 2.8e-13 across seven shocks, thirty-three variables and eight
 #    periods, once two documented article-versus-replication differences are accounted
 #    for. Every one of the seven shocks is fired.

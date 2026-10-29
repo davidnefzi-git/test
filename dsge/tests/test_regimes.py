@@ -1,8 +1,7 @@
 """The open economy, and the four policy regimes the article compares.
 
 These were missing from the published branch: the entry carried golden targets but no
-property tests, and — worse — no manifest, so the golden runner skipped it entirely. A
-mutation test found every equation of core-soe-gm unverified as a result. What follows
+property tests, and — worse — no manifest, so the golden runner skipped it entirely. The tests below verify the core-soe-gm equations directly. What follows
 is what discriminates between a correct core and a perturbed one.
 """
 import numpy as np
@@ -71,7 +70,7 @@ def test_the_identities_that_determine_output_hold(shock):
 
     Under the technology shock alone foreign output is identically zero, so the term
     alpha_open*Psi_gm*y_star in natural-output multiplies zero and any coefficient on it
-    passes. A mutation test caught exactly that.
+    passes. This test checks that distinction explicitly.
     """
     r, p = _irf("rule-domestic-inflation", shock=shock, horizon=4, overrides=OPEN)
     driver = "a" if shock == "eps_a" else "y_star"
@@ -95,7 +94,7 @@ def test_the_identities_that_determine_output_hold(shock):
 def test_each_regime_satisfies_its_own_rule_period_by_period(rule):
     """Each policy component as the residual of its own equation.
 
-    A mutation test found the CPI rule unverified: the regime comparison checks the
+    The CPI rule requires its own direct verification:
     ORDERING of output gaps, and scaling phi_pi preserves an ordering while changing the
     model. An ordering is a weak check on a coefficient; the residual is exact.
     """

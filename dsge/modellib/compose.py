@@ -37,7 +37,7 @@ LEAD, LAG, NOW = "_tp1", "_tm1", "_t"
 
 
 # Memoised solutions, keyed by equations and parameters; see Composition.solve for why
-# the equations are in the key. Process-local, so a mutation test in a fresh process
+# the equations are in the key. Process-local, so an isolated verification run
 # never sees another process's entries.
 _SOLVE_CACHE: dict[tuple, tuple] = {}
 
@@ -664,7 +664,7 @@ class Composition:
         most of its time recomputing a matrix it already had.
 
         The key includes the EQUATIONS and not only the component ids, so that a
-        mutation test -- which changes an equation while leaving the ids alone -- cannot
+        verification that changes an equation while leaving the ids alone cannot
         be served a stale solution. It includes the declared STEADY STATE for the same
         reason, which is less obvious and was caught by an existing test: for a
         composition written in levels the Jacobians are evaluated at that point, so two

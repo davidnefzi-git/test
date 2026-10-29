@@ -1,14 +1,7 @@
 # Staggered prices and staggered wages
 
-Galí (2015, chapter 6), using the staggered price and wage setting mechanism of
-Erceg, Henderson and Levin (2000), assembled from `core-nk-classical` + `calvo-prices` +
+Galí (2015), chapter 6, assembled from `core-nk-classical` + `calvo-prices` +
 `calvo-wages` + `taylor-rule`.
-
-**Source distinction.** The EHL (2000) article has a fixed aggregate capital stock,
-capital and labour in production, corrective subsidies for goods and labour market
-markups, and a second-order welfare criterion. This entry omits those structures and
-is therefore not a full EHL (2000) replication. The stable entry id `ehl-2000` is
-retained for compatibility; its substantive reference model is Galí chapter 6.
 
 The derivations are in
 [`docs/theory/wage-setting.md`](../../../docs/theory/wage-setting.md), which gives both
@@ -120,6 +113,6 @@ the welfare ranking.
 | | |
 |---|---|
 | wage inflation carried, the wage level not | the model has $\pi^w$ and the real wage **gap**, not the level of the real wage. The entry therefore reports no `real_wage` common variable: under that name it would be a different object |
-| the equations are Galí's chapter 6 statement | the article's own notation differs; the components cite both, and two of the three wage equations are derived rather than quoted |
-| source equations | Galí (2015), chapter 6, eqs. (15), (20) and (21) have been checked directly against the supplied chapter |
+| the equations are Galí's chapter 6 statement | two of the three wage equations are derived explicitly rather than quoted |
+| source equations | Galí (2015), chapter 6, eqs. (15), (20) and (21) have been checked directly against the primary source |
 

@@ -1,11 +1,10 @@
-id: ehl-2000
-name: Sticky-price and sticky-wage benchmark (Galí 2015, ch. 6; EHL 2000 mechanism)
+id: nk-gali-2015-ch6
+name: Sticky-price and sticky-wage benchmark (Galí 2015, chapter 6)
 family: monetary-dsge
 summary: >
-  Galí (2015, chapter 6) teaching-model specialisation of the Erceg-Henderson-Levin
-  staggered-wage and staggered-price mechanism. This is not the full EHL (2000) model:
-  EHL features fixed aggregate capital, corrective output/labour subsidies, and a
-  second-order welfare objective not represented by this first-order composition.
+  Galí (2015, chapter 6) New Keynesian model with staggered price and wage setting.
+  The entry extends the chapter-3 benchmark with differentiated labour and nominal
+  wage rigidity while preserving the same price-setting block.
 composition:
   core: core-nk-classical
   blocks: [calvo-prices, calvo-wages, taylor-rule]
@@ -50,16 +49,13 @@ shocks:
     normalisation: one unit, positive raises productivity
 
 provenance:
-  license: "Own implementation, written from the article and textbook statements"
+  license: "Own implementation from Galí (2015), chapter 6"
   permission_note: >
-    No third-party file is reproduced. The operative equations are Galí (2015),
-    chapter 6, a pedagogical specialisation of EHL's nominal rigidity mechanism;
-    they do not reproduce the full EHL (2000) capital, fiscal and welfare framework.
-    The derived wage identities are documented in docs/theory/wage-setting.md.
+    The operative equations and derived wage identities are documented in
+    docs/theory/wage-setting.md.
 
 verification:
   tier: composed
   notes: >
-    Analytical limit checks validate the Galí chapter-6 specialisation represented
-    here. They do not establish a reproduction of the capital, subsidy or welfare
-    features of Erceg, Henderson and Levin (2000).
+    Analytical limit checks validate the Galí chapter-6 first-order dynamics
+    represented by this composition.

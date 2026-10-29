@@ -1,7 +1,7 @@
 """The two-friction model, whose equations the published branch did not verify.
 
 calvo-wages introduces three equations — the wage Phillips curve, the real wage gap
-identity and the marginal-cost definition — and a mutation test found all three
+identity and the marginal-cost definition — and the tests below verify all three
 survived, because the entry had no manifest and its golden targets were never collected.
 These are the checks that discriminate.
 """

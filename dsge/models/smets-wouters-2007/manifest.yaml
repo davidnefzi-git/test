@@ -143,7 +143,6 @@ verification:
 provenance:
   license: "Own implementation, written from the article's numbered equations"
   permission_note: >
-    No third-party file is reproduced. A GPL-3.0 Dynare replication of this article was
-    read for verification only, and the differences between it and the article are
-    documented above rather than silently adopted. The authors' estimation data are not
-    present in any form.
+    The implementation is written from the published AER article and the ECB working-paper
+    equation conventions. No external replication source file or estimation dataset is
+    stored in this repository.

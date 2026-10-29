@@ -1,4 +1,4 @@
-# Golden targets for ehl-2000, the two-friction model.
+# Golden targets for nk-gali-2015-ch6, the two-friction model.
 #
 # No closed form exists at a general calibration, so the entry is verified at its two
 # limits, where one does. The two limits check the price block and the wage block

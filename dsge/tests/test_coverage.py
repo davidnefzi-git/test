@@ -1,7 +1,7 @@
 """Guards against a suite that is green because it is not looking.
 
 Both defects found in this project by cross-checking were equations no target
-exercised. A mutation test then found a worse version of the same thing: two of the
+exercised. The coverage checks also ensure that model entries exercise the mechanisms they declare.
 three entries had no manifest.yaml, tests/test_golden.py filters on its presence, and
 ten of the eighteen golden targets therefore never ran under pytest. Every equation of
 the open-economy core was unverified, and the suite was green.

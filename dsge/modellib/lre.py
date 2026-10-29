@@ -18,14 +18,9 @@ checkable and reports its two failures separately. Newton's method on the quadra
 polishes that root to machine precision, each step a Sylvester equation solved in
 Kronecker form.
 
-The history is worth keeping, because each stage was forced by a failure rather than
-chosen in advance. A fixed-point iteration alone stalled at a residual of 2e-9 on the
-flexible-wage limit of ehl-2000, a calibration it had previously solved, once two
-definitional equations were added; Newton fixed that. Newton alone then returned a root
-with spectral radius 1.07 for Hansen (1985) and called it a solution, because iteration
-selects whichever root its starting point falls towards and a model with endogenous
-capital is a saddle-path problem. Selecting the root is the QZ's job; refining it is
-Newton's.
+The generalized Schur decomposition selects the stable root required by the
+Blanchard-Kahn conditions. Newton refinement then reduces the quadratic residual
+without changing the selected stable subspace.
 
 Either way the result is checked and failure is reported rather than returned. A
 plausible wrong solution is the one outcome a library of verified numbers cannot

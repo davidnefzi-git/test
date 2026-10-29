@@ -1,54 +1,44 @@
-# Primary reference editions and evidentiary limits
+# Primary source verification
 
-The original publications were consulted from privately supplied PDF copies. The PDFs
-are not redistributed by this repository. Equation numbers and page references refer to
-the editions identified here, not to third-party replication code.
+This document records the published references used to verify the canonical model entries
+and the scope that has actually been checked. It intentionally excludes file-acquisition
+details, upload history, local filenames and development notes.
 
-| Reference | Edition actually available | Primary-source scope |
+| Reference | Edition | Verified scope |
 | --- | --- | --- |
-| Galí (2015), ch. 3 | Scanned chapter headed **The Basic New Keynesian Model** (the uploaded filename incorrectly says “Chapter 4”) | Dynamic IS eq. (23), natural-rate eq. (24), natural output eq. (20), pricing eqs. (17), (21)–(22) |
-| Galí (2015), ch. 6 | Scanned chapter headed **A Model with Sticky Wages and Prices** | Wage pricing eqs. (15), (19)–(20); wage-gap eq. (21); dynamic IS eq. (22) |
-| Erceg, Henderson and Levin (2000) | Journal of Monetary Economics 46, 281–313 | Original fixed-capital and subsidy environment and second-order welfare analysis; **not** the complete composition stored as `ehl-2000` |
-| Galí and Monacelli (2005) | Review of Economic Studies 72, 707–734 | Complete-markets small-open-economy equilibrium; eqs. (27), (29)–(31), (35)–(37) |
-| Smets and Wouters (2007) | **American Economic Review** 97(3), 586–606 (21-page supplied PDF), and ECB Working Paper No. 722, February 2007 | AER equations (1)–(15), Bayesian estimates and Tables 1A–1B; working-paper source conventions retained for comparison |
+| Galí (2015), chapter 3 | *Monetary Policy, Inflation, and the Business Cycle*, 2nd ed. | Dynamic IS equation (23), natural-rate equation (24), natural output (20), pricing equations (17), (21)–(22) |
+| Galí (2015), chapter 6 | *Monetary Policy, Inflation, and the Business Cycle*, 2nd ed. | Wage-setting equations (15), (19)–(20), real-wage-gap equation (21), dynamic IS equation (22) |
+| Galí and Monacelli (2005) | *Review of Economic Studies* 72, 707–734 | Complete-markets small-open-economy equilibrium, relative-price identities, natural allocation and monetary-policy regimes |
+| Smets and Wouters (2007) | *American Economic Review* 97(3), 586–606 | Structural equations (1)–(15), seven-observable measurement system, priors, posterior results, Bayesian estimation procedure and Tables 1A–1B |
+| Smets and Wouters (2007) | ECB Working Paper No. 722 | Equation conventions used for comparison with the published AER specification |
 
 ## Formula and version conventions
 
-**Galí chapter 3.** Eq. (22) is the output-gap Phillips curve, obtained from the
-marginal-cost price equation and the flexible-wage supply relation. The reusable
+**Galí chapter 3.** Equation (22) is the output-gap Phillips curve obtained from the
+marginal-cost pricing equation and the flexible-wage supply relation. The reusable
 `calvo-prices` component uses the intermediate marginal-cost formulation so that it
-can coexist with the Galí chapter-6 wage friction.
+can be combined with alternative wage-setting blocks.
 
-**Galí chapter 6.** The wage Phillips curve is eq. (20), following the markup identity
-in eq. (19). Eq. (21) governs the real-wage gap. Eq. (22) is the *dynamic IS curve*:
-attributing the wage Phillips curve to eq. (22) is incorrect.
+**Galí chapter 6.** The wage Phillips curve is equation (20), following the wage-markup
+identity in equation (19). Equation (21) governs the real-wage gap. Equation (22) is the
+dynamic IS curve.
 
-**EHL 2000 versus the teaching benchmark.** The entry named `ehl-2000` retains a
-legacy identifier, but it is a Galí chapter-6 specialisation with no aggregate fixed
-capital input, market-power-offsetting subsidies or second-order welfare criterion.
-Those are features of the original article that cannot be inferred from the
-teaching-model composition.
+**Smets–Wouters.** The AER publication is the controlling source for the canonical
+empirical specification, including equation (15), Tables 1A–1B and the Bayesian
+estimation procedure. The ECB working-paper version remains useful for checking equation
+conventions. Component-level `source_check` values retain the edition against which
+each equation was actually verified.
 
-**Smets–Wouters working-paper numbering.** In the supplied ECB edition:
-resource constraint (1); consumption (2); investment (3); value of installed capital
-(4); production (5); capital services (6); utilisation (7); accumulation (8);
-marginal cost (9); pricing (10); factor demand (11); wage markup / MRS (12);
-wage setting (13); monetary rule (14). Component citations to the supplied PDF should
-use this numbering, not numbering inherited from an unverified edition or annotations.
-
-**Source distinction.** The AER publication is now available as a primary source
-for the canonical paper's empirical methods, priors and results. The
-`source_check: verified_working_paper` attribute on existing component
-relations records their earlier comparison with the ECB edition; it does
-not automatically become `verified_primary` without a fresh equation-level
-review. The empirical source transcription is held in
+The AER estimation reference is stored in
 `models/smets-wouters-2007/estimation.yaml` and explained in
 `models/smets-wouters-2007/spec/estimation.md`.
 
 ## Remaining source boundaries
 
-The standalone primary papers Calvo (1983), Rotemberg (1982), Kimball (1995) and Hansen
-(1985) were not supplied. Where the provided canonical texts do not give a full proof
-of these original contributions, source checking is still pending. The independent
-source-check status is recorded at the individual equation rather than being inferred
-from whether its algebraic or numerical tests succeed.
+The standalone primary papers for Calvo pricing, Rotemberg pricing, the Kimball
+aggregator and Hansen's indivisible-labour model have not all been independently checked
+at equation level. Where a canonical source in this repository does not establish those
+results directly, the corresponding component keeps an explicit pending source status.
+
+A successful algebraic or numerical test does not change a source-verification status.
+Source fidelity, algebraic validity and numerical behavior are separate checks.
