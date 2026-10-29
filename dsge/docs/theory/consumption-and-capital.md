@@ -38,7 +38,7 @@ This is worth stating plainly because the sign was wrong in an early version of 
 
 ## 2. The Euler equation and the marginal rate of substitution
 
-**First-order conditions.** Let $\Lambda_t$ be the marginal utility of consumption. The bond first-order condition is $\Lambda_t = \beta \mathbb{E}_t \Lambda_{t+1} R_t \Xi_t/\Pi_{t+1}$, and the intratemporal margin equates the marginal rate of substitution to the real wage a flexible-wage household would charge.
+**First-order conditions.** Let $\Lambda_t$ be the marginal utility of consumption. The bond first-order condition is $\Lambda_t = \beta E_t \Lambda_{t+1} R_t \Xi_t \Pi_{t+1}$, and the intratemporal margin equates the marginal rate of substitution to the real wage a flexible-wage household would charge.
 
 **Log-linear form.** Writing $h \equiv \lambda/\gamma$ for the habit parameter adjusted for trend growth (see §5), the article's equation (2) is
 
