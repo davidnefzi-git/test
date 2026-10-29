@@ -6,7 +6,7 @@ behind the two identities those components rely on.
 The component files carry the equations the solver uses and point here. This document is
 the single source of truth for the algebra.
 
-**What is established here.** Sections 1 to 3 are the Erceg–Henderson–Levin derivation,
+**What is established here.** Sections 1 to 3 present the Galí (2015, chapter 6) formulation of staggered wages, based on the mechanism of Erceg, Henderson and Levin (2000),
 reproduced because the library's components use its intermediate objects. Sections 4 and
 5 derive two relations the components label `derived`; both are short and both are given
 in full, because until now they pointed at a document that did not exist. Section 6
@@ -99,8 +99,8 @@ first order, which is why it is not separately identified and why the library re
 Galí's calibrated value with its source rather than treating it as free.
 
 The library writes this curve in terms of the **wage markup gap**
-$\tilde\omega_t \equiv \mu^w_t - \mu^w$, which under the chapter 6 preferences satisfies
-$\tilde\omega_t = \big(\sigma + \frac{\varphi}{1-\alpha}\big) x_t - \tilde\omega_t$
+$\widehat\mu^w_t \equiv (w_t-p_t)-mrs_t$, whose deviation from the desired wage markup satisfies
+$\widehat\mu^w_t = \tilde\omega_t - \big(\sigma + \frac{\varphi}{1-\alpha}\big)x_t$
 — see the component's own equation for the exact form it uses.
 
 **Anchor: `wage-phillips-curve`.**
