@@ -2,7 +2,7 @@
 
 The derivations behind `habit-consumption`, `capital-utilisation`, `investment-adjustment-cost`, and the capital block of `core-nk-medium`. Section 5 treats trend growth, which changes every coefficient in this document and several elsewhere. Section 6 derives the five closures the core carries so that these frictions have something to replace.
 
-**What is established here.** Sections 1 to 4 set out the primitives and first-order conditions and state the resulting log-linear relations as Smets and Wouters (2007) give them. Two normalisations are theirs and are identified as such: the definition of the utilisation-cost parameter in §3 and the scaling of the investment-specific shock in §4. Section 6's limits are derived in full. Where the article and its widely used replication differ, §4.3 says so and says which the library follows.
+**What is established here.** Sections 1 to 4 set out the primitives and first-order conditions and state the resulting log-linear relations as Smets and Wouters (2007) give them. Two normalisations are theirs and are identified as such: the definition of the utilisation-cost parameter in §3 and the scaling of the investment-specific shock in §4. Section 6's limits are derived in full. Section 4.3 records the source convention used when alternative normalisations exist.
 
 ---
 
@@ -30,9 +30,7 @@ where $\Xi_t$ is a wedge between the policy rate and the return households actua
 
 $\varepsilon^b_t$ is a wedge between the rate the central bank sets and the return on assets. The article's text is explicit about its direction: *a positive shock to this wedge increases the required return on assets and reduces current consumption*, and the value of capital *depends negatively on the ex ante real interest rate and the risk premium disturbance*.
 
-The library follows that sign. It enters the Euler equation at $-c_3$ and the capital arbitrage equation at $-1$. The widely used replication of the article rescales the wedge by $c_3$ and carries the opposite sign, so a number taken from either must be read with its own convention; `core-nk-medium` records both and the entry's targets pin the library's.
-
-This is worth stating plainly because the sign was wrong in an early version of this library and three layers of verification agreed with it. A numerical cross-check that fits a scale factor for a shock cannot see that shock's sign; and the sharpest closed form available — that the wedge is exactly neutral in the flexible-price economy — is a *cancellation* between the two coefficients, which holds whichever sign the pair carries so long as they carry the same one.
+The library follows the AER convention. The wedge enters the Euler equation at $-c_3$ and the capital arbitrage equation at $-1$. Any alternative shock normalisation must transform both coefficients and the innovation variance consistently.
 
 ---
 
