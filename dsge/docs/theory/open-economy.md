@@ -92,7 +92,7 @@ with non-zero world inflation must restore $\pi^{*}_t$ here.
 
 ## 3. The real exchange rate
 
-$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t} {P_t}, \qquad q_t = e_t + p^{*}_t - p_t.$
+$Q_t \equiv \frac{\mathcal{E}_t P^{*}_t {P_t}, \qquad q_t = e_t + p^{*}_t - p_t.$
 
 Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^{*}_t = p_{H,t} + s_t$,
 
