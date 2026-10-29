@@ -17,14 +17,7 @@ citation:
 
 variables:
   provides: []
-  # `mc` and `pi`, not `x` and `pi`. The equation below was once written in the output
-  # gap, and the declaration was never updated when it was rewritten in marginal cost:
-  # `mc` was used and undeclared, `x` was declared and unused. Both halves of that
-  # mistake matter. An undeclared requirement defeats the composition check, which
-  # verifies that everything a component requires is provided -- so this block could be
-  # mounted on a core providing no marginal cost, and the error would surface only at
-  # matrix assembly, as an unresolved symbol. A stale requirement is the other way
-  # round: it asserts a dependency the equations do not have.
+  # Marginal-cost formulation; both price inflation and real marginal cost are required.
   requires: [pi, mc]
 
 parameters:
