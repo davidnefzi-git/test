@@ -1,8 +1,7 @@
 """The open economy, and the four policy regimes the article compares.
 
 These were missing from the published branch: the entry carried golden targets but no
-property tests, and — worse — no manifest, so the golden runner skipped it entirely. A
-mutation test found every equation of core-soe-gm unverified as a result. What follows
+property tests, and — worse — no manifest, so the golden runner skipped it entirely. The tests below verify the core-soe-gm equations directly. What follows
 is what discriminates between a correct core and a perturbed one.
 """
 import numpy as np
