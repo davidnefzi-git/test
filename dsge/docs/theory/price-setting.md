@@ -8,7 +8,7 @@ This document is the single source of truth for the algebra. The component files
 
 ---
 
-## 1. Environment and primitives
+## 1. Environment
 
 A continuum of firms indexed by $i \in [0,1]$, each producing a differentiated good.
 
@@ -32,7 +32,7 @@ The constant elasticity $\varepsilon$ is the assumption Section 5 relaxes.
 
 A firm resetting in period $t$ chooses $P_t^{\ast}$ to maximise the expected discounted value of profits over the random interval during which that price stands:
 
-$$ \max_{P_t^{\ast}} \sum_{k=0}^{\infty} \theta^{k} \mathbb{E}_t \Big\{ Q_{t,t+k}\big[ P_t^{\ast} Y_{t+k|t} - \Psi_{t+k}(Y_{t+k|t}) \big] \Big\} $$
+$$ \max_{P_t^{\ast}} \sum_{k=0}^{\infty} \theta^{k} \mathbb{E}_t \Big\lbrace Q_{t,t+k}\big[ P_t^{\ast} Y_{t+k|t} - \Psi_{t+k}(Y_{t+k|t}) \big] \Big\rbrace $$
 
 subject to $Y_{t+k|t} = Y_{t+k}(P_t^{\ast}/P_{t+k})^{-\varepsilon}$, where $Q_{t,t+k}$ is the stochastic discount factor and $\Psi_{t+k}(\cdot)$ the nominal cost function.
 
@@ -40,7 +40,7 @@ $\theta^{k}$ appears because the price survives $k$ periods with that probabilit
 
 **First-order condition.**
 
-$$ \sum_{k=0}^{\infty} \theta^{k} \mathbb{E}_t \Big\{ Q_{t,t+k} Y_{t+k|t} \big[ P_t^{\ast} - \mathcal{M} \Psi'_{t+k}(Y_{t+k|t}) \big] \Big\} = 0, \qquad \mathcal{M} \equiv \frac{\varepsilon}{\varepsilon-1} $$
+$$ \sum_{k=0}^{\infty} \theta^{k} \mathbb{E}_t \Big\lbrace Q_{t,t+k} Y_{t+k|t} \big[ P_t^{\ast} - \mathcal{M} \Psi'_{t+k}(Y_{t+k|t}) \big] \Big\rbrace = 0, \qquad \mathcal{M} \equiv \frac{\varepsilon}{\varepsilon-1} $$
 
 The reset price is a markup $\mathcal{M}$ over a weighted average of expected future nominal marginal costs, the weights being survival-and-discount weighted revenues. $\mathcal{M}$ is the steady-state gross markup: at $\varepsilon = 9$, the library's default, $\mathcal{M} = 1.125$.
 
@@ -52,7 +52,7 @@ Write lower case for log deviations from the zero-inflation steady state. Let $p
 
 **Step 1 — the reset price.** Log-linearising the first-order condition about the zero-inflation steady state,
 
-$$ p_t^{\ast} - p_{t-1} = (1-\beta\theta)\sum_{k=0}^{\infty}(\beta\theta)^{k} \mathbb{E}_t\big\{ \widehat{mc}_{t+k|t} + (p_{t+k}-p_{t-1}) \big\} $$
+$$ p_t^{\ast} - p_{t-1} = (1-\beta\theta)\sum_{k=0}^{\infty}(\beta\theta)^{k} \mathbb{E}_t\big\lbrace \widehat{mc}_{t+k|t} + (p_{t+k}-p_{t-1}) \big\rbrace $$
 
 where $\widehat{mc}_{t+k|t}$ is the marginal cost of a firm that last reset at $t$.
 
