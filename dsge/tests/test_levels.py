@@ -73,7 +73,7 @@ def test_investment_is_more_volatile_than_consumption_in_percent(rbc):
 
 
 def test_the_technology_process_decays_at_its_own_persistence(rbc):
-    """gamma_a, which a mutation test found unverified.
+    """Verify gamma_a through the model property it controls.
 
     Nothing pinned the persistence of productivity: the steady state does not involve
     it, and the impact responses are proportional to the shock whatever it is. The
