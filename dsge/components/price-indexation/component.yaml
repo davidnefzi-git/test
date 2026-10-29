@@ -42,6 +42,7 @@ parameters:
 equations:
   - id: price-pc-indexed
     status: derived
+    source_check: verified_working_paper
     derivation: "docs/theory/price-setting.md#indexed-phillips-curve"
     expr: "kappa_p_inv*((1 + beta_bar*gamma_g*iota_p)*(pi - mkp) - beta_bar*gamma_g*pi(+1) - iota_p*pi(-1)) - mc"
     description: >
