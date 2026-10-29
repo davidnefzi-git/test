@@ -84,7 +84,7 @@ equations:
       Marginal rate of substitution under habit: it is the gap between consumption and
       its habit stock, not consumption itself, that the household trades against
       leisure. The lag on c is what carries habit into wage setting.
-    source: "Smets and Wouters (2007), eq. (13), the bracket multiplying the wage gap"
+    source: "Smets and Wouters (2007), ECB WP 722, eq. (12), PDF p. 16 (marginal rate of substitution)"
 
 replaces: [core-nk-medium.euler-no-habit, core-nk-medium.mrs-no-habit]
 depends_on: [core-nk-medium]
