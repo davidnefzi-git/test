@@ -33,18 +33,7 @@ economics:
   calibration_region: null
 
 common_variable_map:
-  # The Macroeconomic Model Data Base convention: the model keeps its own names and
-  # declares the mapping, rather than being rewritten into a common namespace.
-  #
-  # The left-hand names are the family's, from taxonomy/families.yaml. They were
-  # `outputgap`, `inflationq` and `interest` -- the Model Data Base's own spellings,
-  # which no family in this library declares -- so the map named three variables nobody
-  # could look up while the family's own nine went unreported.
-  #
-  # Four of those nine are reported. The other five cannot be: this model has no
-  # capital, so no investment; consumption equals output, so reporting it separately
-  # would assert a distinction the model does not make; hours are not a variable of the
-  # core; and a credit spread needs a financial friction the library does not yet carry.
+  # Variables mapped to the vocabulary of taxonomy/families.yaml.
   output_gap: x
   inflation: pi
   policy_rate: i
@@ -62,7 +51,6 @@ solver:
   tolerances: {policy_function: 1.0e-14}
   implementation: python-native
   original_language: null
-  runtime_seconds: 0.4
 
 shocks:
   - id: eps_v
