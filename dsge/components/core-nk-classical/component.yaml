@@ -129,12 +129,8 @@ equations:
     expr: "rn + sigma*psi_ya*(1 - rho_a)*a"
     description: >
       Natural rate of interest implied by the technology process:
-      rn = -sigma*psi_ya*(1 - rho_a)*a. The sign is the substance. A positive
-      persistent technology shock raises natural output now and leaves it declining
-      back towards trend, so expected natural output growth is negative and the
-      natural rate FALLS. Writing it with the opposite sign leaves every
-      monetary-shock result untouched, which is how the error survived its first
-      commit here.
+      rn = -sigma*psi_ya*(1 - rho_a)*a. A positive stationary productivity disturbance raises natural output initially,
+      but its subsequent expected decline lowers the natural real rate.
     source: "Galí (2015), ch. 3, eq. (24), primary source checked; preference shock suppressed."
   - id: technology
     status: standard
