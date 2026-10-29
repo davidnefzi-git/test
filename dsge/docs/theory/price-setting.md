@@ -6,17 +6,7 @@ The derivations behind `calvo-prices`, `calvo-prices-domestic`, `calvo-prices-ki
 This document is the single source of truth for the algebra. The component files carry
 the equations the solver uses and point here; they do not restate the steps.
 
-**What is established here and what is not.** Sections 1 to 4 are the standard Calvo
-derivation, reproduced because the library's components use its intermediate objects and
-because an equation cannot be transplanted into another environment without them. The
-numbered equations of Galí (2015) chapter 3 cited in the component files were taken from
-the annotations of a third-party Dynare replication, not from the printed edition; the
-relations themselves are not in doubt, the numbering is second-hand, and each component
-records that in `verification.open_questions`. Section 6 derives the first-order
-equivalence between Rotemberg and Calvo, which the library tests numerically. Section 5
-states the Kimball case; its aggregator is given as Smets and Wouters use it, and the
-step from the aggregator to the slope is reproduced only in outline, which is flagged in
-place.
+**Source basis.** The Galí (2015) chapter-3 equations have been checked against the supplied original chapter: eq. (17) is the marginal-cost Phillips curve and eq. (22) its output-gap form. The Smets–Wouters Kimball curvature derivation remains incomplete beyond the outline in §5; verification of Rotemberg's own 1982 paper is pending. First-order equivalence between Calvo and Rotemberg is stated under the given zero-trend-inflation restrictions.
 
 ---
 
