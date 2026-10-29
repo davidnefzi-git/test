@@ -74,5 +74,5 @@ $\varepsilon$, the elasticity of substitution across goods, affects the model on
 | **not** written as one file | the model is a composition of three components; `nk-gali-2015-ch3` is the simplest case the machinery is tested on, and if the assembler cannot reproduce this model's closed form, nothing larger is worth attempting |
 | verified by closed forms, not table cells | the impact responses of the gap and of inflation to a monetary shock hold at **every** calibration, so they are stronger than any transcribed figure; the entry's targets are those forms, at two calibrations |
 | marginal cost exposed, slope not folded | §3 |
-| source equations | Galí (2015), chapter 3, eqs. (17), (20) and (22)–(24), checked against the supplied chapter |
+| source equations | Galí (2015), chapter 3, eqs. (17), (20) and (22)–(24), checked against Galí (2015), chapter 3 |
 | no indexation block for this family | `price-indexation` exists but was written for the medium-scale family, whose curve carries trend growth and a Kimball slope. An indexation block in Galí's parameterisation does not exist |
