@@ -137,3 +137,78 @@ shocks:
     source: "Smets and Wouters (2007), Table 1B, posterior mean"
 
 replaces: [core-nk-medium.flex-price-mc]
+depends_on: [core-nk-medium]
+incompatible_with: []
+compatible_cores: [core-nk-medium]
+minimum_perturbation_order: 1
+equation_form: log-linear-deviations
+solution_requirement: "First order."
+
+nesting_target:
+  parameter: xi_p
+  limit: 0
+  recovers: [core-nk-medium, capital-utilisation, fiscal-block-simple, habit-consumption, investment-adjustment-cost]
+  with_also: [fisher-equation, rule-inflation-only]
+  statement: >
+    As xi_p goes to zero every price is reset each quarter, the reciprocal slope goes to
+    zero, and the equation becomes mc = 0: the real allocation must then be the
+    flexible-price one, whatever the interest-rate rule. The Fisher equation and the rule
+    are listed in with_also rather than in recovers because they exist only as a
+    consequence of this component -- remove sticky prices and the model has no inflation
+    to Fisher and no rule to write.
+  tolerance: 1.0e-5
+  # First order in xi_p, constant measured at 1.28 and flat across the sequence.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_a
+    variable: y
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: kimball-demand
+    status: canonical
+    embodied_in: [price-pc]
+    statement: >
+      Varieties are aggregated by a Kimball aggregator, so a firm's demand elasticity
+      rises with its relative price and reset prices respond less to marginal cost.
+    substituting: >
+      Reverting to Dixit-Stiglitz removes the curvature factor from the slope; calvo-
+      prices is that case, in the no-growth parameterisation.
+  - id: curvature-not-identified
+    status: library
+    embodied_in: [price-pc]
+    statement: >
+      The Kimball curvature and the reset probability are not separately identified from
+      aggregate data. The curvature is fixed at the article's value and the probability
+      estimated.
+    substituting: >
+      Any exercise treating both as free is not identified by the data this model is
+      fitted to, whatever the optimiser reports.
+  - id: arma-markup-process
+    status: canonical
+    embodied_in: [price-markup-process, price-markup-innovation]
+    statement: >
+      The markup disturbance is ARMA(1,1), not AR(1). A first-order system cannot lag a
+      shock, so the moving-average term requires an auxiliary variable equal to the
+      innovation.
+    substituting: >
+      Dropping the auxiliary variable silently turns the process into an AR(1) and changes
+      the inflation dynamics the model was fitted to.
+
+verification:
+  reviewed_by: null
+  notes: >
+    Smets–Wouters Kimball price setting; complete derivation of the aggregator curvature remains a separate primary-source question.
+
+  open_questions: []
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article's equations"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-26"
