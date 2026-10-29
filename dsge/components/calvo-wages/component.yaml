@@ -79,7 +79,7 @@ equations:
       the real wage less the marginal rate of substitution, and the gap between the
       marginal rate of substitution and its natural level is (sigma + varphi/(1-alpha))
       times the output gap.
-    source: "Gali (2015) ch. 6, wage Phillips curve, eq. (22) per the annotation of a third-party Dynare replication; to confirm against the printed edition"
+    source: "Gali (2015), ch. 6, eqs. (15), (19)-(20); checked against the supplied chapter (PDF pp. 9, 12). Eq. (22) is the dynamic IS curve, not the wage Phillips curve."
   - id: real-wage-gap
     status: derived
     derivation: "docs/theory/wage-setting.md#real-wage-gap"
@@ -90,7 +90,7 @@ equations:
       technology. This is the equation that makes the two frictions interact rather than
       merely coexist, and the lag on omega_tilde is what gives the two-friction model
       its own state.
-    source: "Gali (2015) ch. 6, wage gap, eq. (21) per the same annotation"
+    source: "Gali (2015), ch. 6, eq. (21); checked against the supplied chapter (PDF p. 12)."
   - id: mc-sticky-wage
     status: derived
     derivation: "docs/theory/wage-setting.md#marginal-cost-sticky-wage"
@@ -187,7 +187,6 @@ verification:
     reproduced here, and the equations implemented are the book's, not its expression of
     them.
   open_questions:
-    - "Equation numbers are taken from the annotations of a third-party Dynare replication, not from the printed edition; confirm them against the book."
     - "EHL's published welfare losses cannot be targets until a second-order or linear-quadratic treatment exists; the entry's tier reflects that."
 
 provenance:
