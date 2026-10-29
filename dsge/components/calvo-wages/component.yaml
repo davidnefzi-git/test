@@ -80,7 +80,7 @@ equations:
       the real wage less the marginal rate of substitution, and the gap between the
       marginal rate of substitution and its natural level is (sigma + varphi/(1-alpha))
       times the output gap.
-    source: "Gali (2015), ch. 6, eqs. (15), (19)-(20); checked against the supplied chapter (PDF pp. 9, 12). Eq. (22) is the dynamic IS curve, not the wage Phillips curve."
+    source: "Galí (2015), ch. 6, eqs. (15), (19)-(20); checked against the supplied original chapter. Eq. (22) is the dynamic IS curve."
   - id: real-wage-gap
     status: derived
     source_check: verified_primary
@@ -92,7 +92,7 @@ equations:
       technology. This is the equation that makes the two frictions interact rather than
       merely coexist, and the lag on omega_tilde is what gives the two-friction model
       its own state.
-    source: "Gali (2015), ch. 6, eq. (21); checked against the supplied chapter (PDF p. 12)."
+    source: "Galí (2015), ch. 6, eq. (21), primary source checked."
   - id: mc-sticky-wage
     status: derived
     source_check: verified_primary
@@ -106,3 +106,89 @@ equations:
     source: "Gali (2015) ch. 6, p. 171-172 (markup definition)"
 
 replaces: [core-nk-classical.flex-wage-mc]
+depends_on: [core-nk-classical]
+# Reciprocal of the declaration in calvo-wages-kimball. A model has one wage-setting
+# mechanism, not two, and both of these provide it; the declaration was one-sided until
+# an audit found it, which means the assembler would have refused the composition for
+# the right reason (a variable provided twice) while the metadata said nothing.
+incompatible_with: [calvo-wages-kimball]
+compatible_cores: [core-nk-classical]
+minimum_perturbation_order: 1
+solution_requirement: "First order for dynamics. The welfare losses that EHL report require a second-order or linear-quadratic treatment, which is out of reach while the equations are supplied log-linearised."
+
+nesting_target:
+  parameter: theta_w
+  limit: 0
+  recovers: [core-nk-classical, calvo-prices, taylor-rule]
+  statement: >
+    As theta_w goes to zero every wage is reset each quarter, the wage markup gap is
+    held at zero, and real marginal cost collapses back to
+    (sigma + (varphi + alpha)/(1 - alpha)) times the output gap — the core's
+    flexible-wage condition. The composed model must then reproduce
+    nk-gali-2015-ch3, which is the first time in this library that a nesting limit is
+    another entry whose own golden targets are already verified rather than an
+    abstract special case.
+    No analytic rate is declared: deriving the constant means perturbing the whole
+    three-equation system in theta_w, and it would buy little here, because the exact
+    limiting value is pinned independently by the closed-form target
+    flexible-wage-limit-output-gap on ehl-2000. That target is the stronger check, so
+    this one tests only that the approach is monotone and reaches the limit.
+  tolerance: 1.0e-4
+  # The gap closes linearly in theta_w, so reaching 1e-4 needs theta_w of order 1e-6:
+  # at 1e-4 the residual is still 9.2e-4. Recorded here because the sequence a
+  # component needs is a property of its own convergence rate, not a convention.
+  rate: null
+  pathological: false
+  probe:
+    shock: eps_v
+    variable: x
+    period: 0
+    sequence: [0.1, 0.01, 1.0e-4, 1.0e-6]
+
+assumptions:
+  - id: monopolistic-labour-supply
+    status: canonical
+    embodied_in: [wage-pc, mc-sticky-wage]
+    statement: >
+      Households supply differentiated labour services and set wages as monopolistic
+      competitors. Unemployment plays no part: the wage markup is a gap between the real
+      wage and a marginal rate of substitution.
+    substituting: >
+      A search-and-matching block is not a substitute for this one. It is a different
+      theory of the same object, and composing the two would put two wage-setting
+      mechanisms in one model.
+  - id: constant-reset-hazard
+    status: canonical
+    embodied_in: [wage-pc]
+    statement: >
+      Wages are reset with a constant, history-independent probability, as prices are in
+      calvo-prices.
+    substituting: >
+      As for prices: contract structures other than Calvo's break the aggregation step.
+  - id: real-wage-carries-history
+    status: canonical
+    embodied_in: [real-wage-gap]
+    statement: >
+      The real wage is a ratio of two sticky nominal levels, so the wage markup gap is an
+      endogenous state and enters its own law of motion with a lag.
+    substituting: >
+      A component treating the gap as purely contemporaneous assembles cleanly and
+      produces a model with no wage dynamics at all. taxonomy/variables.yaml records the
+      timing for that reason.
+
+verification:
+  reviewed_by: null
+  notes: >
+    Galí (2015), ch. 6 wage-setting specialisation of EHL-type nominal contracts; not the complete EHL (2000) capital and welfare model.
+
+  open_questions:
+    - "This is Galí's chapter-6 teaching model rather than the full EHL (2000) framework; EHL's capital, subsidy and welfare blocks are omitted."
+
+provenance:
+  source_url: null
+  repository: null
+  license: "Own implementation, written from the article and textbook statements"
+  redistributable: true
+  permission_note: null
+  ingested_by: "Claude"
+  ingested_on: "2026-10-18"
