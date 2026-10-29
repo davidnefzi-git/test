@@ -10,11 +10,11 @@ composition:
   core: core-nk-classical
   blocks: [calvo-prices, calvo-wages, taylor-rule]
 citation:
-  authors: [Erceg, Henderson, Levin]
-  year: 2000
-  title: "Optimal Monetary Policy with Staggered Wage and Price Contracts"
-  journal: "Journal of Monetary Economics 46(2), 281-313"
-  doi: 10.1016/S0304-3932(00)00028-3
+  authors: [Gali]
+  year: 2015
+  title: "Monetary Policy, Inflation, and the Business Cycle, 2nd ed., chapter 6"
+  journal: "Princeton University Press"
+  doi: null
 
 economics:
   question: >
