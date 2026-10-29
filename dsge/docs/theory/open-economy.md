@@ -190,8 +190,7 @@ foreign terms in the natural rate disappear. Every coefficient multiplying $\The
 then unidentified by any numerical check performed at that calibration. The library's
 second calibration — $\eta = 2$, $\gamma = 1.5$, $\alpha = 0.3$, $\sigma = 2$ — exists to
 make $\Theta \neq 0$ and $\sigma_\alpha \neq \sigma$, and the entry's foreign-shock
-targets sit there. A mutation test had found every foreign term in this core unverified
-before that calibration was added.
+targets sit there. The second calibration is therefore needed to identify the foreign-output terms in analytical or numerical checks.
 
 **The natural rate.** $rn_t = -\sigma_\alpha\Gamma(1-\rho_a)a_t
 + \alpha\sigma_\alpha(\Theta+\Psi)\,\mathbb{E}_t\Delta y^{*}_{t+1}$ in the article's
