@@ -68,23 +68,15 @@ and differencing,
 
 $\pi_t = \pi_{H,t} + \alpha\,\Delta s_t$
 
-which is the component's `cpi-domestic-link`. **This is the single most consequential
-distinction in the block.** CPI inflation and domestic inflation differ by the change in
-the terms of trade, so a policy rule written in $\pi_t$ and one written in $\pi_{H,t}$ are
-different rules with different equilibria — which is precisely what the article's regime
-comparison is about. A component that sets domestic prices must write $\pi_{H}$;
-conflating the two is the open-economy counterpart of conflating output with the output
-gap.
+which is the component's `cpi-domestic-link`. **This is the single most consequential distinction in the block.** CPI inflation and domestic inflation differ by the change in the terms of trade, so a policy rule written in $\pi_t$ and one written in $\pi_{H,t}$ are different rules with different equilibria — which is precisely what the article's regime comparison is about. A component that sets domestic prices must write $\pi_{H}$;
+conflating the two is the open-economy counterpart of conflating output with the output gap.
 
 **The law of motion of the terms of trade.** With the law of one price,
-$p_{F,t} = e_t + p^{*}_t$, so
+$p_{F,t} = e_t + p^{f}_t$, so
 
-$s_t = e_t + p^{t} - p_{H,t} \quad \Longrightarrow \quad \Delta s_t = \Delta e_t + \pi^{t} - \pi_{H,t}.$
+$s_t = e_t + p^f_{t} - p_{H,t} \quad \Longrightarrow \quad \Delta s_t = \Delta e_t + \pi^f_{t} - \pi_{H,t}.$
 
-The library sets world inflation to zero, as the article does on p. 724, giving
-`terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in
-the component; it is a simplification of the environment, not an identity, and a model
-with non-zero world inflation must restore $\pi^{*}_t$ here.
+The library sets world inflation to zero, as the article does on p. 724, giving `terms-of-trade`: $\Delta s_t = \Delta e_t - \pi_{H,t}$. The assumption is recorded in the component; it is a simplification of the environment, not an identity, and a model with non-zero world inflation must restore $\pi^{f}_t$ here.
 
 **Anchor: `relative-prices`.**
 
@@ -92,22 +84,15 @@ with non-zero world inflation must restore $\pi^{*}_t$ here.
 
 ## 3. The real exchange rate
 
-$Q_t \equiv \frac{\mathcal{E}_t P^*_t {P_t}, \qquad q_t = e_t + p^*_t - p_t.$
+$Q_t \equiv \frac{\mathcal{E}_t P^f_t {P_t}, \qquad q_t = e_t + p^f_t - p_t.$
 
-Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^*_t = p_{H,t} + s_t$,
+Substituting $p_t = p_{H,t} + \alpha s_t$ and $e_t + p^f_t = p_{H,t} + s_t$,
 
-$q_t = (1-\alpha)\,s_t$
+$q_t = (1-\alpha) s_t$
 
-the component's `real-exchange-rate`. The real exchange rate is not an independent state:
-under the law of one price and symmetric preferences it is proportional to the terms of
-trade, and the factor is one minus openness. A closed economy ($\alpha = 0$) would have
-$q_t = s_t$, which is vacuous; a fully open one ($\alpha = 1$) would have $q_t = 0$,
-purchasing power parity holding exactly.
+the component's `real-exchange-rate`. The real exchange rate is not an independent state: under the law of one price and symmetric preferences it is proportional to the terms of trade, and the factor is one minus openness. A closed economy ($\alpha = 0$) would have $q_t = s_t$, which is vacuous; a fully open one ($\alpha = 1$) would have $q_t = 0$, purchasing power parity holding exactly.
 
-**A note on sign conventions.** Both $e_t$ and $q_t$ are defined so that a **rise is a
-depreciation**. The library records this in `taxonomy/variables.yaml` for both variables,
-because the opposite convention is at least as common in the literature and a sign
-inversion here is invisible to any test that does not look at the direction of a response.
+**A note on sign conventions.** Both $e_t$ and $q_t$ are defined so that a **rise is a depreciation**. The library records this in `taxonomy/variables.yaml` for both variables, because the opposite convention is at least as common in the literature and a sign inversion here is invisible to any test that does not look at the direction of a response.
 
 **Anchor: `real-exchange-rate`.**
 
@@ -115,41 +100,27 @@ inversion here is invisible to any test that does not look at the direction of a
 
 ## 4. International risk sharing
 
-This is the block's central assumption and the one a reader is most likely to need to
-replace.
+This is the block's central assumption and the one a reader is most likely to need to replace.
 
-**The condition.** With complete international asset markets and the law of one price,
-equating marginal utilities of consumption across countries state by state gives
+**The condition.** With complete international asset markets and the law of one price, equating marginal utilities of consumption across countries state by state gives
 
-$c_t = c^{*}_t + \frac{1}{\sigma}\,q_t .$
+$c_t = c^{f}_t + \frac{1}{\sigma} q_t.$
 
 Domestic consumption moves with world consumption up to the real exchange rate: a real
 depreciation makes domestic goods cheap, and the household is compensated through the
 asset market.
 
-**The library's form.** Combining that condition with the goods-market clearing relation
-and the definition of $\sigma_\alpha$ below yields the article's equation (29),
+**The library's form.** Combining that condition with the goods-market clearing relation and the definition of $\sigma_\alpha$ below yields the article's equation (29),
 
-$y_t = y^{*}_t + \frac{1}{\sigma \alpha}\,s_t$
+$y_t = y^{f}_t + \frac{1}{\sigma \alpha}\,s_t$
 
-which is what `core-soe-gm.risk-sharing` states. Domestic output is tied to world output
-and the terms of trade, with no role for net foreign assets, no current-account dynamics
-and no wealth effects.
+which is what `core-soe-gm.risk-sharing` states. Domestic output is tied to world output and the terms of trade, with no role for net foreign assets, no current-account dynamics and no wealth effects.
 
-**What replacing it would require.** Under incomplete markets the condition becomes an
-Euler equation for the net foreign asset position, and the following change together:
-the risk-sharing equation is replaced by a current-account identity plus a
-debt-elastic premium or a portfolio condition; net foreign assets become a state
-variable; the consumption-output relation acquires a wealth term; and a stationarity
-device is needed, since the model otherwise has a unit root in net foreign assets. That
-is four coupled changes, not one substitution, and the component says so in its
-`assumptions` field rather than implying that an incomplete-markets block could simply be
-mounted in place.
+**What replacing it would require.** Under incomplete markets the condition becomes an Euler equation for the net foreign asset position, and the following change together: the risk-sharing equation is replaced by a current-account identity plus a debt-elastic premium or a portfolio condition; net foreign assets become a state variable; the consumption-output relation acquires a wealth term; and a stationarity
+device is needed, since the model otherwise has a unit root in net foreign assets. That is four coupled changes, not one substitution, and the component says so in its `assumptions` field rather than implying that an incomplete-markets block could simply be mounted in place.
 
-**Why it is a separate equation in the core.** `core-soe-gm` keeps risk sharing as an
-equation of its own rather than folding it into the IS curve, so that it is visible,
-nameable and replaceable. It is a maintained *assumption*, not a friction, and the
-library marks it as such.
+**Why it is a separate equation in the core.** `core-soe-gm` keeps risk sharing as an equation of its own rather than folding it into the IS curve, so that it is visible,
+nameable and replaceable. It is a maintained *assumption*, not a friction, and the library marks it as such.
 
 **Anchor: `risk-sharing`.**
 
