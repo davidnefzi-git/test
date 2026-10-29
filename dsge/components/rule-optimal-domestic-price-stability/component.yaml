@@ -21,6 +21,7 @@ parameters: []
 equations:
   - id: policy-optimal
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/open-economy.md#monetary-regimes"
     expr: "pi_h"
     description: Domestic inflation is held at zero at every date
