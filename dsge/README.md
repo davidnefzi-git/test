@@ -12,7 +12,7 @@ system for a language model.
 | Canonical entry | Primary theoretical reference | Scope |
 | --- | --- | --- |
 | `models/nk-gali-2015-ch3` | Galí (2015), chapter 3 | Basic New Keynesian closed economy |
-| `models/ehl-2000` | Galí (2015), chapter 6; EHL (2000) mechanism | **Teaching-model specialisation**, not the full EHL (2000) article |
+| `models/nk-gali-2015-ch6` | Galí (2015), chapter 6 | New Keynesian model with staggered price and wage setting |
 | `models/gali-monacelli-2005` | Galí and Monacelli (2005) | Small open economy and monetary regimes |
 | `models/smets-wouters-2007` | Smets and Wouters (2007) | First-order medium-scale dynamics |
 
@@ -36,6 +36,8 @@ representations retain and which they omit.
 - `modellib/` and `tests/`: **maintenance and verification infrastructure**, not a
   body of scientific claims.
 - `docs/composition/README.md`: technical data-format and algebraic-interface reference.
+- `docs/model-documentation-policy.md`: rules for theoretical versus estimated model entries.
+- `CONTRIBUTING.md`: contribution workflow, scientific-source rules and formatting conventions.
 
 The canonical equation is recorded in its component YAML. Mathematical demonstrations
 are held in the shared theory documents; derivation pointers connect the two without
@@ -62,9 +64,10 @@ that the corresponding equation was transcribed faithfully.
 
 ## Limitations
 
-The library contains mostly first-order approximations. It does not implement the
-full original EHL (2000) welfare model, second-order welfare evaluations, or Bayesian
-estimation. Some primary sources (including Hansen 1985 and the original Kimball,
+The library contains mostly first-order approximations. Second-order welfare evaluations
+are not implemented. Bayesian estimation is documented only for canonical models whose
+published contribution relies on an explicit estimation procedure; the library does not
+run those estimations. Some primary sources (including Hansen 1985 and the original Kimball,
 Calvo and Rotemberg papers) are not included in the supplied review; claims depending
 on those publications remain explicitly qualified in the component metadata.
 
