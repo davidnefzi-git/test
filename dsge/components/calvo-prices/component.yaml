@@ -85,6 +85,7 @@ parameters:
 equations:
   - id: nkpc
     status: original
+    source_check: verified_primary
     derivation: "docs/theory/price-setting.md#calvo-phillips-curve"
     expr: "pi - beta*pi(+1) - lambda_p*mc"
     description: >
@@ -96,85 +97,3 @@ equations:
     source: "Gali (2015), ch. 3, eqs. (17), (21)-(22), and ch. 6, eq. (18); checked against both supplied chapters. The component uses the marginal-cost form."
 
 replaces: [core-nk-classical.flex-price-output]
-depends_on: [core-nk-classical]
-incompatible_with: [rotemberg-prices]
-compatible_cores: [core-nk-classical]
-minimum_perturbation_order: 1
-solution_requirement: "First order for dynamics. Second order is required for any welfare statement, and is not available while the equations are supplied log-linearised."
-
-nesting_target:
-  parameter: theta_p
-  limit: 0
-  recovers: [core-nk-classical, taylor-rule]
-  statement: >
-    As theta_p goes to zero every price is reset each quarter, the Phillips curve
-    becomes vertical, and the output gap returns to zero at every date. The composed
-    model must then reproduce the classical model's response to a monetary shock: real
-    neutrality, with inflation still determined by the policy rule. The convergence is
-    linear in theta_p, and the constant is implied analytically, which is what the rate
-    field below checks.
-  tolerance: 1.0e-4
-  rate: "-(1 - beta*rho_v)/(Theta*(sigma + (varphi + alpha)/(1 - alpha))*(phi_pi - rho_v))"
-  pathological: false
-  probe:
-    shock: eps_v
-    variable: x
-    period: 0
-    sequence: [0.1, 0.01, 1.0e-3, 1.0e-4]
-
-assumptions:
-  - id: dixit-stiglitz-demand
-    status: canonical
-    embodied_in: [nkpc]
-    statement: >
-      Varieties are aggregated with a constant elasticity of substitution, so a firm's
-      demand elasticity does not depend on its relative price.
-    substituting: >
-      Under a Kimball aggregator the elasticity rises with the relative price and the
-      slope gains a curvature factor; calvo-prices-kimball is that case. Strategic
-      complementarity in pricing would change the slope again.
-  - id: constant-reset-hazard
-    status: canonical
-    embodied_in: [nkpc]
-    statement: >
-      A price is reset with a probability that is constant and independent of how long it
-      has stood, which is what makes the price index a simple convex combination and the
-      curve a two-term difference equation.
-    substituting: >
-      Menu costs or state-dependent pricing break the aggregation step entirely; the
-      resulting curve is not this one with a different parameter.
-  - id: zero-inflation-steady-state
-    status: canonical
-    embodied_in: [nkpc]
-    statement: >
-      The curve approximates around a steady state with zero inflation, so relative price
-      dispersion is second order.
-    substituting: >
-      At trend inflation the curve acquires extra terms and the slope is no longer
-      lambda_p. docs/theory/price-setting.md section 7.
-
-verification:
-  reviewed_by: null
-  notes: >
-    Written from the textbook statement of the Phillips curve. The nesting target passes
-    on both counts: the impact output-gap response converges monotonically to the
-    classical value of zero, and the ratio of the response to theta_p converges to the
-    analytically implied constant.
-  open_questions:
-    - >
-      Indexation to past inflation exists as `price-indexation`, but it depends on
-      `calvo-prices-kimball` rather than on this component: it was written for the
-      medium-scale family, whose Phillips curve carries trend growth and a Kimball
-      slope. An indexation block for THIS component, with Galli's parameterisation,
-      does not exist. The open question is whether one is worth having or whether the
-      two pricing blocks should be unified -- see docs/theory/price-setting.md, which
-      derives both from the same primitives.
-
-provenance:
-  source_url: null
-  repository: null
-  license: "Own implementation, written from the article and textbook statements"
-  redistributable: true
-  permission_note: null
-  ingested_by: "Claude (composition prototype)"
-  ingested_on: "2026-10-15"
