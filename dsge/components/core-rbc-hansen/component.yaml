@@ -235,7 +235,7 @@ assumptions:
 verification:
   reviewed_by: null
   notes: >
-    Hansen (1985) is a separate primary source not among the supplied PDFs; these equations retain their documented structural origin but independent primary-source certification is pending.
+    Independent equation-level verification against Hansen (1985) is pending; the component retains its documented structural attribution.
 
   open_questions:
     - "The article's Table 1 reports simulated second moments of HP-filtered series. Reproducing them needs a stochastic simulation and a filter, neither of which the harness has, so this entry does not claim them."
